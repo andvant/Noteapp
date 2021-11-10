@@ -35,7 +35,7 @@ namespace Noteapp.Api
             });
 
             // Singleton because it uses in-memory data which should be the same between different calls
-            services.AddSingleton<NoteRepository>();
+            services.AddSingleton<NoteService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
