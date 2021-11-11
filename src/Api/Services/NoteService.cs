@@ -25,11 +25,15 @@ namespace Noteapp.Api.Services
 
         public Note Create(int userId, string text)
         {
+            // Assumes that AppUser with Id of userId exists
+
+            int noteId = _noteRepository.Notes.Max(note => note?.Id) + 1 ?? 1;
+
             var note = new Note()
             {
                 Created = _dateTimeProvider.Now,
                 LastModified = _dateTimeProvider.Now,
-                Id = _noteRepository.Notes.Select(note => note.Id).Max() + 1,
+                Id = noteId,
                 Text = text,
                 AuthorId = userId
             };
@@ -59,6 +63,7 @@ namespace Noteapp.Api.Services
             }
 
             note.Text = text;
+            note.LastModified = _dateTimeProvider.Now;
             return true;
         }
 
