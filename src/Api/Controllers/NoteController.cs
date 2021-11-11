@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Noteapp.Api.Data;
 using Noteapp.Api.Dtos;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Services;
 using System;
 using System.Collections.Generic;
 

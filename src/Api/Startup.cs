@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Noteapp.Api.Data;
 using Noteapp.Api.Infrastructure;
+using Noteapp.Api.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,8 @@ namespace Noteapp.Api
             });
 
             // Singleton because it uses in-memory data which should be the same between different calls
-            services.AddSingleton<NoteService>();
+            services.AddSingleton<NoteRepository>();
+            services.AddTransient<NoteService>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
         }
 
