@@ -1,4 +1,5 @@
 ﻿using Noteapp.Api.Entities;
+using Noteapp.Api.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +9,12 @@ namespace Noteapp.Api.Data
     public class NoteService
     {
         private readonly List<Note> _notes;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public NoteService()
+        public NoteService(IDateTimeProvider dateTimeProvider)
         {
             _notes = GetMockNotes();
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public IEnumerable<Note> GetAll(int userId)
@@ -23,8 +26,8 @@ namespace Noteapp.Api.Data
         {
             var note = new Note()
             {
-                Created = DateTime.Now,
-                LastModified = DateTime.Now,
+                Created = _dateTimeProvider.Now,
+                LastModified = _dateTimeProvider.Now,
                 Id = _notes.Select(note => note.Id).Max() + 1,
                 Text = text,
                 AuthorId = userId

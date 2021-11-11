@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Noteapp.Api.Data;
+using Noteapp.Api.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,7 @@ namespace Noteapp.Api
 
             // Singleton because it uses in-memory data which should be the same between different calls
             services.AddSingleton<NoteService>();
+            services.AddTransient<IDateTimeProvider, DateTimeProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
