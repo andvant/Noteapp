@@ -13,7 +13,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
     public class Create
     {
         [Fact]
-        public void CreateNote()
+        public void CreatesNewNote()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);
