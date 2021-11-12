@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,7 +25,6 @@ namespace Noteapp.Api.Services
             return _archivedNoteRepository.ArchivedNotes.FindAll(an => notes.Any(note => note.Id == an.NoteId));
         }
 
-        // TODO: prevent multiple archiving of the same note
         public bool Archive(int userId, int noteId)
         {
             var note = _noteRepository.Notes.Find(note => note.Id == noteId);
@@ -32,6 +32,11 @@ namespace Noteapp.Api.Services
             if (InvalidNote(note, userId))
             {
                 return false;
+            }
+
+            if (NoteAlreadyArchived(noteId))
+            {
+                return true;
             }
 
             var archivedNote = new ArchivedNote
@@ -64,6 +69,11 @@ namespace Noteapp.Api.Services
 
             return true;
             
+        }
+
+        private bool NoteAlreadyArchived(int noteId)
+        {
+            return _archivedNoteRepository.ArchivedNotes.Any(an => an.NoteId == noteId);
         }
 
         private bool InvalidNote(Note note, int userId)
