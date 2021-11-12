@@ -26,6 +26,7 @@ namespace Noteapp.Api.Services
                 return null;
             }
 
+            // or could just say publicNote.Note
             var note = _noteRepository.Notes.Find(note => note.Id == publicNote.NoteId);
 
             return note.Text;
