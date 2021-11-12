@@ -13,6 +13,7 @@ namespace Noteapp.Api.Controllers
     public class NoteController : ControllerBase
     {
         private readonly NoteService _noteRepository;
+        // hardcode user id for now
         private const int _userId = 1;
 
         public NoteController(NoteService noteRepository)
@@ -39,7 +40,7 @@ namespace Noteapp.Api.Controllers
         {
             var note = _noteRepository.TryGet(_userId, id);
 
-            return note != null ? Ok(note) : BadRequest("Invalid note id");
+            return note != null ? Ok(note) : BadRequest("Invalid noteId");
         }
 
         [HttpPut("{id}")]
@@ -47,7 +48,7 @@ namespace Noteapp.Api.Controllers
         {
             bool success = _noteRepository.TryUpdate(_userId, id, dto.Text);
 
-            return success ? NoContent() : BadRequest("Invalid note id");
+            return success ? NoContent() : BadRequest("Invalid noteId");
         }
 
         [HttpDelete("{id}")]
@@ -55,7 +56,7 @@ namespace Noteapp.Api.Controllers
         {
             bool success = _noteRepository.TryDelete(_userId, id);
 
-            return success ? NoContent() : BadRequest("Invalid note id");
+            return success ? NoContent() : BadRequest("Invalid noteId");
         }
     }
 }
