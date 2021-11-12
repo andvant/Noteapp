@@ -32,6 +32,7 @@ namespace Noteapp.Api.Services
             return note.Text;
         }
 
+        // TODO: prevent multiple publishing of the same note
         public string PublishNote(int userId, int noteId)
         {   
             var note = _noteRepository.Notes.Find(note => note.Id == noteId);
