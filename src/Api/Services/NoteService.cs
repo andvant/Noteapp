@@ -55,7 +55,7 @@ namespace Noteapp.Api.Services
         public bool TryUpdate(int userId, int noteId, string text)
         {
             var note = _repository.Notes.Find(note => note.Id == noteId);
-            if (InvalidNote(note, userId))
+            if (InvalidNote(note, userId) || note.Locked)
             {
                 return false;
             }

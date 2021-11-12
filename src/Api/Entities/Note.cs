@@ -6,6 +6,7 @@ namespace Noteapp.Api.Entities
     public class Note : BaseEntity
     {
         public string Text { get; set; }
+        public bool Locked { get; set; }
         public DateTime Created { get; set; }
         public DateTime LastModified { get; set; }
         [JsonIgnore]

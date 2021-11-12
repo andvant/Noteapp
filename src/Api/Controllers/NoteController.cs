@@ -48,7 +48,7 @@ namespace Noteapp.Api.Controllers
         {
             bool success = _noteService.TryUpdate(_userId, id, dto.Text);
 
-            return success ? NoContent() : BadRequest("Invalid noteId");
+            return success ? NoContent() : BadRequest("Invalid noteId or the note is locked");
         }
 
         [HttpDelete("{id}")]
