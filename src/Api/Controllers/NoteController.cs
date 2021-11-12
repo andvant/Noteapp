@@ -12,25 +12,25 @@ namespace Noteapp.Api.Controllers
     [ApiController]
     public class NoteController : ControllerBase
     {
-        private readonly NoteService _noteRepository;
+        private readonly NoteService _noteService;
         // hardcode user id for now
         private const int _userId = 1;
 
         public NoteController(NoteService noteRepository)
         {
-            _noteRepository = noteRepository;
+            _noteService = noteRepository;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_noteRepository.GetAll(_userId));
+            return Ok(_noteService.GetAll(_userId));
         }
 
         [HttpPost]
         public IActionResult Create(CreateNoteDto dto)
         {
-            var note = _noteRepository.Create(_userId, dto.Text);
+            var note = _noteService.Create(_userId, dto.Text);
 
             return CreatedAtRoute("Get", new { id = note.Id }, note);
         }
@@ -38,7 +38,7 @@ namespace Noteapp.Api.Controllers
         [HttpGet("{id}", Name = "Get")]
         public IActionResult Get(int id)
         {
-            var note = _noteRepository.TryGet(_userId, id);
+            var note = _noteService.TryGet(_userId, id);
 
             return note != null ? Ok(note) : BadRequest("Invalid noteId");
         }
@@ -46,7 +46,7 @@ namespace Noteapp.Api.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, UpdateNoteDto dto)
         {
-            bool success = _noteRepository.TryUpdate(_userId, id, dto.Text);
+            bool success = _noteService.TryUpdate(_userId, id, dto.Text);
 
             return success ? NoContent() : BadRequest("Invalid noteId");
         }
@@ -54,7 +54,7 @@ namespace Noteapp.Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            bool success = _noteRepository.TryDelete(_userId, id);
+            bool success = _noteService.TryDelete(_userId, id);
 
             return success ? NoContent() : BadRequest("Invalid noteId");
         }
