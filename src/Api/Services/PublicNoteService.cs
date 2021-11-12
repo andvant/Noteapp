@@ -2,6 +2,7 @@
 using Noteapp.Api.Entities;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace Noteapp.Api.Services
 {
@@ -57,10 +58,21 @@ namespace Noteapp.Api.Services
             return _publicNoteRepository.PublicNotes.Max(pn => pn?.Id) + 1 ?? 1;
         }
 
-        // TODO: generate proper url
         private string GenerateUrl()
         {
-            return "url_" + new Random(Guid.NewGuid().GetHashCode()).Next(20_000).ToString();
+            const int LENGTH = 8;
+            const string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+            var url = new StringBuilder(LENGTH);
+
+            var random = new Random(Guid.NewGuid().GetHashCode());
+
+            for (int i = 0; i < LENGTH; i++)
+            {
+                url.Append(alphabet[random.Next(alphabet.Length)]);
+            }
+
+            return url.ToString();
         }
 
         private bool InvalidNote(Note note, int userId)
