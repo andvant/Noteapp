@@ -16,10 +16,14 @@ namespace Noteapp.Api.Services
             _noteRepository = noteRepository;
         }
 
-        // TODO: check for errors
         public string GetNoteText(string url)
         {
             var publicNote = _publicNoteRepository.PublicNotes.Find(pn => pn.Url == url);
+
+            if (publicNote is null)
+            {
+                return null;
+            }
 
             var note = _noteRepository.Notes.Find(note => note.Id == publicNote.NoteId);
 

@@ -21,7 +21,9 @@ namespace Noteapp.Api.Controllers
         [HttpGet("{url}")]
         public IActionResult Get(string url)
         {
-            return Ok(_publicNoteService.GetNoteText(url));
+            string text = _publicNoteService.GetNoteText(url);
+
+            return text != null ? Ok(text) : BadRequest("Invalid url");
         }
 
         [HttpPost]
