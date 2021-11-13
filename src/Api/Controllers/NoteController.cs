@@ -74,5 +74,21 @@ namespace Noteapp.Api.Controllers
 
             return success ? NoContent() : BadRequest("Invalid noteId");
         }
+
+        [HttpPut("{id}/archive")]
+        public IActionResult Archive(int id)
+        {
+            var success = _noteService.Archive(_userId, id);
+
+            return success ? NoContent() : BadRequest("Invalid noteId");
+        }
+
+        [HttpDelete("{id}/archive")]
+        public IActionResult Unarchive(int id)
+        {
+            var success = _noteService.Unarchive(_userId, id);
+
+            return success ? NoContent() : BadRequest("Invalid noteId");
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.ArchiveNoteServiceTests
+namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Archive
     {
@@ -16,14 +17,14 @@ namespace Noteapp.UnitTests.Api.ArchiveNoteServiceTests
         public void ArchivesNoteGivenValidNoteIdAndUserId()
         {
             // Arrange
-            var archivedNoteRepository = new ArchivedNoteRepository();
             var noteRepository = new NoteRepository(false);
-            var service = new ArchiveNoteService(archivedNoteRepository, noteRepository);
+            var service = new NoteService(noteRepository, new DateTimeProvider());
 
             var note = new Note()
             {
                 Id = 1,
-                AuthorId = 1
+                AuthorId = 1,
+                Archived = false
             };
             noteRepository.Notes.Add(note);
 
@@ -32,21 +33,21 @@ namespace Noteapp.UnitTests.Api.ArchiveNoteServiceTests
 
             // Assert
             Assert.True(result);
-            Assert.Equal(note.Id, archivedNoteRepository.ArchivedNotes.Single().NoteId);
+            Assert.True(note.Archived);
         }
 
         [Fact]
         public void DoesNotArchiveGivenNonExistentNoteId()
         {
             // Arrange
-            var archivedNoteRepository = new ArchivedNoteRepository();
             var noteRepository = new NoteRepository(false);
-            var service = new ArchiveNoteService(archivedNoteRepository, noteRepository);
+            var service = new NoteService(noteRepository, new DateTimeProvider());
 
             var note = new Note()
             {
                 Id = 1,
-                AuthorId = 1
+                AuthorId = 1,
+                Archived = false
             };
             noteRepository.Notes.Add(note);
 
@@ -55,21 +56,21 @@ namespace Noteapp.UnitTests.Api.ArchiveNoteServiceTests
 
             // Assert
             Assert.False(result);
-            Assert.Empty(archivedNoteRepository.ArchivedNotes);
+            Assert.False(note.Archived);
         }
 
         [Fact]
         public void DoesNotArchiveGivenWrongUserId()
         {
             // Arrange
-            var archivedNoteRepository = new ArchivedNoteRepository();
             var noteRepository = new NoteRepository(false);
-            var service = new ArchiveNoteService(archivedNoteRepository, noteRepository);
+            var service = new NoteService(noteRepository, new DateTimeProvider());
 
             var note = new Note()
             {
                 Id = 1,
-                AuthorId = 1
+                AuthorId = 1,
+                Archived = false
             };
             noteRepository.Notes.Add(note);
 
@@ -78,7 +79,7 @@ namespace Noteapp.UnitTests.Api.ArchiveNoteServiceTests
 
             // Assert
             Assert.False(result);
-            Assert.Empty(archivedNoteRepository.ArchivedNotes);
+            Assert.False(note.Archived);
         }
     }
 }

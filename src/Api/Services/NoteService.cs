@@ -103,6 +103,32 @@ namespace Noteapp.Api.Services
             return true;
         }
 
+        public bool Archive(int userId, int noteId)
+        {
+            var note = _repository.Notes.Find(note => note.Id == noteId);
+
+            if (InvalidNote(note, userId))
+            {
+                return false;
+            }
+
+            note.Archived = true;
+            return true;
+        }
+
+        public bool Unarchive(int userId, int noteId)
+        {
+            var note = _repository.Notes.Find(note => note.Id == noteId);
+
+            if (InvalidNote(note, userId))
+            {
+                return false;
+            }
+
+            note.Archived = false;
+            return true;
+        }
+
         private bool InvalidNote(Note note, int userId)
         {
             return note is null || note.AuthorId != userId;
