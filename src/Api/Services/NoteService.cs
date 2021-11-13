@@ -77,6 +77,32 @@ namespace Noteapp.Api.Services
             return true;
         }
 
+        public bool Lock(int userId, int noteId)
+        {
+            var note = _repository.Notes.Find(note => note.Id == noteId);
+
+            if (InvalidNote(note, userId))
+            {
+                return false;
+            }
+
+            note.Locked = true;
+            return true;
+        }
+
+        public bool Unlock(int userId, int noteId)
+        {
+            var note = _repository.Notes.Find(note => note.Id == noteId);
+
+            if (InvalidNote(note, userId))
+            {
+                return false;
+            }
+
+            note.Locked = false;
+            return true;
+        }
+
         private bool InvalidNote(Note note, int userId)
         {
             return note is null || note.AuthorId != userId;

@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.LockNoteServiceTests
+namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Lock
     {
@@ -24,10 +25,10 @@ namespace Noteapp.UnitTests.Api.LockNoteServiceTests
                 Locked = false
             };
             noteRepository.Notes.Add(note);
-            var lockNoteService = new LockNoteService(noteRepository);
+            var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = lockNoteService.Lock(userId: 1, noteId: 1, @lock: true);
+            var success = noteService.Lock(userId: 1, noteId: 1);
 
             // Assert
             Assert.True(success);
@@ -46,10 +47,10 @@ namespace Noteapp.UnitTests.Api.LockNoteServiceTests
                 Locked = false
             };
             noteRepository.Notes.Add(note);
-            var lockNoteService = new LockNoteService(noteRepository);
+            var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = lockNoteService.Lock(userId: 1, noteId: 2, @lock: true);
+            var success = noteService.Lock(userId: 1, noteId: 2);
 
             // Assert
             Assert.False(success);
@@ -68,35 +69,13 @@ namespace Noteapp.UnitTests.Api.LockNoteServiceTests
                 Locked = false
             };
             noteRepository.Notes.Add(note);
-            var lockNoteService = new LockNoteService(noteRepository);
+            var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = lockNoteService.Lock(userId: 2, noteId: 1, @lock: true);
+            var success = noteService.Lock(userId: 2, noteId: 1);
 
             // Assert
             Assert.False(success);
-            Assert.False(note.Locked);
-        }
-
-        [Fact]
-        public void UnlocksNote()
-        {
-            // Arrange
-            var noteRepository = new NoteRepository(false);
-            var note = new Note()
-            {
-                Id = 1,
-                AuthorId = 1,
-                Locked = true
-            };
-            noteRepository.Notes.Add(note);
-            var lockNoteService = new LockNoteService(noteRepository);
-
-            // Act
-            var success = lockNoteService.Lock(userId: 1, noteId: 1, @lock: false);
-
-            // Assert
-            Assert.True(success);
             Assert.False(note.Locked);
         }
     }

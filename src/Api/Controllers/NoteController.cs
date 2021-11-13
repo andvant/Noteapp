@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Noteapp.Api.Controllers
 {
-    [Route("api/note")]
+    [Route("api/notes")]
     [ApiController]
     public class NoteController : ControllerBase
     {
@@ -16,9 +16,9 @@ namespace Noteapp.Api.Controllers
         // hardcode user id for now
         private const int _userId = 1;
 
-        public NoteController(NoteService noteRepository)
+        public NoteController(NoteService noteService)
         {
-            _noteService = noteRepository;
+            _noteService = noteService;
         }
 
         [HttpGet]
@@ -55,6 +55,22 @@ namespace Noteapp.Api.Controllers
         public IActionResult Delete(int id)
         {
             bool success = _noteService.TryDelete(_userId, id);
+
+            return success ? NoContent() : BadRequest("Invalid noteId");
+        }
+
+        [HttpPut("{id}/lock")]
+        public IActionResult Lock(int id)
+        {
+            var success = _noteService.Lock(_userId, id);
+
+            return success ? NoContent() : BadRequest("Invalid noteId");
+        }
+
+        [HttpDelete("{id}/lock")]
+        public IActionResult Unlock(int id)
+        {
+            var success = _noteService.Unlock(_userId, id);
 
             return success ? NoContent() : BadRequest("Invalid noteId");
         }

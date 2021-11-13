@@ -44,7 +44,6 @@ namespace Noteapp.Api
             services.AddTransient<NoteService>();
             services.AddTransient<PublicNoteService>();
             services.AddTransient<ArchiveNoteService>();
-            services.AddTransient<LockNoteService>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
         }
 
