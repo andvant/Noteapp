@@ -90,5 +90,32 @@ namespace Noteapp.Api.Controllers
 
             return success ? NoContent() : BadRequest("Invalid noteId");
         }
+
+        [HttpPut("{id}/publish")]
+        public IActionResult Publish(int id)
+        {
+            var url = _noteService.Publish(_userId, id);
+
+            // TODO: change route
+            return url != null ? Created($"/p/{url}", null) : BadRequest("Invalid noteId");
+        }
+
+        [HttpDelete("{id}/publish")]
+        public IActionResult Unpublish(int id)
+        {
+            var success = _noteService.Unpublish(_userId, id);
+
+            return success ? NoContent() : BadRequest("Invalid noteId");
+
+        }
+
+        [HttpGet("/p/{url}")]
+        public IActionResult GetPublishedNoteText(string url)
+        {
+            var text = _noteService.GetPublishedNoteText(url);
+
+            return text != null ? Ok(text) : BadRequest("Invalid noteId");
+        }
     }
+
 }

@@ -4,6 +4,7 @@ using Noteapp.Api.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Noteapp.Api.Services
 {
@@ -129,6 +130,44 @@ namespace Noteapp.Api.Services
             return true;
         }
 
+        public string Publish(int userId, int noteId)
+        {
+            var note = _repository.Notes.Find(note => note.Id == noteId);
+
+            if (InvalidNote(note, userId))
+            {
+                return null;
+            }
+
+            note.PublicUrl = GenerateUrl();
+            return note.PublicUrl;
+        }
+
+        public bool Unpublish(int userId, int noteId)
+        {
+            var note = _repository.Notes.Find(note => note.Id == noteId);
+
+            if (InvalidNote(note, userId))
+            {
+                return false;
+            }
+
+            note.PublicUrl = null;
+            return true;
+        }
+
+        public string GetPublishedNoteText(string url)
+        {
+            var note = _repository.Notes.Find(note => note.PublicUrl == url);
+
+            if (note is null)
+            {
+                return null;
+            }
+
+            return note.Text;
+        }
+
         private bool InvalidNote(Note note, int userId)
         {
             return note is null || note.AuthorId != userId;
@@ -137,6 +176,23 @@ namespace Noteapp.Api.Services
         private int GenerateNewNoteId()
         {
             return _repository.Notes.Max(note => note?.Id) + 1 ?? 1;
+        }
+
+        private string GenerateUrl()
+        {
+            const int LENGTH = 8;
+            const string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+            var url = new StringBuilder(LENGTH);
+
+            var random = new Random(Guid.NewGuid().GetHashCode());
+
+            for (int i = 0; i < LENGTH; i++)
+            {
+                url.Append(alphabet[random.Next(alphabet.Length)]);
+            }
+
+            return url.ToString();
         }
     }
 }

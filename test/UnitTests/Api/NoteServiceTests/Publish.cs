@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
 using System.Collections.Generic;
@@ -8,17 +9,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.PublicNoteServiceTests
+namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
-    public class PublishNote
+    public class Publish
     {
+
         [Fact]
-        public void ReturnsNullGivenNonExistentNoteId()
+        public void ReturnsNewUrlGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var publicNoteRepository = new PublicNoteRepository();
             var noteRepository = new NoteRepository(false);
-            var service = new PublicNoteService(publicNoteRepository, noteRepository);
+            var service = new NoteService(noteRepository, new DateTimeProvider());
 
             var note = new Note()
             {
@@ -28,19 +29,42 @@ namespace Noteapp.UnitTests.Api.PublicNoteServiceTests
             noteRepository.Notes.Add(note);
 
             // Act
-            var url = service.PublishNote(userId: 1, noteId: 2);
+            var url = service.Publish(userId: 1, noteId: 1);
+
+            // Assert
+            Assert.NotNull(url);
+            Assert.Equal(url, noteRepository.Notes.Single().PublicUrl);
+        }
+
+
+        [Fact]
+        public void ReturnsNullGivenNonExistentNoteId()
+        {
+            // Arrange
+            var noteRepository = new NoteRepository(false);
+            var service = new NoteService(noteRepository, new DateTimeProvider());
+
+            var note = new Note()
+            {
+                Id = 1,
+                AuthorId = 1
+            };
+            noteRepository.Notes.Add(note);
+
+            // Act
+            var url = service.Publish(userId: 1, noteId: 2);
 
             // Assert
             Assert.Null(url);
+            Assert.Null(noteRepository.Notes.Single().PublicUrl);
         }
 
         [Fact]
         public void ReturnsNullGivenWrongUserId()
         {
             // Arrange
-            var publicNoteRepository = new PublicNoteRepository();
             var noteRepository = new NoteRepository(false);
-            var service = new PublicNoteService(publicNoteRepository, noteRepository);
+            var service = new NoteService(noteRepository, new DateTimeProvider());
 
             var note = new Note()
             {
@@ -50,33 +74,13 @@ namespace Noteapp.UnitTests.Api.PublicNoteServiceTests
             noteRepository.Notes.Add(note);
 
             // Act
-            var url = service.PublishNote(userId: 2, noteId: 1);
+            var url = service.Publish(userId: 2, noteId: 1);
 
             // Assert
             Assert.Null(url);
+            Assert.Null(noteRepository.Notes.Single().PublicUrl);
         }
 
-        [Fact]
-        public void ReturnsNewUrlGivenValidUserIdAndNoteId()
-        {
-            // Arrange
-            var publicNoteRepository = new PublicNoteRepository();
-            var noteRepository = new NoteRepository(false);
-            var service = new PublicNoteService(publicNoteRepository, noteRepository);
 
-            var note = new Note()
-            {
-                Id = 1,
-                AuthorId = 1
-            };
-            noteRepository.Notes.Add(note);
-
-            // Act
-            var url = service.PublishNote(userId: 1, noteId: 1);
-
-            // Assert
-            Assert.NotNull(url);
-            Assert.Equal(url, publicNoteRepository.PublicNotes.Single().Url);
-        }
     }
 }

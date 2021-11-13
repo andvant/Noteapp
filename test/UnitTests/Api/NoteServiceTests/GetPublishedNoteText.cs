@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
 using System.Collections.Generic;
@@ -8,35 +9,27 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.PublicNoteServiceTests
+namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
-    public class GetNoteText
+    public class GetPublishedNoteText
     {
         [Fact]
         public void ReturnsNoteTextGivenRightUrl()
         {
             // Arrange
-            var publicNoteRepository = new PublicNoteRepository();
             var noteRepository = new NoteRepository(false);
-            var service = new PublicNoteService(publicNoteRepository, noteRepository);
+            var service = new NoteService(noteRepository, new DateTimeProvider());
 
             var note = new Note()
             {
                 Id = 1,
-                Text = "note 1"
-            };
-            var publicNote = new PublicNote
-            {
-                Id = 1,
-                Url = "testtest",
-                NoteId = note.Id,
-                Note = note
+                Text = "note 1",
+                PublicUrl = "testtest"
             };
             noteRepository.Notes.Add(note);
-            publicNoteRepository.PublicNotes.Add(publicNote);
 
             // Act
-            var text = service.GetNoteText("testtest");
+            var text = service.GetPublishedNoteText("testtest");
 
             // Assert
             Assert.Equal("note 1", text);
@@ -46,12 +39,11 @@ namespace Noteapp.UnitTests.Api.PublicNoteServiceTests
         public void ReturnsNullGivenWrongUrl()
         {
             // Arrange
-            var publicNoteRepository = new PublicNoteRepository();
             var noteRepository = new NoteRepository(false);
-            var service = new PublicNoteService(publicNoteRepository, noteRepository);
+            var service = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var text = service.GetNoteText("shouldfail");
+            var text = service.GetPublishedNoteText("shouldfail");
 
             // Assert
             Assert.Null(text);

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,10 +39,7 @@ namespace Noteapp.Api
 
             // Singleton because it uses in-memory data which should be the same between different calls
             services.AddSingleton<NoteRepository>();
-            services.AddSingleton<PublicNoteRepository>();
-
             services.AddTransient<NoteService>();
-            services.AddTransient<PublicNoteService>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
         }
 
