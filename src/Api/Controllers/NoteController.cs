@@ -12,9 +12,9 @@ namespace Noteapp.Api.Controllers
     [ApiController]
     public class NoteController : ControllerBase
     {
-        private readonly NoteService _noteService;
         // hardcode user id for now
         private const int _userId = 1;
+        private readonly NoteService _noteService;
 
         public NoteController(NoteService noteService)
         {
@@ -32,80 +32,79 @@ namespace Noteapp.Api.Controllers
         {
             var note = _noteService.Create(_userId, dto.Text);
 
-            return CreatedAtRoute("Get", new { id = note.Id }, note);
+            return CreatedAtAction(nameof(Get), new { id = note.Id }, note);
         }
 
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id:int}")]
         public IActionResult Get(int id)
         {
             var note = _noteService.TryGet(_userId, id);
 
-            return note != null ? Ok(note) : BadRequest("Invalid noteId");
+            return note != null ? Ok(note) : NotFound();
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public IActionResult Update(int id, UpdateNoteDto dto)
         {
             bool success = _noteService.TryUpdate(_userId, id, dto.Text);
 
-            return success ? NoContent() : BadRequest("Invalid noteId or the note is locked");
+            return success ? NoContent() : NotFound(); // TODO: check for note locked error
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
             bool success = _noteService.TryDelete(_userId, id);
 
-            return success ? NoContent() : BadRequest("Invalid noteId");
+            return success ? NoContent() : NotFound();
         }
 
-        [HttpPut("{id}/lock")]
+        [HttpPut("{id:int}/lock")]
         public IActionResult Lock(int id)
         {
             var success = _noteService.Lock(_userId, id);
 
-            return success ? NoContent() : BadRequest("Invalid noteId");
+            return success ? NoContent() : NotFound();
         }
 
-        [HttpDelete("{id}/lock")]
+        [HttpDelete("{id:int}/lock")]
         public IActionResult Unlock(int id)
         {
             var success = _noteService.Unlock(_userId, id);
 
-            return success ? NoContent() : BadRequest("Invalid noteId");
+            return success ? NoContent() : NotFound();
         }
 
-        [HttpPut("{id}/archive")]
+        [HttpPut("{id:int}/archive")]
         public IActionResult Archive(int id)
         {
             var success = _noteService.Archive(_userId, id);
 
-            return success ? NoContent() : BadRequest("Invalid noteId");
+            return success ? NoContent() : NotFound();
         }
 
-        [HttpDelete("{id}/archive")]
+        [HttpDelete("{id:int}/archive")]
         public IActionResult Unarchive(int id)
         {
             var success = _noteService.Unarchive(_userId, id);
 
-            return success ? NoContent() : BadRequest("Invalid noteId");
+            return success ? NoContent() : NotFound();
         }
 
-        [HttpPut("{id}/publish")]
+        [HttpPut("{id:int}/publish")]
         public IActionResult Publish(int id)
         {
             var url = _noteService.Publish(_userId, id);
 
-            // TODO: change route
-            return url != null ? Created($"/p/{url}", null) : BadRequest("Invalid noteId");
+            return url != null ? CreatedAtAction(nameof(GetPublishedNoteText), new { url = url }, null) : NotFound();
         }
 
-        [HttpDelete("{id}/publish")]
+        [HttpDelete("{id:int}/publish")]
         public IActionResult Unpublish(int id)
         {
             var success = _noteService.Unpublish(_userId, id);
 
-            return success ? NoContent() : BadRequest("Invalid noteId");
+            return success ? NoContent() : NotFound();
 
         }
 
@@ -114,7 +113,7 @@ namespace Noteapp.Api.Controllers
         {
             var text = _noteService.GetPublishedNoteText(url);
 
-            return text != null ? Ok(text) : BadRequest("Invalid noteId");
+            return text != null ? Ok(text) : NotFound();
         }
     }
 
