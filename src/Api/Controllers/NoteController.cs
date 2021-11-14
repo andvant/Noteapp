@@ -139,6 +139,34 @@ namespace Noteapp.Api.Controllers
             }
         }
 
+        [HttpPut("{id:int}/pin")]
+        public IActionResult Pin(int id)
+        {
+            try
+            {
+                _noteService.Pin(_userId, id);
+                return NoContent();
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id:int}/pin")]
+        public IActionResult Unpin(int id)
+        {
+            try
+            {
+                _noteService.Unpin(_userId, id);
+                return NoContent();
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
         [HttpPut("{id:int}/publish")]
         public IActionResult Publish(int id)
         {

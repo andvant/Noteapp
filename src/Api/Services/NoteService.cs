@@ -91,6 +91,18 @@ namespace Noteapp.Api.Services
             note.Archived = false;
         }
 
+        public void Pin(int userId, int noteId)
+        {
+            var note = GetNote(userId, noteId);
+            note.Pinned = true;
+        }
+
+        public void Unpin(int userId, int noteId)
+        {
+            var note = GetNote(userId, noteId);
+            note.Pinned = false;
+        }
+
         public string Publish(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
@@ -114,7 +126,6 @@ namespace Noteapp.Api.Services
         private Note GetNote(int userId, int noteId)
         {
             var note = _repository.Notes.Find(note => note.Id == noteId && note.AuthorId == userId);
-
             return note ?? throw new NoteNotFoundException(userId, noteId);
         }
 
@@ -129,7 +140,6 @@ namespace Noteapp.Api.Services
             const string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
             var url = new StringBuilder(LENGTH);
-
             var random = new Random(Guid.NewGuid().GetHashCode());
 
             for (int i = 0; i < LENGTH; i++)
