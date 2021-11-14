@@ -20,9 +20,14 @@ namespace Noteapp.Api.Services
             _dateTimeProvider = dateTimeProvider;
         }
 
-        public IEnumerable<Note> GetAll(int userId)
+        public IEnumerable<Note> GetAll(int userId, bool? archived)
         {
-            return _repository.Notes.FindAll(note => note.AuthorId == userId);
+            var notes = _repository.Notes.Where(note => note.AuthorId == userId);
+            if (archived.HasValue)
+            {
+                notes = notes.Where(note => note.Archived == archived.Value);
+            }
+            return notes.ToList();
         }
 
         public Note Create(int userId, string text)

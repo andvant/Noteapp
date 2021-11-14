@@ -23,9 +23,9 @@ namespace Noteapp.Api.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll(bool? archived = null)
         {
-            var notes = _noteService.GetAll(_userId);
+            var notes = _noteService.GetAll(_userId, archived);
             return Ok(notes);
         }
 
