@@ -15,7 +15,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
     public class Archive
     {
         [Fact]
-        public void ArchivesNoteGivenValidNoteIdAndUserId()
+        public void ArchivesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);
@@ -37,7 +37,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         }
 
         [Fact]
-        public void DoesNotArchiveGivenNonExistentNoteId()
+        public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);
@@ -60,7 +60,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         }
 
         [Fact]
-        public void DoesNotArchiveGivenWrongUserId()
+        public void ThrowsGivenWrongUserId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);

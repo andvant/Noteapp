@@ -36,7 +36,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         }
 
         [Fact]
-        public void ReturnsFalseNoteGivenNonExistentNoteId()
+        public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);
@@ -58,7 +58,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         }
 
         [Fact]
-        public void DoesNotLockNoteGivenWrongUserId()
+        public void ThrowsGivenWrongUserId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);

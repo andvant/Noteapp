@@ -15,7 +15,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
     public class Unlock
     {
         [Fact]
-        public void UnlocksNote()
+        public void UnlocksNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);
@@ -36,7 +36,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         }
 
         [Fact]
-        public void DoesNotUnlockGivenNonExistentNoteId()
+        public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);
@@ -58,7 +58,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         }
 
         [Fact]
-        public void DoesNotUnlockGivenWrongUserId()
+        public void ThrowsGivenWrongUserId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);

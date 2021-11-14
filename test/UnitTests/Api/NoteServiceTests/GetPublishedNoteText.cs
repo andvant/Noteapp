@@ -37,7 +37,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         }
 
         [Fact]
-        public void ReturnsNullGivenWrongUrl()
+        public void ThrowsGivenWrongUrl()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);

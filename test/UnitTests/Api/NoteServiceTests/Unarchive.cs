@@ -15,7 +15,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
     public class Unarchive
     {
         [Fact]
-        public void UnarchivesNoteGivenValidNoteIdAndUserId()
+        public void UnarchivesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);
@@ -45,7 +45,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         }
 
         [Fact]
-        public void ReturnsFalseGivenNonExistentNoteId()
+        public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);
@@ -68,7 +68,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         }
 
         [Fact]
-        public void ReturnsFalseGivenWrongUserId()
+        public void ThrowsGivenWrongUserId()
         {
             // Arrange
             var noteRepository = new NoteRepository(false);
