@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
@@ -28,10 +29,9 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = noteService.Lock(userId: 1, noteId: 1);
+            noteService.Lock(userId: 1, noteId: 1);
 
             // Assert
-            Assert.True(success);
             Assert.True(note.Locked);
         }
 
@@ -50,10 +50,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = noteService.Lock(userId: 1, noteId: 2);
+            Action act = () => noteService.Lock(userId: 1, noteId: 2);
 
             // Assert
-            Assert.False(success);
+            Assert.Throws<NoteNotFoundException>(act);
             Assert.False(note.Locked);
         }
 
@@ -72,10 +72,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = noteService.Lock(userId: 2, noteId: 1);
+            Action act = () => noteService.Lock(userId: 2, noteId: 1);
 
             // Assert
-            Assert.False(success);
+            Assert.Throws<NoteNotFoundException>(act);
             Assert.False(note.Locked);
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
@@ -11,7 +12,7 @@ using Xunit;
 
 namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
-    public class TryDelete
+    public class Delete
     {
         [Fact]
         public void DeletesNoteGivenValidUserIdAndNoteId()
@@ -33,10 +34,9 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = noteService.TryDelete(userId: 1, noteId: 1);
+            noteService.Delete(userId: 1, noteId: 1);
 
             // Assert
-            Assert.True(success);
             Assert.Equal(note2, noteRepository.Notes.Single());
         }
 
@@ -54,10 +54,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = noteService.TryDelete(userId: 1, noteId: 2);
+            Action act = () => noteService.Delete(userId: 1, noteId: 2);
 
             // Assert
-            Assert.False(success);
+            Assert.Throws<NoteNotFoundException>(act);
             Assert.Equal(note, noteRepository.Notes.Single());
         }
 
@@ -75,10 +75,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = noteService.TryDelete(userId: 2, noteId: 1);
+            Action act = () => noteService.Delete(userId: 2, noteId: 1);
 
             // Assert
-            Assert.False(success);
+            Assert.Throws<NoteNotFoundException>(act);
             Assert.Equal(note, noteRepository.Notes.Single());
         }
     }

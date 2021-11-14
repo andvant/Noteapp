@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
@@ -28,11 +29,54 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var success = noteService.Unlock(userId: 1, noteId: 1);
+            noteService.Unlock(userId: 1, noteId: 1);
 
             // Assert
-            Assert.True(success);
             Assert.False(note.Locked);
+        }
+
+        [Fact]
+        public void DoesNotUnlockGivenNonExistentNoteId()
+        {
+            // Arrange
+            var noteRepository = new NoteRepository(false);
+            var note = new Note()
+            {
+                Id = 1,
+                AuthorId = 1,
+                Locked = true
+            };
+            noteRepository.Notes.Add(note);
+            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+
+            // Act
+            Action act = () => noteService.Unlock(userId: 1, noteId: 2);
+
+            // Assert
+            Assert.Throws<NoteNotFoundException>(act);
+            Assert.True(note.Locked);
+        }
+
+        [Fact]
+        public void DoesNotUnlockGivenWrongUserId()
+        {
+            // Arrange
+            var noteRepository = new NoteRepository(false);
+            var note = new Note()
+            {
+                Id = 1,
+                AuthorId = 1,
+                Locked = true
+            };
+            noteRepository.Notes.Add(note);
+            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+
+            // Act
+            Action act = () => noteService.Unlock(userId: 2, noteId: 1);
+
+            // Assert
+            Assert.Throws<NoteNotFoundException>(act);
+            Assert.True(note.Locked);
         }
     }
 }

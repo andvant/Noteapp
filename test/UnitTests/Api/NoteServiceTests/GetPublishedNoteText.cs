@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
@@ -43,10 +44,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var service = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var text = service.GetPublishedNoteText("shouldfail");
+            Action act = () => service.GetPublishedNoteText("shouldfail");
 
             // Assert
-            Assert.Null(text);
+            Assert.Throws<NoteNotFoundException>(act);
         }
 
     }

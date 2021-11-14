@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -42,135 +43,79 @@ namespace Noteapp.Api.Services
             return note;
         }
 
-        public Note TryGet(int userId, int noteId)
+        public Note Get(int userId, int noteId)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId);
-            if (InvalidNote(note, userId))
-            {
-                return null;
-            }
-
-            return note;
+            return GetNote(userId, noteId);
         }
 
-        public bool TryUpdate(int userId, int noteId, string text)
+        public void Update(int userId, int noteId, string text)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId);
-            if (InvalidNote(note, userId) || note.Locked)
+            var note = GetNote(userId, noteId);
+
+            if (note.Locked)
             {
-                return false;
+                throw new NoteLockedException(noteId);
             }
 
             note.Text = text;
             note.LastModified = _dateTimeProvider.Now;
-            return true;
         }
 
-        public bool TryDelete(int userId, int noteId)
+        public void Delete(int userId, int noteId)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId);
-            if (InvalidNote(note, userId))
-            {
-                return false;
-            }
-
+            var note = GetNote(userId, noteId);
             _repository.Notes.Remove(note);
-            return true;
         }
 
-        public bool Lock(int userId, int noteId)
+        public void Lock(int userId, int noteId)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId);
-
-            if (InvalidNote(note, userId))
-            {
-                return false;
-            }
-
+            var note = GetNote(userId, noteId);
             note.Locked = true;
-            return true;
         }
 
-        public bool Unlock(int userId, int noteId)
+        public void Unlock(int userId, int noteId)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId);
-
-            if (InvalidNote(note, userId))
-            {
-                return false;
-            }
-
+            var note = GetNote(userId, noteId);
             note.Locked = false;
-            return true;
         }
 
-        public bool Archive(int userId, int noteId)
+        public void Archive(int userId, int noteId)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId);
-
-            if (InvalidNote(note, userId))
-            {
-                return false;
-            }
-
+            var note = GetNote(userId, noteId);
             note.Archived = true;
-            return true;
         }
 
-        public bool Unarchive(int userId, int noteId)
+        public void Unarchive(int userId, int noteId)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId);
-
-            if (InvalidNote(note, userId))
-            {
-                return false;
-            }
-
+            var note = GetNote(userId, noteId);
             note.Archived = false;
-            return true;
         }
 
         public string Publish(int userId, int noteId)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId);
-
-            if (InvalidNote(note, userId))
-            {
-                return null;
-            }
+            var note = GetNote(userId, noteId);
 
             note.PublicUrl = GenerateUrl();
             return note.PublicUrl;
         }
 
-        public bool Unpublish(int userId, int noteId)
+        public void Unpublish(int userId, int noteId)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId);
-
-            if (InvalidNote(note, userId))
-            {
-                return false;
-            }
-
+            var note = GetNote(userId, noteId);
             note.PublicUrl = null;
-            return true;
         }
 
         public string GetPublishedNoteText(string url)
         {
             var note = _repository.Notes.Find(note => note.PublicUrl == url);
-
-            if (note is null)
-            {
-                return null;
-            }
-
-            return note.Text;
+            return note?.Text ?? throw new NoteNotFoundException(url);
         }
 
-        private bool InvalidNote(Note note, int userId)
+        private Note GetNote(int userId, int noteId)
         {
-            return note is null || note.AuthorId != userId;
+            var note = _repository.Notes.Find(note => note.Id == noteId && note.AuthorId == userId);
+
+            return note ?? throw new NoteNotFoundException(userId, noteId);
         }
 
         private int GenerateNewNoteId()

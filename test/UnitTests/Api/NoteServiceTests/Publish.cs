@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
@@ -32,7 +33,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var url = service.Publish(userId: 1, noteId: 1);
 
             // Assert
-            Assert.NotNull(url);
+            Assert.True(!string.IsNullOrWhiteSpace(url));
             Assert.Equal(url, noteRepository.Notes.Single().PublicUrl);
         }
 
@@ -52,10 +53,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             noteRepository.Notes.Add(note);
 
             // Act
-            var url = service.Publish(userId: 1, noteId: 2);
+            Action act = () => service.Publish(userId: 1, noteId: 2);
 
             // Assert
-            Assert.Null(url);
+            Assert.Throws<NoteNotFoundException>(act);
             Assert.Null(noteRepository.Notes.Single().PublicUrl);
         }
 
@@ -74,10 +75,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             noteRepository.Notes.Add(note);
 
             // Act
-            var url = service.Publish(userId: 2, noteId: 1);
+            Action act = () => service.Publish(userId: 2, noteId: 1);
 
             // Assert
-            Assert.Null(url);
+            Assert.Throws<NoteNotFoundException>(act);
             Assert.Null(noteRepository.Notes.Single().PublicUrl);
         }
 

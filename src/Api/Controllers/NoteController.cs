@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Noteapp.Api.Dtos;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Services;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,8 @@ namespace Noteapp.Api.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_noteService.GetAll(_userId));
+            var notes = _noteService.GetAll(_userId);
+            return Ok(notes);
         }
 
         [HttpPost]
@@ -38,83 +40,145 @@ namespace Noteapp.Api.Controllers
         [HttpGet("{id:int}")]
         public IActionResult Get(int id)
         {
-            var note = _noteService.TryGet(_userId, id);
-
-            return note != null ? Ok(note) : NotFound();
+            try
+            {
+                var note = _noteService.Get(_userId, id);
+                return Ok(note);
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPut("{id:int}")]
         public IActionResult Update(int id, UpdateNoteDto dto)
         {
-            bool success = _noteService.TryUpdate(_userId, id, dto.Text);
-
-            return success ? NoContent() : NotFound(); // TODO: check for note locked error
+            try
+            {
+                _noteService.Update(_userId, id, dto.Text);
+                return NoContent();
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (NoteLockedException)
+            {
+                return Forbid();
+            }
         }
 
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
-            bool success = _noteService.TryDelete(_userId, id);
-
-            return success ? NoContent() : NotFound();
+            try
+            {
+                _noteService.Delete(_userId, id);
+                return NoContent();
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPut("{id:int}/lock")]
         public IActionResult Lock(int id)
         {
-            var success = _noteService.Lock(_userId, id);
-
-            return success ? NoContent() : NotFound();
+            try
+            {
+                _noteService.Lock(_userId, id);
+                return NoContent();
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{id:int}/lock")]
         public IActionResult Unlock(int id)
         {
-            var success = _noteService.Unlock(_userId, id);
-
-            return success ? NoContent() : NotFound();
+            try
+            {
+                _noteService.Unlock(_userId, id);
+                return NoContent();
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPut("{id:int}/archive")]
         public IActionResult Archive(int id)
         {
-            var success = _noteService.Archive(_userId, id);
-
-            return success ? NoContent() : NotFound();
+            try
+            {
+                _noteService.Archive(_userId, id);
+                return NoContent();
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{id:int}/archive")]
         public IActionResult Unarchive(int id)
         {
-            var success = _noteService.Unarchive(_userId, id);
-
-            return success ? NoContent() : NotFound();
+            try
+            {
+                _noteService.Unarchive(_userId, id);
+                return NoContent();
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPut("{id:int}/publish")]
         public IActionResult Publish(int id)
         {
-            var url = _noteService.Publish(_userId, id);
-
-            return url != null ? CreatedAtAction(nameof(GetPublishedNoteText), new { url = url }, null) : NotFound();
+            try
+            {
+                var url = _noteService.Publish(_userId, id);
+                return CreatedAtAction(nameof(GetPublishedNoteText), new { url = url }, null);
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{id:int}/publish")]
         public IActionResult Unpublish(int id)
         {
-            var success = _noteService.Unpublish(_userId, id);
-
-            return success ? NoContent() : NotFound();
-
+            try
+            {
+                _noteService.Unpublish(_userId, id);
+                return NoContent();
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpGet("/p/{url}")]
         public IActionResult GetPublishedNoteText(string url)
         {
-            var text = _noteService.GetPublishedNoteText(url);
-
-            return text != null ? Ok(text) : NotFound();
+            try
+            {
+                var text = _noteService.GetPublishedNoteText(url);
+                return Ok(text);
+            }
+            catch (NoteNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
-
 }

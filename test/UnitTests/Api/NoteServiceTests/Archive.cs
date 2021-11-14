@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
@@ -29,10 +30,9 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             noteRepository.Notes.Add(note);
 
             // Act
-            var result = service.Archive(userId: 1, noteId: 1);
+            service.Archive(userId: 1, noteId: 1);
 
             // Assert
-            Assert.True(result);
             Assert.True(note.Archived);
         }
 
@@ -52,10 +52,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             noteRepository.Notes.Add(note);
 
             // Act
-            var result = service.Archive(userId: 1, noteId: 2);
+            Action act = () => service.Archive(userId: 1, noteId: 2);
 
             // Assert
-            Assert.False(result);
+            Assert.Throws<NoteNotFoundException>(act);
             Assert.False(note.Archived);
         }
 
@@ -75,10 +75,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             noteRepository.Notes.Add(note);
 
             // Act
-            var result = service.Archive(userId: 2, noteId: 1);
+            Action act = () => service.Archive(userId: 2, noteId: 1);
 
             // Assert
-            Assert.False(result);
+            Assert.Throws<NoteNotFoundException>(act);
             Assert.False(note.Archived);
         }
     }

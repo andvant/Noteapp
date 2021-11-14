@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
@@ -11,7 +12,7 @@ using Xunit;
 
 namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
-    public class TryGet
+    public class Get
     {
         [Fact]
         public void ReturnsNoteGivenValidUserIdAndNoteId()
@@ -27,7 +28,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var returnedNote = noteService.TryGet(1, 1);
+            var returnedNote = noteService.Get(1, 1);
 
             // Assert
             Assert.Same(note, returnedNote);
@@ -41,10 +42,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var returnedNote = noteService.TryGet(1, 1);
+            Action act = () => noteService.Get(1, 1);
 
             // Assert
-            Assert.Null(returnedNote);
+            Assert.Throws<NoteNotFoundException>(act);
         }
 
         [Fact]
@@ -61,10 +62,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var noteService = new NoteService(noteRepository, new DateTimeProvider());
 
             // Act
-            var returnedNote = noteService.TryGet(2, 1);
+            Action act = () => noteService.Get(2, 1);
 
             // Assert
-            Assert.Null(returnedNote);
+            Assert.Throws<NoteNotFoundException>(act);
         }
     }
 }
