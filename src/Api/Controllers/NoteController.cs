@@ -33,8 +33,16 @@ namespace Noteapp.Api.Controllers
         public IActionResult Create(CreateNoteDto dto)
         {
             var note = _noteService.Create(_userId, dto.Text);
-
             return CreatedAtAction(nameof(Get), new { id = note.Id }, note);
+        }
+
+        // TODO: return 413 if Payload too large
+        // also might want to return created notes instead of NoContent
+        [HttpPost("bulk")]
+        public IActionResult BulkCreate(BulkCreateNoteDto dto)
+        {
+            _noteService.BulkCreate(_userId, dto.Texts);
+            return NoContent();
         }
 
         [HttpGet("{id:int}")]
@@ -65,7 +73,7 @@ namespace Noteapp.Api.Controllers
             }
             catch (NoteLockedException)
             {
-                return Forbid();
+                return Forbid(); // might want to change the status code
             }
         }
 

@@ -48,6 +48,25 @@ namespace Noteapp.Api.Services
             return note;
         }
 
+        public void BulkCreate(int userId, IEnumerable<string> texts)
+        {
+            foreach (var text in texts)
+            {
+                var note = new Note()
+                {
+                    Created = _dateTimeProvider.Now,
+                    Updated = _dateTimeProvider.Now,
+                    Id = GenerateNewNoteId(),
+                    Text = text,
+                    AuthorId = userId
+                };
+
+                // TODO: add the whole list to the repository at once, but for that need to
+                // change the implementation of GenerateNewNoteId() first
+                _repository.Notes.Add(note);
+            }
+        }
+
         public Note Get(int userId, int noteId)
         {
             return GetNote(userId, noteId);
@@ -134,6 +153,7 @@ namespace Noteapp.Api.Services
             return note ?? throw new NoteNotFoundException(userId, noteId);
         }
 
+        // TODO: make thread-safe
         private int GenerateNewNoteId()
         {
             return _repository.Notes.Max(note => note?.Id) + 1 ?? 1;
