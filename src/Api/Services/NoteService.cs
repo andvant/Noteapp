@@ -14,6 +14,7 @@ namespace Noteapp.Api.Services
     {
         private readonly NoteRepository _repository;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private const int MAX_BULK_NOTES = 20; // might want to move it somewhere else
 
         public NoteService(NoteRepository repository, IDateTimeProvider dateTimeProvider)
         {
@@ -33,33 +34,18 @@ namespace Noteapp.Api.Services
 
         public Note Create(int userId, string text)
         {
-
-            var note = new Note()
-            {
-                Created = _dateTimeProvider.Now,
-                Updated = _dateTimeProvider.Now,
-                Id = GenerateNewNoteId(),
-                Text = text,
-                AuthorId = userId
-            };
-
+            var note = CreateNote(userId, text);
             _repository.Notes.Add(note);
-
             return note;
         }
 
         public void BulkCreate(int userId, IEnumerable<string> texts)
         {
+            TooManyNotesException.ThrowIfTooManyNotes(texts.Count(), MAX_BULK_NOTES);
+
             foreach (var text in texts)
             {
-                var note = new Note()
-                {
-                    Created = _dateTimeProvider.Now,
-                    Updated = _dateTimeProvider.Now,
-                    Id = GenerateNewNoteId(),
-                    Text = text,
-                    AuthorId = userId
-                };
+                var note = CreateNote(userId, text);
 
                 // TODO: add the whole list to the repository at once, but for that need to
                 // change the implementation of GenerateNewNoteId() first
@@ -151,6 +137,18 @@ namespace Noteapp.Api.Services
         {
             var note = _repository.Notes.Find(note => note.Id == noteId && note.AuthorId == userId);
             return note ?? throw new NoteNotFoundException(userId, noteId);
+        }
+
+        private Note CreateNote(int userId, string text)
+        {
+            return new Note()
+            {
+                Created = _dateTimeProvider.Now,
+                Updated = _dateTimeProvider.Now,
+                Id = GenerateNewNoteId(),
+                Text = text,
+                AuthorId = userId
+            };
         }
 
         // TODO: make thread-safe

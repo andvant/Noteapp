@@ -9,7 +9,7 @@ namespace Noteapp.Api.Entities
         public bool Locked { get; set; }
         public bool Archived { get; set; }
         public bool Pinned { get; set; }
-        public bool Published { get => PublicUrl != null; }
+        public bool Published => PublicUrl != null;
         public string PublicUrl { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }

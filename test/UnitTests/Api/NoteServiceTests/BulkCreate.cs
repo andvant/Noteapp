@@ -1,5 +1,6 @@
 ﻿using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
+using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
@@ -53,6 +54,30 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             Assert.Equal(4, noteRepository.Notes[3].Id);
             Assert.Equal(1, noteRepository.Notes[3].AuthorId);
             Assert.Equal("note4", noteRepository.Notes[3].Text);
+        }
+
+        [Fact]
+        public void ThrowsGivenTooManyNotes()
+        {
+            // Arrange
+            var noteRepository = new NoteRepository(false);
+            var dateTime = new DateTime(2021, 1, 1);
+            var noteService = new NoteService(noteRepository, new DateTimeProvider(dateTime));
+            var note = new Note()
+            {
+                Id = 1,
+                AuthorId = 1
+            };
+            noteRepository.Notes.Add(note);
+
+            var newNotesTexts = Enumerable.Repeat("note", 21);
+
+            // Act
+            Action act = () => noteService.BulkCreate(1, newNotesTexts);
+
+            // Assert
+            Assert.Throws<TooManyNotesException>(act);
+            Assert.Single(noteRepository.Notes);
         }
     }
 }

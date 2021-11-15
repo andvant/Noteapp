@@ -38,8 +38,7 @@ namespace Noteapp.Api.Controllers
             return CreatedAtAction(nameof(Get), new { id = note.Id }, note);
         }
 
-        // TODO: return 413 if Payload too large
-        // also might want to return created notes instead of NoContent
+        // might want to return created notes instead of NoContent
         [HttpPost("bulk")]
         public IActionResult BulkCreate(BulkCreateNoteDto dto)
         {
