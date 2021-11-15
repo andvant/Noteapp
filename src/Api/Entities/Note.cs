@@ -12,7 +12,7 @@ namespace Noteapp.Api.Entities
         public bool Published { get => PublicUrl != null; }
         public string PublicUrl { get; set; }
         public DateTime Created { get; set; }
-        public DateTime LastModified { get; set; }
+        public DateTime Updated { get; set; }
         [JsonIgnore]
         public AppUser Author { get; set; }
         public int AuthorId { get; set; }

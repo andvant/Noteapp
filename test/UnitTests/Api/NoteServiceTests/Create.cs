@@ -26,7 +26,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             // Assert
             Assert.Same(createdNote, noteRepository.Notes.Single());
             Assert.Equal(dateTime, createdNote.Created);
-            Assert.Equal(dateTime, createdNote.LastModified);
+            Assert.Equal(dateTime, createdNote.Updated);
             Assert.Equal(1, createdNote.Id);
             Assert.Equal(1, createdNote.AuthorId);
             Assert.Equal("new note", createdNote.Text);

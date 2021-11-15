@@ -25,7 +25,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
                 Created = createdDateTime,
-                LastModified = createdDateTime,
+                Updated = createdDateTime,
                 Text = "original text"
             };
             noteRepository.Notes.Add(note);
@@ -38,7 +38,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 
             // Assert
             Assert.Equal("updated text", noteRepository.Notes.Single().Text);
-            Assert.Equal(updatedDateTime, noteRepository.Notes.Single().LastModified, TimeSpan.Zero);
+            Assert.Equal(updatedDateTime, noteRepository.Notes.Single().Updated, TimeSpan.Zero);
             Assert.Equal(createdDateTime, noteRepository.Notes.Single().Created, TimeSpan.Zero);
         }
 
@@ -53,7 +53,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
                 Created = createdDateTime,
-                LastModified = createdDateTime,
+                Updated = createdDateTime,
                 Text = "original text"
             };
             noteRepository.Notes.Add(note);
@@ -67,7 +67,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
             Assert.Equal("original text", noteRepository.Notes.Single().Text);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().LastModified, TimeSpan.Zero);
+            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Updated, TimeSpan.Zero);
             Assert.Equal(createdDateTime, noteRepository.Notes.Single().Created, TimeSpan.Zero);
         }
 
@@ -82,7 +82,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
                 Created = createdDateTime,
-                LastModified = createdDateTime,
+                Updated = createdDateTime,
                 Text = "original text"
             };
             noteRepository.Notes.Add(note);
@@ -96,7 +96,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
             Assert.Equal("original text", noteRepository.Notes.Single().Text);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().LastModified, TimeSpan.Zero);
+            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Updated, TimeSpan.Zero);
             Assert.Equal(createdDateTime, noteRepository.Notes.Single().Created, TimeSpan.Zero);
         }
 
@@ -111,7 +111,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
                 Created = createdDateTime,
-                LastModified = createdDateTime,
+                Updated = createdDateTime,
                 Text = "original text",
                 Locked = true
             };
@@ -126,7 +126,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             // Assert
             Assert.Throws<NoteLockedException>(act);
             Assert.Equal("original text", noteRepository.Notes.Single().Text);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().LastModified, TimeSpan.Zero);
+            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Updated, TimeSpan.Zero);
             Assert.Equal(createdDateTime, noteRepository.Notes.Single().Created, TimeSpan.Zero);
         }
     }

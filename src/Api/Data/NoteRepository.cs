@@ -24,7 +24,7 @@ namespace Noteapp.Api.Data
                     Id = 1,
                     Text = "note 1",
                     Created = DateTime.Now,
-                    LastModified = DateTime.Now,
+                    Updated = DateTime.Now,
                     AuthorId = userId
                 },
                 new()
@@ -32,7 +32,7 @@ namespace Noteapp.Api.Data
                     Id = 2,
                     Text = "note 2",
                     Created = DateTime.Now,
-                    LastModified = DateTime.Now,
+                    Updated = DateTime.Now,
                     AuthorId = userId
                 },
                 new()
@@ -40,7 +40,7 @@ namespace Noteapp.Api.Data
                     Id = 3,
                     Text = "note 3",
                     Created = DateTime.Now,
-                    LastModified = DateTime.Now,
+                    Updated = DateTime.Now,
                     AuthorId = userId
                 }
             };

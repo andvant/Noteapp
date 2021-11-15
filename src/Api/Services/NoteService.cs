@@ -9,6 +9,7 @@ using System.Text;
 
 namespace Noteapp.Api.Services
 {
+    // Assumes: that user with provided userId is authenticated (for all methods)
     public class NoteService
     {
         private readonly NoteRepository _repository;
@@ -32,12 +33,11 @@ namespace Noteapp.Api.Services
 
         public Note Create(int userId, string text)
         {
-            // Assumes that AppUser with Id of userId exists
 
             var note = new Note()
             {
                 Created = _dateTimeProvider.Now,
-                LastModified = _dateTimeProvider.Now,
+                Updated = _dateTimeProvider.Now,
                 Id = GenerateNewNoteId(),
                 Text = text,
                 AuthorId = userId
@@ -63,7 +63,7 @@ namespace Noteapp.Api.Services
             }
 
             note.Text = text;
-            note.LastModified = _dateTimeProvider.Now;
+            note.Updated = _dateTimeProvider.Now;
         }
 
         public void Delete(int userId, int noteId)
