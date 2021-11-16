@@ -1,9 +1,8 @@
 ﻿using Moq;
-using Noteapp.Api.Data;
-using Noteapp.Api.Entities;
-using Noteapp.Api.Exceptions;
-using Noteapp.Api.Infrastructure;
-using Noteapp.Api.Services;
+using Noteapp.Core.Entities;
+using Noteapp.Core.Exceptions;
+using Noteapp.Core.Interfaces;
+using Noteapp.Core.Services;
 using System;
 using System.Collections.Generic;
 using Xunit;

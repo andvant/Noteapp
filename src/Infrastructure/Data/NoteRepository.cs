@@ -1,8 +1,9 @@
-﻿using Noteapp.Api.Entities;
+﻿using Noteapp.Core.Entities;
+using Noteapp.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 
-namespace Noteapp.Api.Data
+namespace Noteapp.Infrastructure.Data
 {
     public class NoteRepository : INoteRepository
     {

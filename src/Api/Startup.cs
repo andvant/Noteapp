@@ -4,9 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Noteapp.Api.Data;
-using Noteapp.Api.Infrastructure;
-using Noteapp.Api.Services;
+using Noteapp.Core.Interfaces;
+using Noteapp.Core.Services;
+using Noteapp.Infrastructure;
+using Noteapp.Infrastructure.Data;
 
 namespace Noteapp.Api
 {

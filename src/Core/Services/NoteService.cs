@@ -1,13 +1,12 @@
-﻿using Noteapp.Api.Data;
-using Noteapp.Api.Entities;
-using Noteapp.Api.Exceptions;
-using Noteapp.Api.Infrastructure;
+﻿using Noteapp.Core.Interfaces;
+using Noteapp.Core.Entities;
+using Noteapp.Core.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Noteapp.Api.Services
+namespace Noteapp.Core.Services
 {
     // Assumes: that user with provided userId is authenticated (for all methods)
     public class NoteService : INoteService

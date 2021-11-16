@@ -1,9 +1,8 @@
 ﻿using Moq;
-using Noteapp.Api.Data;
-using Noteapp.Api.Entities;
-using Noteapp.Api.Exceptions;
-using Noteapp.Api.Infrastructure;
-using Noteapp.Api.Services;
+using Noteapp.Core.Entities;
+using Noteapp.Core.Exceptions;
+using Noteapp.Core.Interfaces;
+using Noteapp.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,10 +32,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 AuthorId = 1
             };
             _noteRepository.Notes.Add(note);
-            var service = new NoteService(_noteRepository, _dateTimeProvider);
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            var url = service.Publish(userId: 1, noteId: 1);
+            var url = noteService.Publish(userId: 1, noteId: 1);
 
             // Assert
             Assert.True(!string.IsNullOrWhiteSpace(url));
@@ -54,10 +53,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 AuthorId = 1
             };
             _noteRepository.Notes.Add(note);
-            var service = new NoteService(_noteRepository, _dateTimeProvider);
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => service.Publish(userId: 1, noteId: 2);
+            Action act = () => noteService.Publish(userId: 1, noteId: 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
@@ -74,10 +73,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 AuthorId = 1
             };
             _noteRepository.Notes.Add(note);
-            var service = new NoteService(_noteRepository, _dateTimeProvider);
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => service.Publish(userId: 2, noteId: 1);
+            Action act = () => noteService.Publish(userId: 2, noteId: 1);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);

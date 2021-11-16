@@ -1,9 +1,8 @@
 ﻿using Moq;
-using Noteapp.Api.Data;
-using Noteapp.Api.Entities;
-using Noteapp.Api.Exceptions;
-using Noteapp.Api.Infrastructure;
-using Noteapp.Api.Services;
+using Noteapp.Core.Entities;
+using Noteapp.Core.Exceptions;
+using Noteapp.Core.Interfaces;
+using Noteapp.Core.Services;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -33,10 +32,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 PublicUrl = "testtest"
             };
             _noteRepository.Notes.Add(note);
-            var service = new NoteService(_noteRepository, _dateTimeProvider);
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            var text = service.GetPublishedNoteText("testtest");
+            var text = noteService.GetPublishedNoteText("testtest");
 
             // Assert
             Assert.Equal("note 1", text);
@@ -46,10 +45,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenWrongUrl()
         {
             // Arrange
-            var service = new NoteService(_noteRepository, _dateTimeProvider);
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => service.GetPublishedNoteText("shouldfail");
+            Action act = () => noteService.GetPublishedNoteText("shouldfail");
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);

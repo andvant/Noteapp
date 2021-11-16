@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Noteapp.Api.Entities
+namespace Noteapp.Core.Entities
 {
     public class AppUser : BaseEntity
     {

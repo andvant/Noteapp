@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Noteapp.Api.Exceptions
+namespace Noteapp.Core.Exceptions
 {
     public class NoteappException : Exception
     {

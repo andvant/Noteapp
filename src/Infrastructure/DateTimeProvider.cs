@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Noteapp.Core.Interfaces;
+using System;
 
-namespace Noteapp.Api.Infrastructure
+namespace Noteapp.Infrastructure
 {
     public class DateTimeProvider : IDateTimeProvider
     {

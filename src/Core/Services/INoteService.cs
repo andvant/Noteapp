@@ -1,7 +1,7 @@
-﻿using Noteapp.Api.Entities;
+﻿using Noteapp.Core.Entities;
 using System.Collections.Generic;
 
-namespace Noteapp.Api.Services
+namespace Noteapp.Core.Services
 {
     public interface INoteService
     {

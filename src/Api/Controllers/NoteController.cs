@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Noteapp.Api.Dtos;
 using Noteapp.Api.Filters;
-using Noteapp.Api.Services;
+using Noteapp.Core.Services;
 
 namespace Noteapp.Api.Controllers
 {

@@ -1,9 +1,8 @@
 ﻿using Moq;
-using Noteapp.Api.Data;
-using Noteapp.Api.Entities;
-using Noteapp.Api.Exceptions;
-using Noteapp.Api.Infrastructure;
-using Noteapp.Api.Services;
+using Noteapp.Core.Entities;
+using Noteapp.Core.Exceptions;
+using Noteapp.Core.Interfaces;
+using Noteapp.Core.Services;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -40,10 +39,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             };
             _noteRepository.Notes.Add(note1);
             _noteRepository.Notes.Add(note2);
-            var service = new NoteService(_noteRepository, _dateTimeProvider);
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            service.Unarchive(userId: 1, noteId: 2);
+            noteService.Unarchive(userId: 1, noteId: 2);
 
             // Assert
             Assert.False(note2.Archived);
@@ -61,10 +60,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 Archived = true
             };
             _noteRepository.Notes.Add(note);
-            var service = new NoteService(_noteRepository, _dateTimeProvider);
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => service.Unarchive(userId: 1, noteId: 2);
+            Action act = () => noteService.Unarchive(userId: 1, noteId: 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
@@ -82,10 +81,10 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 Archived = true
             };
             _noteRepository.Notes.Add(note);
-            var service = new NoteService(_noteRepository, _dateTimeProvider);
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => service.Unarchive(userId: 2, noteId: 1);
+            Action act = () => noteService.Unarchive(userId: 2, noteId: 1);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);

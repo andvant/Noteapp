@@ -1,4 +1,4 @@
-﻿namespace Noteapp.Api.Exceptions
+﻿namespace Noteapp.Core.Exceptions
 {
     public class TooManyNotesException : NoteappException
     {
