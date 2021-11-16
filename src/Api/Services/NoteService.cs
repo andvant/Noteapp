@@ -10,16 +10,21 @@ using System.Text;
 namespace Noteapp.Api.Services
 {
     // Assumes: that user with provided userId is authenticated (for all methods)
-    public class NoteService
+    public class NoteService : INoteService
     {
-        private readonly NoteRepository _repository;
+        private readonly INoteRepository _repository;
         private readonly IDateTimeProvider _dateTimeProvider;
         private const int MAX_BULK_NOTES = 20; // might want to move it somewhere else
 
-        public NoteService(NoteRepository repository, IDateTimeProvider dateTimeProvider)
+        public NoteService(INoteRepository repository, IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
             _dateTimeProvider = dateTimeProvider;
+        }
+
+        public Note Get(int userId, int noteId)
+        {
+            return GetNote(userId, noteId);
         }
 
         public IEnumerable<Note> GetAll(int userId, bool? archived)
@@ -53,11 +58,6 @@ namespace Noteapp.Api.Services
             }
         }
 
-        public Note Get(int userId, int noteId)
-        {
-            return GetNote(userId, noteId);
-        }
-
         public void Update(int userId, int noteId, string text)
         {
             var note = GetNote(userId, noteId);
@@ -75,18 +75,6 @@ namespace Noteapp.Api.Services
         {
             var note = GetNote(userId, noteId);
             _repository.Notes.Remove(note);
-        }
-
-        public void Lock(int userId, int noteId)
-        {
-            var note = GetNote(userId, noteId);
-            note.Locked = true;
-        }
-
-        public void Unlock(int userId, int noteId)
-        {
-            var note = GetNote(userId, noteId);
-            note.Locked = false;
         }
 
         public void Archive(int userId, int noteId)
@@ -111,6 +99,18 @@ namespace Noteapp.Api.Services
         {
             var note = GetNote(userId, noteId);
             note.Pinned = false;
+        }
+
+        public void Lock(int userId, int noteId)
+        {
+            var note = GetNote(userId, noteId);
+            note.Locked = true;
+        }
+
+        public void Unlock(int userId, int noteId)
+        {
+            var note = GetNote(userId, noteId);
+            note.Locked = false;
         }
 
         public string Publish(int userId, int noteId)

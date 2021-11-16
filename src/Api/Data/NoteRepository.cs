@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Noteapp.Api.Data
 {
-    public class NoteRepository
+    public class NoteRepository : INoteRepository
     {
         public List<Note> Notes { get; set; }
 

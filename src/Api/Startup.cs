@@ -38,8 +38,8 @@ namespace Noteapp.Api
             });
 
             // Singleton because it uses in-memory data which should be the same between different calls
-            services.AddSingleton<NoteRepository>();
-            services.AddTransient<NoteService>();
+            services.AddSingleton<INoteRepository, NoteRepository>();
+            services.AddTransient<INoteService, NoteService>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
         }
 
