@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace Noteapp.Api.Exceptions
+﻿namespace Noteapp.Api.Exceptions
 {
     public class TooManyNotesException : NoteappException
     {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Noteapp.Api.Exceptions
+﻿namespace Noteapp.Api.Exceptions
 {
     public class NoteLockedException : NoteappException
     {

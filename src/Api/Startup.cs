@@ -1,20 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Noteapp.Api.Data;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Noteapp.Api
 {
@@ -30,7 +22,6 @@ namespace Noteapp.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -39,8 +30,8 @@ namespace Noteapp.Api
 
             // Singleton because it uses in-memory data which should be the same between different calls
             services.AddSingleton<INoteRepository, NoteRepository>();
-            services.AddTransient<INoteService, NoteService>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+            services.AddTransient<INoteService, NoteService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

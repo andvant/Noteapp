@@ -1,12 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Noteapp.Api.Dtos;
-using Noteapp.Api.Entities;
-using Noteapp.Api.Exceptions;
 using Noteapp.Api.Filters;
 using Noteapp.Api.Services;
-using System;
-using System.Collections.Generic;
 
 namespace Noteapp.Api.Controllers
 {

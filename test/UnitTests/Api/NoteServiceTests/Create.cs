@@ -6,8 +6,6 @@ using Noteapp.Api.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Api.NoteServiceTests
@@ -23,7 +21,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         {
             _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
             _noteRepository = _mock.Object;
-            _dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider => 
+            _dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider =>
                 dateTimeProvider.Now == _dateTime);
         }
 

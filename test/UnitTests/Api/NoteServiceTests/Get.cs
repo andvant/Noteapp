@@ -6,9 +6,6 @@ using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Api.NoteServiceTests
@@ -43,7 +40,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             // Assert
             Assert.Same(note, returnedNote);
         }
-            
+
         [Fact]
         public void ThrowsGivenNonExistentNoteId()
         {

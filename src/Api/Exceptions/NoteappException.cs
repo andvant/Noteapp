@@ -12,8 +12,8 @@ namespace Noteapp.Api.Exceptions
         {
         }
 
-        public NoteappException(string message, Exception innerException) : base(message, innerException) 
-        { 
+        public NoteappException(string message, Exception innerException) : base(message, innerException)
+        {
         }
     }
 }
