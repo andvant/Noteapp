@@ -14,19 +14,20 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class BulkCreate
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+
         [Fact]
         public void CreatesNewNotes()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var dateTime = new DateTime(2021, 1, 1);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider(dateTime));
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var dateTime = new DateTime(2021, 1, 1);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider(dateTime));
 
             var newNotesTexts = new List<string>
             {
@@ -39,45 +40,44 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             noteService.BulkCreate(1, newNotesTexts);
 
             // Assert
-            Assert.Equal(newNotesTexts.Count + 1, noteRepository.Notes.Count);
-            Assert.Equal(dateTime, noteRepository.Notes[1].Created);
-            Assert.Equal(dateTime, noteRepository.Notes[1].Updated);
+            Assert.Equal(newNotesTexts.Count + 1, _noteRepository.Notes.Count);
+            Assert.Equal(dateTime, _noteRepository.Notes[1].Created);
+            Assert.Equal(dateTime, _noteRepository.Notes[1].Updated);
 
-            Assert.Equal(2, noteRepository.Notes[1].Id);
-            Assert.Equal(1, noteRepository.Notes[1].AuthorId);
-            Assert.Equal("note2", noteRepository.Notes[1].Text);
+            Assert.Equal(2, _noteRepository.Notes[1].Id);
+            Assert.Equal(1, _noteRepository.Notes[1].AuthorId);
+            Assert.Equal("note2", _noteRepository.Notes[1].Text);
 
-            Assert.Equal(3, noteRepository.Notes[2].Id);
-            Assert.Equal(1, noteRepository.Notes[2].AuthorId);
-            Assert.Equal("note3", noteRepository.Notes[2].Text);
+            Assert.Equal(3, _noteRepository.Notes[2].Id);
+            Assert.Equal(1, _noteRepository.Notes[2].AuthorId);
+            Assert.Equal("note3", _noteRepository.Notes[2].Text);
 
-            Assert.Equal(4, noteRepository.Notes[3].Id);
-            Assert.Equal(1, noteRepository.Notes[3].AuthorId);
-            Assert.Equal("note4", noteRepository.Notes[3].Text);
+            Assert.Equal(4, _noteRepository.Notes[3].Id);
+            Assert.Equal(1, _noteRepository.Notes[3].AuthorId);
+            Assert.Equal("note4", _noteRepository.Notes[3].Text);
         }
 
         [Fact]
         public void ThrowsGivenTooManyNotes()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var dateTime = new DateTime(2021, 1, 1);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider(dateTime));
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var dateTime = new DateTime(2021, 1, 1);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider(dateTime));
 
             var newNotesTexts = Enumerable.Repeat("note", 21);
 
             // Act
-            Action act = () => noteService.BulkCreate(1, newNotesTexts);
+            Action act = () => noteService.BulkCreate(userId: 1, texts: newNotesTexts);
 
             // Assert
             Assert.Throws<TooManyNotesException>(act);
-            Assert.Single(noteRepository.Notes);
+            Assert.Single(_noteRepository.Notes);
         }
     }
 }

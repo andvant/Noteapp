@@ -14,13 +14,12 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Unarchive
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+
         [Fact]
         public void UnarchivesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note1 = new Note()
             {
                 Id = 1,
@@ -33,8 +32,9 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 AuthorId = 1,
                 Archived = true
             };
-            noteRepository.Notes.Add(note1);
-            noteRepository.Notes.Add(note2);
+            _noteRepository.Notes.Add(note1);
+            _noteRepository.Notes.Add(note2);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             service.Unarchive(userId: 1, noteId: 2);
@@ -48,16 +48,14 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 Archived = true
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => service.Unarchive(userId: 1, noteId: 2);
@@ -71,16 +69,14 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenWrongUserId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 Archived = true
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => service.Unarchive(userId: 2, noteId: 1);

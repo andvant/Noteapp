@@ -14,120 +14,118 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Update
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+
         [Fact]
         public void UpdatesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var createdDateTime = new DateTime(2021, 1, 1);
+            var created = new DateTime(2021, 1, 1);
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
-                Created = createdDateTime,
-                Updated = createdDateTime,
+                Created = created,
+                Updated = created,
                 Text = "original text"
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
 
-            var updatedDateTime = new DateTime(2021, 2, 2);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider(updatedDateTime));
+            var updated = new DateTime(2021, 2, 2);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider(updated));
 
             // Act
             noteService.Update(userId: 1, noteId: 1, text: "updated text");
 
             // Assert
-            Assert.Equal("updated text", noteRepository.Notes.Single().Text);
-            Assert.Equal(updatedDateTime, noteRepository.Notes.Single().Updated, TimeSpan.Zero);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Created, TimeSpan.Zero);
+            Assert.Equal("updated text", _noteRepository.Notes.Single().Text);
+            Assert.Equal(updated, _noteRepository.Notes.Single().Updated, TimeSpan.Zero);
+            Assert.Equal(created, _noteRepository.Notes.Single().Created, TimeSpan.Zero);
         }
 
         [Fact]
         public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var createdDateTime = new DateTime(2021, 1, 1);
+            var created = new DateTime(2021, 1, 1);
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
-                Created = createdDateTime,
-                Updated = createdDateTime,
+                Created = created,
+                Updated = created,
                 Text = "original text"
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
 
-            var updatedDateTime = new DateTime(2021, 2, 2);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider(updatedDateTime));
+            var updated = new DateTime(2021, 2, 2);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider(updated));
 
             // Act
             Action act = () => noteService.Update(userId: 1, noteId: 2, text: "updated text");
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Equal("original text", noteRepository.Notes.Single().Text);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Updated, TimeSpan.Zero);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Created, TimeSpan.Zero);
+            Assert.Equal("original text", _noteRepository.Notes.Single().Text);
+            Assert.Equal(created, _noteRepository.Notes.Single().Updated, TimeSpan.Zero);
+            Assert.Equal(created, _noteRepository.Notes.Single().Created, TimeSpan.Zero);
         }
 
         [Fact]
         public void ThrowsGivenWrongUserId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var createdDateTime = new DateTime(2021, 1, 1);
+            var created = new DateTime(2021, 1, 1);
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
-                Created = createdDateTime,
-                Updated = createdDateTime,
+                Created = created,
+                Updated = created,
                 Text = "original text"
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
 
-            var updatedDateTime = new DateTime(2021, 2, 2);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider(updatedDateTime));
+            var updated = new DateTime(2021, 2, 2);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider(updated));
 
             // Act
             Action act = () => noteService.Update(userId: 2, noteId: 1, text: "updated text");
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Equal("original text", noteRepository.Notes.Single().Text);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Updated, TimeSpan.Zero);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Created, TimeSpan.Zero);
+            Assert.Equal("original text", _noteRepository.Notes.Single().Text);
+            Assert.Equal(created, _noteRepository.Notes.Single().Updated, TimeSpan.Zero);
+            Assert.Equal(created, _noteRepository.Notes.Single().Created, TimeSpan.Zero);
         }
 
         [Fact]
         public void ThrowsGivenNoteIsLocked()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var createdDateTime = new DateTime(2021, 1, 1);
+            var created = new DateTime(2021, 1, 1);
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
-                Created = createdDateTime,
-                Updated = createdDateTime,
+                Created = created,
+                Updated = created,
                 Text = "original text",
                 Locked = true
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
 
-            var updatedDateTime = new DateTime(2021, 2, 2);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider(updatedDateTime));
+            var updated = new DateTime(2021, 2, 2);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider(updated));
 
             // Act
             Action act = () => noteService.Update(userId: 1, noteId: 1, text: "updated text");
 
             // Assert
             Assert.Throws<NoteLockedException>(act);
-            Assert.Equal("original text", noteRepository.Notes.Single().Text);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Updated, TimeSpan.Zero);
-            Assert.Equal(createdDateTime, noteRepository.Notes.Single().Created, TimeSpan.Zero);
+            Assert.Equal("original text", _noteRepository.Notes.Single().Text);
+            Assert.Equal(created, _noteRepository.Notes.Single().Updated, TimeSpan.Zero);
+            Assert.Equal(created, _noteRepository.Notes.Single().Created, TimeSpan.Zero);
         }
     }
 }

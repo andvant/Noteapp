@@ -14,20 +14,20 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Archive
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+
         [Fact]
         public void ArchivesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 Archived = false
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             service.Archive(userId: 1, noteId: 1);
@@ -40,16 +40,14 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 Archived = false
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => service.Archive(userId: 1, noteId: 2);
@@ -63,16 +61,14 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenWrongUserId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 Archived = false
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => service.Archive(userId: 2, noteId: 1);

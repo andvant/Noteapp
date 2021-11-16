@@ -12,19 +12,20 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Create
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+
         [Fact]
         public void CreatesNewNote()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
             var dateTime = new DateTime(2021, 1, 1);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider(dateTime));
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider(dateTime));
 
             // Act
-            var createdNote = noteService.Create(1, "new note");
+            var createdNote = noteService.Create(userId: 1, text: "new note");
 
             // Assert
-            Assert.Same(createdNote, noteRepository.Notes.Single());
+            Assert.Same(createdNote, _noteRepository.Notes.Single());
             Assert.Equal(dateTime, createdNote.Created);
             Assert.Equal(dateTime, createdNote.Updated);
             Assert.Equal(1, createdNote.Id);

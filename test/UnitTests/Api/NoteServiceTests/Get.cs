@@ -14,18 +14,19 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Get
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+
         [Fact]
         public void ReturnsNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
             };
-            noteRepository.Notes.Add(note);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+            _noteRepository.Notes.Add(note);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             var returnedNote = noteService.Get(1, 1);
@@ -38,11 +39,16 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+            var note = new Note()
+            {
+                Id = 1,
+                AuthorId = 1,
+            };
+            _noteRepository.Notes.Add(note);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
-            Action act = () => noteService.Get(1, 1);
+            Action act = () => noteService.Get(1, 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
@@ -52,14 +58,13 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenWrongUserId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
             };
-            noteRepository.Notes.Add(note);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+            _noteRepository.Notes.Add(note);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => noteService.Get(2, 1);

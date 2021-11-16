@@ -14,27 +14,26 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Unpublish
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
 
         [Fact]
         public void UnpublishesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 PublicUrl = "testtest"
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             service.Unpublish(userId: 1, noteId: 1);
 
             // Assert
-            Assert.Null(noteRepository.Notes.Single().PublicUrl);
+            Assert.Null(_noteRepository.Notes.Single().PublicUrl);
         }
 
 
@@ -42,46 +41,42 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 PublicUrl = "testtest"
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => service.Unpublish(userId: 1, noteId: 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Equal("testtest", noteRepository.Notes.Single().PublicUrl);
+            Assert.Equal("testtest", _noteRepository.Notes.Single().PublicUrl);
         }
 
         [Fact]
         public void ThrowsGivenWrongUserId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 PublicUrl = "testtest"
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => service.Unpublish(userId: 2, noteId: 1);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Equal("testtest", noteRepository.Notes.Single().PublicUrl);
+            Assert.Equal("testtest", _noteRepository.Notes.Single().PublicUrl);
         }
 
 

@@ -13,11 +13,12 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class GetAll
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+
         [Fact]
         public void ReturnsAllNotesForGivenUserId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
             var note1 = new Note()
             {
                 Id = 1,
@@ -36,13 +37,13 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            noteRepository.Notes.Add(note1);
-            noteRepository.Notes.Add(note2);
-            noteRepository.Notes.Add(note3);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+            _noteRepository.Notes.Add(note1);
+            _noteRepository.Notes.Add(note2);
+            _noteRepository.Notes.Add(note3);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
-            var returnedNotes = noteService.GetAll(userId: 1, null);
+            var returnedNotes = noteService.GetAll(userId: 1, archived: null);
 
             // Assert
             Assert.Equal(2, returnedNotes.Count());
@@ -54,7 +55,6 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ReturnsOnlyArchivedNotesForGivenUserId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
             var note1 = new Note()
             {
                 Id = 1,
@@ -73,13 +73,13 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            noteRepository.Notes.Add(note1);
-            noteRepository.Notes.Add(note2);
-            noteRepository.Notes.Add(note3);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+            _noteRepository.Notes.Add(note1);
+            _noteRepository.Notes.Add(note2);
+            _noteRepository.Notes.Add(note3);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
-            var returnedNotes = noteService.GetAll(userId: 1, true);
+            var returnedNotes = noteService.GetAll(userId: 1, archived: true);
 
             // Assert
             Assert.Single(returnedNotes);
@@ -90,7 +90,6 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ReturnsOnlyNonArchivedNotesForGivenUserId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
             var note1 = new Note()
             {
                 Id = 1,
@@ -109,13 +108,13 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            noteRepository.Notes.Add(note1);
-            noteRepository.Notes.Add(note2);
-            noteRepository.Notes.Add(note3);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+            _noteRepository.Notes.Add(note1);
+            _noteRepository.Notes.Add(note2);
+            _noteRepository.Notes.Add(note3);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
-            var returnedNotes = noteService.GetAll(userId: 1, false);
+            var returnedNotes = noteService.GetAll(userId: 1, archived: false);
 
             // Assert
             Assert.Single(returnedNotes);

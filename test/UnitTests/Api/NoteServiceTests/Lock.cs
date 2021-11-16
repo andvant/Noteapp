@@ -14,19 +14,20 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Lock
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+
         [Fact]
         public void LocksNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 Locked = false
             };
-            noteRepository.Notes.Add(note);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+            _noteRepository.Notes.Add(note);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             noteService.Lock(userId: 1, noteId: 1);
@@ -39,15 +40,14 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 Locked = false
             };
-            noteRepository.Notes.Add(note);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+            _noteRepository.Notes.Add(note);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => noteService.Lock(userId: 1, noteId: 2);
@@ -61,15 +61,14 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenWrongUserId()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
             var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
                 Locked = false
             };
-            noteRepository.Notes.Add(note);
-            var noteService = new NoteService(noteRepository, new DateTimeProvider());
+            _noteRepository.Notes.Add(note);
+            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => noteService.Lock(userId: 2, noteId: 1);

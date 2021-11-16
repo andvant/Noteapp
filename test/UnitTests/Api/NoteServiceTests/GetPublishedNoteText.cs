@@ -14,20 +14,20 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class GetPublishedNoteText
     {
+        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+
         [Fact]
         public void ReturnsNoteTextGivenRightUrl()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
-
             var note = new Note()
             {
                 Id = 1,
                 Text = "note 1",
                 PublicUrl = "testtest"
             };
-            noteRepository.Notes.Add(note);
+            _noteRepository.Notes.Add(note);
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             var text = service.GetPublishedNoteText("testtest");
@@ -40,8 +40,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
         public void ThrowsGivenWrongUrl()
         {
             // Arrange
-            var noteRepository = new NoteRepository(false);
-            var service = new NoteService(noteRepository, new DateTimeProvider());
+            var service = new NoteService(_noteRepository, new DateTimeProvider());
 
             // Act
             Action act = () => service.GetPublishedNoteText("shouldfail");
