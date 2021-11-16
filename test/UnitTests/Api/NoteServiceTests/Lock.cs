@@ -1,4 +1,5 @@
-﻿using Noteapp.Api.Data;
+﻿using Moq;
+using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
 using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
@@ -14,7 +15,15 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class Lock
     {
-        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
+        private readonly INoteRepository _noteRepository;
+        private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
+
+        public Lock()
+        {
+            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
+            _noteRepository = _mock.Object;
+        }
 
         [Fact]
         public void LocksNoteGivenValidUserIdAndNoteId()
@@ -27,7 +36,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 Locked = false
             };
             _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
             noteService.Lock(userId: 1, noteId: 1);
@@ -47,7 +56,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 Locked = false
             };
             _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.Lock(userId: 1, noteId: 2);
@@ -68,7 +77,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 Locked = false
             };
             _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.Lock(userId: 2, noteId: 1);

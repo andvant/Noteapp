@@ -1,4 +1,5 @@
-﻿using Noteapp.Api.Data;
+﻿using Moq;
+using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
 using Noteapp.Api.Exceptions;
 using Noteapp.Api.Infrastructure;
@@ -14,7 +15,18 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class BulkCreate
     {
-        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
+        private readonly INoteRepository _noteRepository;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly DateTime _dateTime = new DateTime(2021, 1, 1);
+
+        public BulkCreate()
+        {
+            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
+            _noteRepository = _mock.Object;
+            _dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider =>
+                dateTimeProvider.Now == _dateTime);
+        }
 
         [Fact]
         public void CreatesNewNotes()
@@ -26,8 +38,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 AuthorId = 1
             };
             _noteRepository.Notes.Add(note);
-            var dateTime = new DateTime(2021, 1, 1);
-            var noteService = new NoteService(_noteRepository, new DateTimeProvider(dateTime));
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             var newNotesTexts = new List<string>
             {
@@ -41,8 +52,8 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 
             // Assert
             Assert.Equal(newNotesTexts.Count + 1, _noteRepository.Notes.Count);
-            Assert.Equal(dateTime, _noteRepository.Notes[1].Created);
-            Assert.Equal(dateTime, _noteRepository.Notes[1].Updated);
+            Assert.Equal(_dateTime, _noteRepository.Notes[1].Created);
+            Assert.Equal(_dateTime, _noteRepository.Notes[1].Updated);
 
             Assert.Equal(2, _noteRepository.Notes[1].Id);
             Assert.Equal(1, _noteRepository.Notes[1].AuthorId);
@@ -67,8 +78,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
                 AuthorId = 1
             };
             _noteRepository.Notes.Add(note);
-            var dateTime = new DateTime(2021, 1, 1);
-            var noteService = new NoteService(_noteRepository, new DateTimeProvider(dateTime));
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             var newNotesTexts = Enumerable.Repeat("note", 21);
 

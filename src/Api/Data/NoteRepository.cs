@@ -8,9 +8,9 @@ namespace Noteapp.Api.Data
     {
         public List<Note> Notes { get; set; }
 
-        public NoteRepository(bool seed = true)
+        public NoteRepository()
         {
-            Notes = seed ? GetInMemoryNotes() : new List<Note>();
+            Notes = GetInMemoryNotes();
         }
 
         private List<Note> GetInMemoryNotes()

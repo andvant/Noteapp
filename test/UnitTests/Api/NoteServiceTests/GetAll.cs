@@ -1,4 +1,5 @@
-﻿using Noteapp.Api.Data;
+﻿using Moq;
+using Noteapp.Api.Data;
 using Noteapp.Api.Entities;
 using Noteapp.Api.Infrastructure;
 using Noteapp.Api.Services;
@@ -13,7 +14,15 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
 {
     public class GetAll
     {
-        private readonly INoteRepository _noteRepository = new NoteRepository(false);
+        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
+        private readonly INoteRepository _noteRepository;
+        private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
+
+        public GetAll()
+        {
+            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
+            _noteRepository = _mock.Object;
+        }
 
         [Fact]
         public void ReturnsAllNotesForGivenUserId()
@@ -40,7 +49,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             _noteRepository.Notes.Add(note1);
             _noteRepository.Notes.Add(note2);
             _noteRepository.Notes.Add(note3);
-            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
             var returnedNotes = noteService.GetAll(userId: 1, archived: null);
@@ -76,7 +85,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             _noteRepository.Notes.Add(note1);
             _noteRepository.Notes.Add(note2);
             _noteRepository.Notes.Add(note3);
-            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
             var returnedNotes = noteService.GetAll(userId: 1, archived: true);
@@ -111,7 +120,7 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             _noteRepository.Notes.Add(note1);
             _noteRepository.Notes.Add(note2);
             _noteRepository.Notes.Add(note3);
-            var noteService = new NoteService(_noteRepository, new DateTimeProvider());
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
             var returnedNotes = noteService.GetAll(userId: 1, archived: false);
