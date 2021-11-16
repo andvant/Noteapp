@@ -5,43 +5,49 @@ using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.NoteServiceTests
+namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
-    public class Publish
+    public class Unarchive
     {
         private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly INoteRepository _noteRepository;
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
-        public Publish()
+        public Unarchive()
         {
             _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
             _noteRepository = _mock.Object;
         }
 
         [Fact]
-        public void ReturnsUrlGivenValidUserIdAndNoteId()
+        public void UnarchivesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var note = new Note()
+            var note1 = new Note()
             {
                 Id = 1,
-                AuthorId = 1
+                AuthorId = 1,
+                Archived = true
             };
-            _noteRepository.Notes.Add(note);
+            var note2 = new Note()
+            {
+                Id = 2,
+                AuthorId = 1,
+                Archived = true
+            };
+            _noteRepository.Notes.Add(note1);
+            _noteRepository.Notes.Add(note2);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            var url = noteService.Publish(userId: 1, noteId: 1);
+            noteService.Unarchive(userId: 1, noteId: 2);
 
             // Assert
-            Assert.True(!string.IsNullOrWhiteSpace(url));
-            Assert.Equal(url, _noteRepository.Notes.Single().PublicUrl);
+            Assert.False(note2.Archived);
+            Assert.True(note1.Archived);
         }
-
 
         [Fact]
         public void ThrowsGivenNonExistentNoteId()
@@ -50,17 +56,18 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var note = new Note()
             {
                 Id = 1,
-                AuthorId = 1
+                AuthorId = 1,
+                Archived = true
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Publish(userId: 1, noteId: 2);
+            Action act = () => noteService.Unarchive(userId: 1, noteId: 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Null(_noteRepository.Notes.Single().PublicUrl);
+            Assert.True(note.Archived);
         }
 
         [Fact]
@@ -70,19 +77,18 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var note = new Note()
             {
                 Id = 1,
-                AuthorId = 1
+                AuthorId = 1,
+                Archived = true
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Publish(userId: 2, noteId: 1);
+            Action act = () => noteService.Unarchive(userId: 2, noteId: 1);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Null(_noteRepository.Notes.Single().PublicUrl);
+            Assert.True(note.Archived);
         }
-
-
     }
 }

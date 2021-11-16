@@ -7,52 +7,75 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.NoteServiceTests
+namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
-    public class GetPublishedNoteText
+    public class Get
     {
         private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly INoteRepository _noteRepository;
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
-        public GetPublishedNoteText()
+        public Get()
         {
             _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
             _noteRepository = _mock.Object;
         }
 
         [Fact]
-        public void ReturnsNoteTextGivenRightUrl()
+        public void ReturnsNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
             var note = new Note()
             {
                 Id = 1,
-                Text = "note 1",
-                PublicUrl = "testtest"
+                AuthorId = 1,
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            var text = noteService.GetPublishedNoteText("testtest");
+            var returnedNote = noteService.Get(1, 1);
 
             // Assert
-            Assert.Equal("note 1", text);
+            Assert.Same(note, returnedNote);
         }
 
         [Fact]
-        public void ThrowsGivenWrongUrl()
+        public void ThrowsGivenNonExistentNoteId()
         {
             // Arrange
+            var note = new Note()
+            {
+                Id = 1,
+                AuthorId = 1,
+            };
+            _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.GetPublishedNoteText("shouldfail");
+            Action act = () => noteService.Get(1, 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
         }
 
+        [Fact]
+        public void ThrowsGivenWrongUserId()
+        {
+            // Arrange
+            var note = new Note()
+            {
+                Id = 1,
+                AuthorId = 1,
+            };
+            _noteRepository.Notes.Add(note);
+            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+
+            // Act
+            Action act = () => noteService.Get(2, 1);
+
+            // Assert
+            Assert.Throws<NoteNotFoundException>(act);
+        }
     }
 }

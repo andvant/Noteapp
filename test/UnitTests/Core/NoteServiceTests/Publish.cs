@@ -5,41 +5,43 @@ using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.NoteServiceTests
+namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
-    public class Unlock
+    public class Publish
     {
         private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly INoteRepository _noteRepository;
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
-        public Unlock()
+        public Publish()
         {
             _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
             _noteRepository = _mock.Object;
         }
 
         [Fact]
-        public void UnlocksNoteGivenValidUserIdAndNoteId()
+        public void ReturnsUrlGivenValidUserIdAndNoteId()
         {
             // Arrange
             var note = new Note()
             {
                 Id = 1,
-                AuthorId = 1,
-                Locked = true
+                AuthorId = 1
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            noteService.Unlock(userId: 1, noteId: 1);
+            var url = noteService.Publish(userId: 1, noteId: 1);
 
             // Assert
-            Assert.False(note.Locked);
+            Assert.True(!string.IsNullOrWhiteSpace(url));
+            Assert.Equal(url, _noteRepository.Notes.Single().PublicUrl);
         }
+
 
         [Fact]
         public void ThrowsGivenNonExistentNoteId()
@@ -48,18 +50,17 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var note = new Note()
             {
                 Id = 1,
-                AuthorId = 1,
-                Locked = true
+                AuthorId = 1
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Unlock(userId: 1, noteId: 2);
+            Action act = () => noteService.Publish(userId: 1, noteId: 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.True(note.Locked);
+            Assert.Null(_noteRepository.Notes.Single().PublicUrl);
         }
 
         [Fact]
@@ -69,18 +70,19 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             var note = new Note()
             {
                 Id = 1,
-                AuthorId = 1,
-                Locked = true
+                AuthorId = 1
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Unlock(userId: 2, noteId: 1);
+            Action act = () => noteService.Publish(userId: 2, noteId: 1);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.True(note.Locked);
+            Assert.Null(_noteRepository.Notes.Single().PublicUrl);
         }
+
+
     }
 }

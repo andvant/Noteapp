@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.NoteServiceTests
+namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Pin
     {

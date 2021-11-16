@@ -7,46 +7,38 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.NoteServiceTests
+namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
-    public class Unarchive
+    public class Archive
     {
         private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly INoteRepository _noteRepository;
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
-        public Unarchive()
+        public Archive()
         {
             _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
             _noteRepository = _mock.Object;
         }
 
         [Fact]
-        public void UnarchivesNoteGivenValidUserIdAndNoteId()
+        public void ArchivesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var note1 = new Note()
+            var note = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
-                Archived = true
+                Archived = false
             };
-            var note2 = new Note()
-            {
-                Id = 2,
-                AuthorId = 1,
-                Archived = true
-            };
-            _noteRepository.Notes.Add(note1);
-            _noteRepository.Notes.Add(note2);
+            _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            noteService.Unarchive(userId: 1, noteId: 2);
+            noteService.Archive(userId: 1, noteId: 1);
 
             // Assert
-            Assert.False(note2.Archived);
-            Assert.True(note1.Archived);
+            Assert.True(note.Archived);
         }
 
         [Fact]
@@ -57,17 +49,17 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             {
                 Id = 1,
                 AuthorId = 1,
-                Archived = true
+                Archived = false
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Unarchive(userId: 1, noteId: 2);
+            Action act = () => noteService.Archive(userId: 1, noteId: 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.True(note.Archived);
+            Assert.False(note.Archived);
         }
 
         [Fact]
@@ -78,17 +70,17 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             {
                 Id = 1,
                 AuthorId = 1,
-                Archived = true
+                Archived = false
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Unarchive(userId: 2, noteId: 1);
+            Action act = () => noteService.Archive(userId: 2, noteId: 1);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.True(note.Archived);
+            Assert.False(note.Archived);
         }
     }
 }

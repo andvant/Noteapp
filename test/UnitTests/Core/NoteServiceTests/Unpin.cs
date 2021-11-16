@@ -7,38 +7,46 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Noteapp.UnitTests.Api.NoteServiceTests
+namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
-    public class Archive
+    public class Unpin
     {
         private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly INoteRepository _noteRepository;
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
-        public Archive()
+        public Unpin()
         {
             _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
             _noteRepository = _mock.Object;
         }
 
         [Fact]
-        public void ArchivesNoteGivenValidUserIdAndNoteId()
+        public void UnpinsNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
-            var note = new Note()
+            var note1 = new Note()
             {
                 Id = 1,
                 AuthorId = 1,
-                Archived = false
+                Pinned = true
             };
-            _noteRepository.Notes.Add(note);
+            var note2 = new Note()
+            {
+                Id = 2,
+                AuthorId = 1,
+                Pinned = true
+            };
+            _noteRepository.Notes.Add(note1);
+            _noteRepository.Notes.Add(note2);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            noteService.Archive(userId: 1, noteId: 1);
+            noteService.Unpin(userId: 1, noteId: 2);
 
             // Assert
-            Assert.True(note.Archived);
+            Assert.False(note2.Pinned);
+            Assert.True(note1.Pinned);
         }
 
         [Fact]
@@ -49,17 +57,17 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             {
                 Id = 1,
                 AuthorId = 1,
-                Archived = false
+                Pinned = true
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Archive(userId: 1, noteId: 2);
+            Action act = () => noteService.Unpin(userId: 1, noteId: 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.False(note.Archived);
+            Assert.True(note.Pinned);
         }
 
         [Fact]
@@ -70,17 +78,17 @@ namespace Noteapp.UnitTests.Api.NoteServiceTests
             {
                 Id = 1,
                 AuthorId = 1,
-                Archived = false
+                Pinned = true
             };
             _noteRepository.Notes.Add(note);
             var noteService = new NoteService(_noteRepository, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Archive(userId: 2, noteId: 1);
+            Action act = () => noteService.Unpin(userId: 2, noteId: 1);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.False(note.Archived);
+            Assert.True(note.Pinned);
         }
     }
 }
