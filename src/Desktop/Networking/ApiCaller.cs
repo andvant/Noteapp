@@ -1,6 +1,7 @@
 ﻿using Noteapp.Core.Entities;
 using Noteapp.Desktop.Exceptions;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -18,15 +19,30 @@ namespace Noteapp.Desktop.Networking
 
         public async Task<IEnumerable<Note>> GetNonArchivedNotes()
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "?archived=false");
-            var response = await SendRequestAsync(request);
-            return await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
+            return await GetNotes("?archived=false");
+        }
+
+        public async Task<IEnumerable<Note>> GetArchivedNotes()
+        {
+            return await GetNotes("?archived=true");
+        }
+
+        public async Task<IEnumerable<Note>> GetAllNotes()
+        {
+            return await GetNotes(string.Empty);
         }
 
         public async Task CreateNote()
         {
             var request = new HttpRequestMessage(HttpMethod.Post, string.Empty);
             request.Content = JsonContent.Create(new { text = string.Empty });
+            await SendRequestAsync(request);
+        }
+
+        public async Task BulkCreateNotes(IEnumerable<Note> notes)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, "bulk");
+            request.Content = JsonContent.Create(notes);
             await SendRequestAsync(request);
         }
 
@@ -69,6 +85,13 @@ namespace Noteapp.Desktop.Networking
             var method = published ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"{noteId}/publish");
             await SendRequestAsync(request);
+        }
+
+        private async Task<IEnumerable<Note>> GetNotes(string filter)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, filter);
+            var response = await SendRequestAsync(request);
+            return await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)

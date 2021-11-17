@@ -6,6 +6,10 @@ using System.Windows.Input;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using Microsoft.Win32;
+using System.IO;
+using System.Text.Json;
+using System.Windows;
 
 namespace Noteapp.Desktop.ViewModels
 {
@@ -43,6 +47,8 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand SortyByCreatedCommand { get; }
         public ICommand SortyByUpdatedCommand { get; }
         public ICommand SortyByTextCommand { get; }
+        public ICommand ExportNotesCommand { get; }
+        public ICommand ImportNotesCommand { get; }
 
         public NotesViewModel(ApiCaller apiCaller)
         {
@@ -59,6 +65,8 @@ namespace Noteapp.Desktop.ViewModels
             SortyByCreatedCommand = new RelayCommand(SortByCreatedCommandExecute, SortByCanExecute);
             SortyByUpdatedCommand = new RelayCommand(SortByUpdatedCommandExecute, SortByCanExecute);
             SortyByTextCommand = new RelayCommand(SortByTextCommandExecute, SortByCanExecute);
+            ExportNotesCommand = new RelayCommand(ExportNotesCommandExecute);
+            ImportNotesCommand = new RelayCommand(ImportNotesCommandExecute);
 
             ListCommand.Execute(null);
         }
@@ -145,6 +153,40 @@ namespace Noteapp.Desktop.ViewModels
         private bool SortByCanExecute(object obj)
         {
             return Notes?.Count > 0;
+        }
+
+        private async void ExportNotesCommandExecute(object parameter)
+        {
+            var notes = await _apiCaller.GetAllNotes();
+
+            var dialog = new SaveFileDialog()
+            {
+                FileName = "NotesBackup-[date]",
+                Filter = "JSON file|*.json"
+            };
+            var result = dialog.ShowDialog();
+            if (result == true)
+            {
+                File.WriteAllText(dialog.FileName,
+                    JsonSerializer.Serialize(notes, new JsonSerializerOptions() { WriteIndented = true } ));
+            }
+        }
+
+        private async void ImportNotesCommandExecute(object parameter)
+        {
+            var dialog = new OpenFileDialog()
+            {
+                Filter = "JSON file|*.json"
+            };
+            var result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                string json = File.ReadAllText(dialog.FileName);
+                var notes = JsonSerializer.Deserialize<IEnumerable<Note>>(json);
+                await _apiCaller.BulkCreateNotes(notes);
+                ListCommand.Execute(null);
+            }
         }
 
         private void SortNotes(Comparison<Note> comparison, ref bool descending)

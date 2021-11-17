@@ -2,6 +2,8 @@
 using Noteapp.Api.Dtos;
 using Noteapp.Api.Filters;
 using Noteapp.Core.Services;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Noteapp.Api.Controllers
 {
@@ -35,9 +37,9 @@ namespace Noteapp.Api.Controllers
 
         // might want to return created notes instead of NoContent
         [HttpPost("bulk")]
-        public IActionResult BulkCreate(BulkCreateNoteDto dto)
+        public IActionResult BulkCreate(IEnumerable<CreateNoteDto> dtos)
         {
-            _noteService.BulkCreate(_userId, dto.Texts);
+            _noteService.BulkCreate(_userId, dtos.Select(dto => dto.Text));
             return NoContent();
         }
 
