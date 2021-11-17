@@ -16,9 +16,9 @@ namespace Noteapp.Desktop.Networking
             _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<Note>> GetNotes()
+        public async Task<IEnumerable<Note>> GetNonArchivedNotes()
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, string.Empty);
+            var request = new HttpRequestMessage(HttpMethod.Get, "?archived=false");
             var response = await SendRequestAsync(request);
             return await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
         }

@@ -4,6 +4,8 @@ using Noteapp.Core.Entities;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace Noteapp.Desktop.ViewModels
 {
@@ -14,6 +16,9 @@ namespace Noteapp.Desktop.ViewModels
         private ObservableCollection<Note> _notes;
         private Note _selectedNote;
         private readonly ApiCaller _apiCaller;
+        private bool _descendingUpdated;
+        private bool _descendingCreated;
+        private bool _descendingText;
 
         public ObservableCollection<Note> Notes
         {
@@ -35,6 +40,9 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand ToggleArchivedCommand { get; }
         public ICommand TogglePinnedCommand { get; }
         public ICommand TogglePublishedCommand { get; }
+        public ICommand SortyByCreatedCommand { get; }
+        public ICommand SortyByUpdatedCommand { get; }
+        public ICommand SortyByTextCommand { get; }
 
         public NotesViewModel(ApiCaller apiCaller)
         {
@@ -48,6 +56,9 @@ namespace Noteapp.Desktop.ViewModels
             ToggleArchivedCommand = new RelayCommand(ToggleArchivedCommandExecute);
             TogglePinnedCommand = new RelayCommand(TogglePinnedCommandExecute);
             TogglePublishedCommand = new RelayCommand(TogglePublishedCommandExecute);
+            SortyByCreatedCommand = new RelayCommand(SortByCreatedCommandExecute, SortByCanExecute);
+            SortyByUpdatedCommand = new RelayCommand(SortByUpdatedCommandExecute, SortByCanExecute);
+            SortyByTextCommand = new RelayCommand(SortByTextCommandExecute, SortByCanExecute);
 
             ListCommand.Execute(null);
         }
@@ -56,8 +67,8 @@ namespace Noteapp.Desktop.ViewModels
         {
             var selectedNoteId = SelectedNote?.Id;
 
-            var notes = await _apiCaller.GetNotes();
-            Notes = new ObservableCollection<Note>(notes);
+            var notes = await _apiCaller.GetNonArchivedNotes();
+            Notes = new ObservableCollection<Note>(OrderByPinned(notes));
 
             SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId);
         }
@@ -76,7 +87,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private bool EditCommandCanExecute(object parameter)
         {
-            return SelectedNote != null;
+            return SelectedNote != null && !SelectedNote.Locked;
         }
 
         private async void DeleteCommandExecute(object parameter)
@@ -111,6 +122,45 @@ namespace Noteapp.Desktop.ViewModels
             var note = (Note)parameter;
             await _apiCaller.TogglePublished(note.Id, note.Published);
             ListCommand.Execute(null);
+        }
+
+        private void SortByCreatedCommandExecute(object parameter)
+        {
+            Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note1.Created, note2.Created);
+            SortNotes(comparison, ref _descendingCreated);
+        }
+
+        private void SortByUpdatedCommandExecute(object parameter)
+        {
+            Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note1.Updated, note2.Updated);
+            SortNotes(comparison, ref _descendingUpdated);
+        }
+
+        private void SortByTextCommandExecute(object parameter)
+        {
+            Comparison<Note> comparison = (note1, note2) => string.Compare(note1.Text, note2.Text);
+            SortNotes(comparison, ref _descendingText);
+        }
+
+        private bool SortByCanExecute(object obj)
+        {
+            return Notes?.Count > 0;
+        }
+
+        private void SortNotes(Comparison<Note> comparison, ref bool descending)
+        {
+            var notes = new List<Note>(Notes);
+            notes.Sort(comparison);
+
+            if (descending) notes.Reverse();
+            descending = !descending;
+
+            Notes = new ObservableCollection<Note>(OrderByPinned(notes));
+        }
+
+        private IOrderedEnumerable<Note> OrderByPinned(IEnumerable<Note> notes)
+        {
+            return notes.OrderBy(note => !note.Pinned);
         }
     }
 }

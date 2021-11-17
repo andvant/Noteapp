@@ -9,6 +9,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="45"/>
+            <RowDefinition Height="50"/>
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -17,10 +18,16 @@
         </Grid.ColumnDefinitions>
 
         <Button Grid.Row="0" Grid.Column="0" Command="{Binding CreateCommand}" Content="New note" Width="100"/>
-
         <Button Grid.Row="0" Grid.Column="1" Command="{Binding EditCommand}" Content="Save note" Width="100" />
 
-        <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Notes}" SelectedItem="{Binding SelectedNote}">
+        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+            <Label Content="Sort by:" />
+            <Button Content="Created" Margin="5" Command="{Binding SortyByCreatedCommand}" />
+            <Button Content="Updated" Margin="5" Command="{Binding SortyByUpdatedCommand}" />
+            <Button Content="Text" Margin="5" Command="{Binding SortyByTextCommand}" />
+        </StackPanel>
+        
+        <ListBox Grid.Row="2" Grid.Column="0" ItemsSource="{Binding Notes}" SelectedItem="{Binding SelectedNote}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
@@ -58,14 +65,17 @@
                                 VerticalAlignment="Center" 
                                 Height="25" Width="60" FontSize="14"/>
                             <CheckBox IsChecked="{Binding Published, Mode=OneWay}" IsEnabled="False" />
+                            <TextBlock Text="{Binding PublicUrl}" />
                         </StackPanel>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedNote.Text, UpdateSourceTrigger=PropertyChanged}"
-                 TextWrapping="Wrap" AcceptsReturn="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto" Width="Auto"/>
+        <TextBox Grid.Row="2" Grid.Column="1" IsReadOnly="{Binding SelectedNote.Locked}" 
+                 Text="{Binding SelectedNote.Text, UpdateSourceTrigger=PropertyChanged}"
+                 TextWrapping="Wrap" AcceptsReturn="True" Height="Auto" Width="Auto"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
     </Grid>
 </UserControl>
