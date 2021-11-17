@@ -27,55 +27,90 @@ namespace Noteapp.Desktop.ViewModels
             set => Set(ref _selectedNote, value);
         }
 
-        public ICommand ListNotesCommand { get; }
-        public ICommand CreateNoteCommand { get; }
-        public ICommand DeleteNoteCommand { get; }
-        public ICommand EditNoteCommand { get; }
-        public ICommand SortByLastModifiedCommand { get; }
-        public ICommand SortByCreatedCommand { get; }
-        public ICommand SortByTextCommand { get; }
+        public ICommand ListCommand { get; }
+        public ICommand CreateCommand { get; }
+        public ICommand EditCommand { get; }
+        public ICommand DeleteCommand { get; }
+        public ICommand ToggleLockedCommand { get; }
+        public ICommand ToggleArchivedCommand { get; }
+        public ICommand TogglePinnedCommand { get; }
+        public ICommand TogglePublishedCommand { get; }
 
         public NotesViewModel(ApiCaller apiCaller)
         {
             _apiCaller = apiCaller;
 
-            ListNotesCommand = new RelayCommand(ListNotesCommandExecute);
-            DeleteNoteCommand = new RelayCommand(DeleteNoteCommandExecute);
-            CreateNoteCommand = new RelayCommand(CreateNoteCommandExecute);
-            EditNoteCommand = new RelayCommand(EditNoteCommandExecute, EditNoteCommandCanExecute);
+            ListCommand = new RelayCommand(ListCommandExecute);
+            CreateCommand = new RelayCommand(CreateCommandExecute);
+            EditCommand = new RelayCommand(EditCommandExecute, EditCommandCanExecute);
+            DeleteCommand = new RelayCommand(DeleteCommandExecute);
+            ToggleLockedCommand = new RelayCommand(ToggleLockedCommandExecute);
+            ToggleArchivedCommand = new RelayCommand(ToggleArchivedCommandExecute);
+            TogglePinnedCommand = new RelayCommand(TogglePinnedCommandExecute);
+            TogglePublishedCommand = new RelayCommand(TogglePublishedCommandExecute);
 
-            ListNotesCommand.Execute(null);
+            ListCommand.Execute(null);
         }
 
-        private async void ListNotesCommandExecute(object parameter)
+        private async void ListCommandExecute(object parameter)
         {
+            var selectedNoteId = SelectedNote?.Id;
+
             var notes = await _apiCaller.GetNotes();
-            var noteId = SelectedNote?.Id;
             Notes = new ObservableCollection<Note>(notes);
-            SelectedNote = Notes.FirstOrDefault(note => note.Id == noteId);
+
+            SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId);
         }
 
-        private async void CreateNoteCommandExecute(object parameter)
+        private async void CreateCommandExecute(object parameter)
         {
             await _apiCaller.CreateNote();
-            ListNotesCommand.Execute(null);
+            ListCommand.Execute(null);
         }
 
-        private async void EditNoteCommandExecute(object parameter)
+        private async void EditCommandExecute(object parameter)
         {
             await _apiCaller.EditNote(SelectedNote.Id, SelectedNote.Text);
-            ListNotesCommand.Execute(null);
+            ListCommand.Execute(null);
         }
 
-        private bool EditNoteCommandCanExecute(object parameter)
+        private bool EditCommandCanExecute(object parameter)
         {
             return SelectedNote != null;
         }
 
-        private async void DeleteNoteCommandExecute(object parameter)
+        private async void DeleteCommandExecute(object parameter)
         {
             await _apiCaller.DeleteNote((int)parameter);
-            ListNotesCommand.Execute(null);
+            ListCommand.Execute(null);
+        }
+
+        private async void ToggleLockedCommandExecute(object parameter)
+        {
+            var note = (Note)parameter;
+            await _apiCaller.ToggleLocked(note.Id, note.Locked);
+            ListCommand.Execute(null);
+        }
+
+        private async void ToggleArchivedCommandExecute(object parameter)
+        {
+            var note = (Note)parameter;
+            await _apiCaller.ToggleArchived(note.Id, note.Archived);
+            ListCommand.Execute(null);
+        }
+
+        private async void TogglePinnedCommandExecute(object parameter)
+        {
+            var note = (Note)parameter;
+            await _apiCaller.TogglePinned(note.Id, note.Pinned);
+            ListCommand.Execute(null);
+        }
+
+        private async void TogglePublishedCommandExecute(object parameter)
+        {
+            var note = (Note)parameter;
+            await _apiCaller.TogglePublished(note.Id, note.Published);
+            ListCommand.Execute(null);
         }
     }
 }

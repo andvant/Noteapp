@@ -12,14 +12,13 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
 
-        <Button Grid.Row="0" Grid.Column="0" Command="{Binding CreateNoteCommand}" Content="New note" Width="100"/>
+        <Button Grid.Row="0" Grid.Column="0" Command="{Binding CreateCommand}" Content="New note" Width="100"/>
 
-        <Button Grid.Row="0" Grid.Column="1" Command="{Binding EditNoteCommand}" 
-                Content="Save note" Width="100" CommandParameter="{Binding SelectedNote.Text}"/>
+        <Button Grid.Row="0" Grid.Column="1" Command="{Binding EditCommand}" Content="Save note" Width="100" />
 
         <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Notes}" SelectedItem="{Binding SelectedNote}">
             <ListBox.ItemTemplate>
@@ -29,11 +28,37 @@
                         <TextBlock Text="{Binding AuthorId, StringFormat=AuthorId: {0}}" FontSize="14"/>
                         <TextBlock Text="{Binding Created, StringFormat=Created: {0}}" FontSize="14"/>
                         <TextBlock Text="{Binding Updated, StringFormat=Updated: {0}}" FontSize="14"/>
-                        <Button Command="{Binding DataContext.DeleteNoteCommand, 
-                            RelativeSource={RelativeSource AncestorType={x:Type local:NotesView}}}" 
-                            CommandParameter="{Binding Id}" Content="[delete]"
-                            VerticalAlignment="Center" HorizontalAlignment="Right" 
-                            Height="25" Width="60" FontSize="14"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Command="{Binding DataContext.DeleteCommand, 
+                                RelativeSource={RelativeSource AncestorType={x:Type local:NotesView}}}" 
+                                CommandParameter="{Binding Id}" Content="[delete]"
+                                VerticalAlignment="Center" 
+                                Height="25" Width="60" FontSize="14"/>
+                            <Button Command="{Binding DataContext.ToggleLockedCommand, 
+                                RelativeSource={RelativeSource AncestorType={x:Type local:NotesView}}}" 
+                                CommandParameter="{Binding}" Content="[lock]"
+                                VerticalAlignment="Center" 
+                                Height="25" Width="60" FontSize="14"/>
+                            <CheckBox IsChecked="{Binding Locked, Mode=OneWay}" IsEnabled="False" />
+                            <Button Command="{Binding DataContext.ToggleArchivedCommand, 
+                                RelativeSource={RelativeSource AncestorType={x:Type local:NotesView}}}" 
+                                CommandParameter="{Binding}" Content="[archive]"
+                                VerticalAlignment="Center" 
+                                Height="25" Width="60" FontSize="14"/>
+                            <CheckBox IsChecked="{Binding Archived, Mode=OneWay}" IsEnabled="False" />
+                            <Button Command="{Binding DataContext.TogglePinnedCommand, 
+                                RelativeSource={RelativeSource AncestorType={x:Type local:NotesView}}}" 
+                                CommandParameter="{Binding}" Content="[pin]"
+                                VerticalAlignment="Center" 
+                                Height="25" Width="60" FontSize="14"/>
+                            <CheckBox IsChecked="{Binding Pinned, Mode=OneWay}" IsEnabled="False" />
+                            <Button Command="{Binding DataContext.TogglePublishedCommand, 
+                                RelativeSource={RelativeSource AncestorType={x:Type local:NotesView}}}" 
+                                CommandParameter="{Binding}" Content="[publish]"
+                                VerticalAlignment="Center" 
+                                Height="25" Width="60" FontSize="14"/>
+                            <CheckBox IsChecked="{Binding Published, Mode=OneWay}" IsEnabled="False" />
+                        </StackPanel>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>

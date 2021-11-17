@@ -1,12 +1,9 @@
 ﻿using Noteapp.Core.Entities;
 using Noteapp.Desktop.Exceptions;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace Noteapp.Desktop.Networking
 {
@@ -43,6 +40,34 @@ namespace Noteapp.Desktop.Networking
         public async Task DeleteNote(int noteId)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{noteId}");
+            await SendRequestAsync(request);
+        }
+
+        public async Task ToggleLocked(int noteId, bool locked)
+        {
+            var method = locked ? HttpMethod.Delete : HttpMethod.Put;
+            var request = new HttpRequestMessage(method, $"{noteId}/lock");
+            await SendRequestAsync(request);
+        }
+
+        public async Task ToggleArchived(int noteId, bool archived)
+        {
+            var method = archived ? HttpMethod.Delete : HttpMethod.Put;
+            var request = new HttpRequestMessage(method, $"{noteId}/archive");
+            await SendRequestAsync(request);
+        }
+
+        public async Task TogglePinned(int noteId, bool pinned)
+        {
+            var method = pinned ? HttpMethod.Delete : HttpMethod.Put;
+            var request = new HttpRequestMessage(method, $"{noteId}/pin");
+            await SendRequestAsync(request);
+        }
+
+        public async Task TogglePublished(int noteId, bool published)
+        {
+            var method = published ? HttpMethod.Delete : HttpMethod.Put;
+            var request = new HttpRequestMessage(method, $"{noteId}/publish");
             await SendRequestAsync(request);
         }
 
