@@ -66,64 +66,54 @@ namespace Noteapp.Core.Services
                 throw new NoteLockedException(noteId);
             }
 
-            note.Text = text;
-            note.Updated = _dateTimeProvider.Now;
+            UpdateNote(note, text);
         }
 
         public void Delete(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
-            _repository.Notes.Remove(note);
+            _repository.Notes.Remove(GetNote(userId, noteId));
         }
 
         public void Archive(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
-            note.Archived = true;
+            GetNote(userId, noteId).Archived = true;
         }
 
         public void Unarchive(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
-            note.Archived = false;
+            GetNote(userId, noteId).Archived = false;
         }
 
         public void Pin(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
-            note.Pinned = true;
+            GetNote(userId, noteId).Pinned = true;
         }
 
         public void Unpin(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
-            note.Pinned = false;
+            GetNote(userId, noteId).Pinned = false;
         }
 
         public void Lock(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
-            note.Locked = true;
+            GetNote(userId, noteId).Locked = true;
         }
 
         public void Unlock(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
-            note.Locked = false;
+            GetNote(userId, noteId).Locked = false;
         }
 
         public string Publish(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
-
             note.PublicUrl = GenerateUrl();
             return note.PublicUrl;
         }
 
         public void Unpublish(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
-            note.PublicUrl = null;
+            GetNote(userId, noteId).PublicUrl = null;
         }
 
         public string GetPublishedNoteText(string url)
@@ -148,6 +138,12 @@ namespace Noteapp.Core.Services
                 Text = text,
                 AuthorId = userId
             };
+        }
+
+        private void UpdateNote(Note note, string text)
+        {
+            note.Text = text;
+            note.Updated = _dateTimeProvider.Now;
         }
 
         // TODO: make thread-safe
