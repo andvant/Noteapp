@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "src\Core\Core.cspro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{B5627AF8-121E-4912-A8A9-A9D8C3D7DEBB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Desktop", "src\Desktop\Desktop.csproj", "{6CD869A9-7AAD-4B9F-A8E1-B685D524E88E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{B5627AF8-121E-4912-A8A9-A9D8C3D7DEBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5627AF8-121E-4912-A8A9-A9D8C3D7DEBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5627AF8-121E-4912-A8A9-A9D8C3D7DEBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CD869A9-7AAD-4B9F-A8E1-B685D524E88E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CD869A9-7AAD-4B9F-A8E1-B685D524E88E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CD869A9-7AAD-4B9F-A8E1-B685D524E88E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CD869A9-7AAD-4B9F-A8E1-B685D524E88E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
