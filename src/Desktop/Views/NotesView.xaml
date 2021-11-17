@@ -4,72 +4,43 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Noteapp.Desktop.Views"
-        xmlns:converters="clr-namespace:Noteapp.Desktop.Converters"
         xmlns:vm="clr-namespace:Noteapp.Desktop.ViewModels"
         mc:Ignorable="d" >
-    <UserControl.Resources>
-        <converters:EditNoteParameterConverter x:Key="EditNoteParameterConverter" />
-    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
 
-        <ListBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Notes}">
+        <Button Grid.Row="0" Grid.Column="0" Command="{Binding CreateNoteCommand}" Content="New note" Width="100"/>
+
+        <Button Grid.Row="0" Grid.Column="1" Command="{Binding EditNoteCommand}" 
+                Content="Save note" Width="100" CommandParameter="{Binding SelectedNote.Text}"/>
+
+        <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Notes}" SelectedItem="{Binding SelectedNote}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Orientation="Vertical">
-                            <TextBlock Text="{Binding Id, StringFormat=Id: {0}}" FontSize="14"/>
-                            <TextBlock Text="{Binding AuthorId, StringFormat=AuthorId: {0}}" FontSize="14"/>
-                            <TextBlock Text="{Binding Created, StringFormat=Created: {0}}" FontSize="14"/>
-                            <TextBlock Text="{Binding Updated, StringFormat=Updated: {0}}" FontSize="14"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="35" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="80" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Text: " FontSize="14"/>
-                                <TextBox Grid.Column="1" Text="{Binding Text}" FontSize="14" Height="25"/>
-                                <Button Grid.Column="2" Content="Edit" Command="{Binding DataContext.EditNoteCommand, 
-                                    RelativeSource={RelativeSource AncestorType={x:Type local:NotesView}}}"
-                                    HorizontalAlignment="Left" Height="25" Width="60" FontSize="14">
-                                    <Button.CommandParameter>
-                                        <MultiBinding Converter="{StaticResource EditNoteParameterConverter}">
-                                            <Binding Path="Id" />
-                                            <Binding Path="Text" />
-                                        </MultiBinding>
-                                    </Button.CommandParameter>
-                                </Button>
-                            </Grid>
-                        </StackPanel>
-                        <Button Grid.Column="1" Command="{Binding DataContext.DeleteNoteCommand, 
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="{Binding Id, StringFormat=Id: {0}}" FontSize="14"/>
+                        <TextBlock Text="{Binding AuthorId, StringFormat=AuthorId: {0}}" FontSize="14"/>
+                        <TextBlock Text="{Binding Created, StringFormat=Created: {0}}" FontSize="14"/>
+                        <TextBlock Text="{Binding Updated, StringFormat=Updated: {0}}" FontSize="14"/>
+                        <Button Command="{Binding DataContext.DeleteNoteCommand, 
                             RelativeSource={RelativeSource AncestorType={x:Type local:NotesView}}}" 
-                                CommandParameter="{Binding Id}" Content="[delete]"
-                                VerticalAlignment="Center" HorizontalAlignment="Center" 
-                                Height="25" Width="60" FontSize="14"/>
-                    </Grid>
+                            CommandParameter="{Binding Id}" Content="[delete]"
+                            VerticalAlignment="Center" HorizontalAlignment="Right" 
+                            Height="25" Width="60" FontSize="14"/>
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-            <Button Content="List notes" Command="{Binding ListNotesCommand}" />
-        </StackPanel>
-        
-        <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding CreateNoteText, UpdateSourceTrigger=PropertyChanged}" />
-        <Button Grid.Row="2" Grid.Column="1" Command="{Binding CreateNoteCommand}" Content="Create a note"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedNote.Text, UpdateSourceTrigger=PropertyChanged}"
+                 TextWrapping="Wrap" AcceptsReturn="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto" Width="Auto"/>
 
     </Grid>
 </UserControl>
