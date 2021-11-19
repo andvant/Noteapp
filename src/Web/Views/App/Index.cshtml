@@ -1,6 +1,31 @@
 ﻿@{
-    ViewData["Title"] = "Noteapp";
+    Layout = "_AppLayout";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Nothing here yet</p>
+<div class="wrapper">
+    <div class="views">
+        <button>Notes</button>
+    </div>
+    <div class="notes">
+        <div class="notes-new">
+            <button id="new-note-button">New note</button>
+        </div>
+        <div class="notes-list">
+            <div class="note">
+                <button>Note 1</button>
+            </div>
+            <div class="note">
+                <button>Note 2</button>
+            </div>
+        </div>
+    </div>
+    <div class="selected-note">
+        <div class="selected-note-actions">
+            <button>Save note</button>
+            <button>Delete note</button>
+        </div>
+        <div class="selected-note-text">
+            <textarea id="note-text">Note text here...</textarea>
+        </div>
+    </div>
+</div>

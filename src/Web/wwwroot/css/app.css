@@ -1,0 +1,74 @@
+﻿body {
+    margin: 0;
+}
+
+* {
+    border: 1px solid blue;
+    box-sizing: border-box;
+}
+
+.wrapper {
+    display: grid;
+    height: 100vh;
+    grid-template-columns: 140px 280px 1fr;
+}
+
+.views {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+}
+
+.notes {
+    display: grid;
+    grid-template-rows: 50px 1fr;
+}
+
+.selected-note {
+    display: grid;
+    grid-template-rows: 50px 1fr;
+}
+
+.notes-new {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+}
+
+.notes-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.selected-note-actions {
+    display: flex;
+    justify-content: right;
+    padding: 10px;
+}
+
+.selected-note-text {
+    padding: 5px;
+}
+
+.note {
+    width: 100%;
+    height: 60px;
+}
+
+.note > button {
+    width: 100%;
+    height: 100%;
+}
+
+#new-note-button {
+    width: 35%;
+    height: 60%;
+}
+
+#note-text {
+    height: 100%;
+    width: 100%;
+    font-size: 24px;
+    resize: none;
+}
