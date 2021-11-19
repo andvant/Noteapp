@@ -33,6 +33,16 @@ namespace Noteapp.Api
             services.AddSingleton<INoteRepository, NoteRepository>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddTransient<INoteService, NoteService>();
+
+            services.AddCors(setup =>
+            {
+                setup.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyOrigin();
+                    policy.AllowAnyHeader();
+                    policy.AllowAnyMethod();
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,6 +56,8 @@ namespace Noteapp.Api
             }
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 

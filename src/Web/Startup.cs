@@ -22,20 +22,20 @@ namespace Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder fff, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
-                fff.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();
             }
 
-            fff.UseStaticFiles();
+            app.UseStaticFiles();
 
-            fff.UseRouting();
+            app.UseRouting();
 
-            fff.UseAuthorization();
+            app.UseAuthorization();
 
-            fff.UseEndpoints(endpoints =>
+            app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",

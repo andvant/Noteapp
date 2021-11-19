@@ -10,22 +10,23 @@
         <div class="notes-new">
             <button id="new-note-button">New note</button>
         </div>
-        <div class="notes-list">
-            <div class="note">
-                <button>Note 1</button>
-            </div>
-            <div class="note">
-                <button>Note 2</button>
-            </div>
-        </div>
+        <div id="notes-list"></div>
     </div>
     <div class="selected-note">
         <div class="selected-note-actions">
-            <button>Save note</button>
-            <button>Delete note</button>
+            <button id="save-note-button">Save note</button>
+            <button id="delete-note-button">Delete note</button>
         </div>
         <div class="selected-note-text">
-            <textarea id="note-text">Note text here...</textarea>
+            <textarea id="note-text" placeholder="Note text here..."></textarea>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        (async function() { 
+            await run();
+        })();
+    </script>
+}
