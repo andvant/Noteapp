@@ -4,88 +4,59 @@ let ajaxService = (function () {
 
     let baseUrl = "http://localhost:5000/api/notes";
 
-    async function apiGetNotes() {
-        let notes = null;
-
-        let response = await fetch(baseUrl, {
-            method: "GET"
+    async function sendRequest(url, method, headers, body) {
+        let response = await fetch(`${baseUrl}/${url}`, {
+            method,
+            headers,
+            body
         });
 
+        alertIfError(response);
+
+        return response;
+    }
+
+    async function getNotes() {
+        let response = await sendRequest("", "GET", {}, null);
         if (response.ok) {
-            notes = await response.json();
+            return await response.json();
         }
-
-        alertIfError(response);
-
-        return notes;
     }
 
-    async function apiUpdateNote(noteId, noteText) {
-        let response = await fetch(`${baseUrl}/${noteId}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ text: noteText })
-        });
-
-        alertIfError(response);
+    async function updateNote(noteId, noteText) {
+        let headers = { "Content-Type": "application/json" };
+        let body = JSON.stringify({ text: noteText });
+        await sendRequest(`${noteId}`, "PUT", headers, body);
     }
 
-    async function apiCreateNote() {
-        let response = await fetch(baseUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ text: "" })
-        });
-
-        alertIfError(response);
+    async function createNote() {
+        let body = JSON.stringify({ text: "" });
+        let headers = { "Content-Type": "application/json" };
+        await sendRequest("", "POST", headers, body);
     }
 
-    async function apiDeleteNote(noteId) {
-        let response = await fetch(`${baseUrl}/${noteId}`, {
-            method: "DELETE"
-        });
-
-        alertIfError(response);
+    async function deleteNote(noteId) {
+        await sendRequest(`${noteId}`, "DELETE", {}, null);
     }
 
-    async function apiTogglePinned(note) {
+    async function togglePinned(note) {
         let method = note.pinned ? "DELETE" : "PUT";
-        let response = await fetch(`${baseUrl}/${note.id}/pin`, {
-            method
-        });
-
-        alertIfError(response);
+        await sendRequest(`${note.id}/pin`, method, {}, null);
     }
 
-    async function apiToggleLocked(note) {
+    async function toggleLocked(note) {
         let method = note.locked ? "DELETE" : "PUT";
-        let response = await fetch(`${baseUrl}/${noteId}/lock`, {
-            method
-        });
-
-        alertIfError(response);
+        await sendRequest(`${note.id}/lock`, method, {}, null);
     }
 
-    async function apiToggleArchived(note) {
+    async function toggleArchived(note) {
         let method = note.archived ? "DELETE" : "PUT";
-        let response = await fetch(`${baseUrl}/${note.id}/archive`, {
-            method
-        });
-
-        alertIfError(response);
+        await sendRequest(`${note.id}/archive`, method, {}, null);
     }
 
-    async function apiTogglePublished(note) {
+    async function togglePublished(note) {
         let method = note.published ? "DELETE" : "PUT";
-        let response = await fetch(`${baseUrl}/${note.id}/publish`, {
-            method
-        });
-
-        alertIfError(response);
+        await sendRequest(`${note.id}/publish`, method, {}, null);
     }
 
     function alertIfError(response) {
@@ -95,14 +66,14 @@ let ajaxService = (function () {
     }
 
     return {
-        apiCreateNote,
-        apiGetNotes,
-        apiUpdateNote,
-        apiDeleteNote,
-        apiToggleArchived,
-        apiToggleLocked,
-        apiTogglePinned,
-        apiTogglePublished
+        createNote,
+        getNotes,
+        updateNote,
+        deleteNote,
+        toggleArchived,
+        toggleLocked,
+        togglePinned,
+        togglePublished
     }
 
 })();

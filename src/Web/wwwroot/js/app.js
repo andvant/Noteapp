@@ -9,42 +9,42 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function addEventListenersForButtons() {
     document.getElementById('save-note-button').addEventListener('click', async () => {
-        await ajaxService.apiUpdateNote(getSelectedNoteId(), getSelectedNoteText());
+        await ajaxService.updateNote(getSelectedNoteId(), getSelectedNoteText());
         await updateNoteList();
     });
 
     document.getElementById('new-note-button').addEventListener('click', async () => {
-        await ajaxService.apiCreateNote();
+        await ajaxService.createNote();
         await updateNoteList();
     });
 
     document.getElementById('delete-note-button').addEventListener('click', async () => {
-        await ajaxService.apiDeleteNote(getSelectedNoteId());
+        await ajaxService.deleteNote(getSelectedNoteId());
         await updateNoteList();
     });
 
     document.getElementById('pin-note-button').addEventListener('click', async () => {
-        await ajaxService.apiTogglePinned(getSelectedNote());
+        await ajaxService.togglePinned(getSelectedNote());
         await updateNoteList();
     });
 
     document.getElementById('lock-note-button').addEventListener('click', async () => {
-        await ajaxService.apiToggleLocked(getSelectedNote());
+        await ajaxService.toggleLocked(getSelectedNote());
         await updateNoteList();
     });
 
     document.getElementById('archive-note-button').addEventListener('click', async () => {
-        await ajaxService.apiToggleArchived(getSelectedNote());
+        await ajaxService.toggleArchived(getSelectedNote());
         await updateNoteList();
     });
 
     document.getElementById('publish-note-button').addEventListener('click', async () => {
-        await ajaxService.apiTogglePublished(getSelectedNote());
+        await ajaxService.togglePublished(getSelectedNote());
         await updateNoteList();
     });
 
     document.getElementById('sort-created-button').addEventListener('click', async () => {
-        let notes = await ajaxService.apiGetNotes();
+        let notes = await ajaxService.getNotes();
         sortCreated(notes);
         addNoteElements(getNotesToBeDisplayed(notes));
 
@@ -52,7 +52,7 @@ function addEventListenersForButtons() {
     });
 
     document.getElementById('sort-updated-button').addEventListener('click', async () => {
-        let notes = await ajaxService.apiGetNotes();
+        let notes = await ajaxService.getNotes();
         sortUpdated(notes);
         addNoteElements(getNotesToBeDisplayed(notes));
 
@@ -60,7 +60,7 @@ function addEventListenersForButtons() {
     });
 
     document.getElementById('sort-text-button').addEventListener('click', async () => {
-        let notes = await ajaxService.apiGetNotes();
+        let notes = await ajaxService.getNotes();
         sortText(notes);
         addNoteElements(getNotesToBeDisplayed(notes));
 
@@ -69,7 +69,7 @@ function addEventListenersForButtons() {
 }
 
 async function updateNoteList() {
-    let notes = await ajaxService.apiGetNotes();
+    let notes = await ajaxService.getNotes();
     saveNotesToLocalStorage(notes);
 
     addNoteElements(getNotesToBeDisplayed(notes));
