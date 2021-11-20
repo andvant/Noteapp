@@ -1,47 +1,80 @@
-﻿async function run() {
-    addEventListenersForButtons();
+﻿import { ajaxService } from "./ajaxService.js";
 
+"use strict";
+
+document.addEventListener('DOMContentLoaded', async () => {
+    addEventListenersForButtons();
     await updateNoteList();
-}
+});
 
 function addEventListenersForButtons() {
     document.getElementById('save-note-button').addEventListener('click', async () => {
-        await apiUpdateNote();
+        await ajaxService.apiUpdateNote(getSelectedNoteId(), getSelectedNoteText());
+        await updateNoteList();
     });
 
     document.getElementById('new-note-button').addEventListener('click', async () => {
-        await apiCreateNote();
+        await ajaxService.apiCreateNote();
+        await updateNoteList();
     });
 
     document.getElementById('delete-note-button').addEventListener('click', async () => {
-        await apiDeleteNote();
+        await ajaxService.apiDeleteNote(getSelectedNoteId());
+        await updateNoteList();
     });
 
     document.getElementById('pin-note-button').addEventListener('click', async () => {
-        await apiTogglePinned();
+        await ajaxService.apiTogglePinned(getSelectedNote());
+        await updateNoteList();
     });
 
     document.getElementById('lock-note-button').addEventListener('click', async () => {
-        await apiToggleLocked();
+        await ajaxService.apiToggleLocked(getSelectedNote());
+        await updateNoteList();
     });
 
     document.getElementById('archive-note-button').addEventListener('click', async () => {
-        await apiToggleArchived();
+        await ajaxService.apiToggleArchived(getSelectedNote());
+        await updateNoteList();
     });
 
     document.getElementById('publish-note-button').addEventListener('click', async () => {
-        await apiTogglePublished();
+        await ajaxService.apiTogglePublished(getSelectedNote());
+        await updateNoteList();
+    });
+
+    document.getElementById('sort-created-button').addEventListener('click', async () => {
+        let notes = await ajaxService.apiGetNotes();
+        sortCreated(notes);
+        addNoteElements(getNotesToBeDisplayed(notes));
+
+        await updateNoteList();
+    });
+
+    document.getElementById('sort-updated-button').addEventListener('click', async () => {
+        let notes = await ajaxService.apiGetNotes();
+        sortUpdated(notes);
+        addNoteElements(getNotesToBeDisplayed(notes));
+
+        await updateNoteList();
+    });
+
+    document.getElementById('sort-text-button').addEventListener('click', async () => {
+        let notes = await ajaxService.apiGetNotes();
+        sortText(notes);
+        addNoteElements(getNotesToBeDisplayed(notes));
+
+        await updateNoteList();
     });
 }
 
 async function updateNoteList() {
-    let notes = await apiGetNotes();
+    let notes = await ajaxService.apiGetNotes();
     saveNotesToLocalStorage(notes);
 
-
     addNoteElements(getNotesToBeDisplayed(notes));
-
-    addNoteClickEvents();
+    
+    setCheckboxes(getSelectedNote());
 }
 
 function orderByPinned(notes) {
@@ -65,31 +98,6 @@ function getNote(noteId) {
     return JSON.parse(localStorage.getItem('notes')).find(note => note.id == noteId);
 }
 
-function addNoteClickEvents() {
-    document.getElementById('notes-list').addEventListener('click', e => {
-        let noteElement = e.target.closest('.note');
-        let noteId = getNoteId(noteElement);
-        let noteText = getNote(noteId).text;
-
-        setSelectedNoteId(noteId);
-
-        setSelectedNoteText(noteText);
-
-
-        let note = getNote(noteId);
-
-        setCheckboxes(note);
-
-        if (note.locked) {
-            getNoteTextElement().readOnly = true;
-            document.getElementById('save-note-button').disabled = true;
-        }
-        else {
-            document.getElementById('save-note-button').disabled = false;
-        }
-    });
-}
-
 function getNoteTextElement() {
     return document.getElementById('note-text');
 }
@@ -102,6 +110,10 @@ function getSelectedNoteId() {
     return localStorage.getItem('selectedNoteId');
 }
 
+function getSelectedNote() {
+    return getNote(getSelectedNoteId());
+}
+
 function setSelectedNoteText(text) {
     getNoteTextElement().value = text;
 }
@@ -112,6 +124,36 @@ function getSelectedNoteText() {
 
 function saveNotesToLocalStorage(notes) {
     localStorage.setItem('notes', JSON.stringify(notes));
+}
+
+function noteSelectedHandler(event) {
+    let noteElement = event.target.closest('.note');
+    let noteId = getNoteId(noteElement);
+    let noteText = getNote(noteId).text;
+
+    setSelectedNoteId(noteId);
+    setSelectedNoteText(noteText);
+
+    let note = getNote(noteId);
+
+    setCheckboxes(note);
+
+    disableNoteEditingIfLocked(note.locked);
+}
+
+function addNoteClickHandlers() {
+    document.getElementById('notes-list').addEventListener('click', noteSelectedHandler);
+}
+
+function disableNoteEditingIfLocked(locked) {
+    if (locked) {
+        getNoteTextElement().readOnly = true;
+        document.getElementById('save-note-button').disabled = true;
+    }
+    else {
+        getNoteTextElement().readOnly = false;
+        document.getElementById('save-note-button').disabled = false;
+    }
 }
 
 function addNoteElements(notes) {
@@ -132,6 +174,8 @@ function addNoteElements(notes) {
             `<div>Text: ${note.text}</div>`;
         noteList.append(noteDiv);
     }
+
+    addNoteClickHandlers();
 }
 
 function setCheckboxes(note) {
@@ -141,122 +185,32 @@ function setCheckboxes(note) {
     document.getElementById("note-published").checked = note.published;
 }
 
-// calling the api
-async function apiGetNotes() {
-    let notes = null;
+function sortCreated(notes) {
+    notes.sort((note1, note2) => new Date(note1.created) - new Date(note2.created));
 
-    let response = await fetch("http://localhost:5000/api/notes", {
-        method: "GET"
-    });
-
-    if (response.ok) {
-        notes = await response.json();
-    }
-    else {
-        alert(response.statusText);
-    }
-
-    return notes;
+    let descending = localStorage.getItem('sortCreatedDescending') === 'true';
+    reverseIfNeeded(notes, descending);
+    localStorage.setItem('sortCreatedDescending', descending ? 'false' : 'true');
 }
 
-async function apiUpdateNote() {
-    let selectedNoteId = getSelectedNoteId();
-    let noteText = getSelectedNoteText();
-    let response = await fetch(`http://localhost:5000/api/notes/${selectedNoteId}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ text: noteText })
-    });
+function sortUpdated(notes) {
+    notes.sort((note1, note2) => new Date(note1.updated) - new Date(note2.updated));
 
-    await processResponse(response);
+    let descending = localStorage.getItem('sortUpdatedDescending') === 'true';
+    reverseIfNeeded(notes, descending);
+    localStorage.setItem('sortUpdatedDescending', descending ? 'false' : 'true');
 }
 
-async function apiDeleteNote() {
-    let selectedNoteId = getSelectedNoteId();
-    let response = await fetch(`http://localhost:5000/api/notes/${selectedNoteId}`, {
-        method: "DELETE"
-    });
+function sortText(notes) {
+    notes.sort((note1, note2) => note1.text > note2.text ? 1 : -1);
 
-    if (response.ok) {
-        await updateNoteList();
-    }
-    else {
-        alert(response.statusText);
-    }
+    let descending = localStorage.getItem('sortTextDescending') === 'true';
+    reverseIfNeeded(notes, descending);
+    localStorage.setItem('sortTextDescending', descending ? 'false' : 'true');
 }
 
-async function apiCreateNote() {
-    let response = await fetch(`http://localhost:5000/api/notes`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ text: "" })
-    });
-
-    await processResponse(response);
-}
-
-async function apiDeleteNote() {
-    let selectedNoteId = getSelectedNoteId();
-    let response = await fetch(`http://localhost:5000/api/notes/${selectedNoteId}`, {
-        method: "DELETE"
-    });
-
-    await processResponse(response);
-}
-
-async function apiTogglePinned() {
-    let selectedNoteId = getSelectedNoteId();
-    let note = getNote(selectedNoteId);
-    let method = note.pinned ? "DELETE" : "PUT";
-    let response = await fetch(`http://localhost:5000/api/notes/${selectedNoteId}/pin`, {
-        method
-    });
-
-    await processResponse(response);
-}
-
-async function apiToggleLocked() {
-    let selectedNoteId = getSelectedNoteId();
-    let note = getNote(selectedNoteId);
-    let method = note.locked ? "DELETE" : "PUT";
-    let response = await fetch(`http://localhost:5000/api/notes/${selectedNoteId}/lock`, {
-        method
-    });
-
-    await processResponse(response);
-}
-
-async function apiToggleArchived() {
-    let selectedNoteId = getSelectedNoteId();
-    let note = getNote(selectedNoteId);
-    let method = note.archived ? "DELETE" : "PUT";
-    let response = await fetch(`http://localhost:5000/api/notes/${selectedNoteId}/archive`, {
-        method
-    });
-
-    await processResponse(response);
-}
-
-async function apiTogglePublished() {
-    let selectedNoteId = getSelectedNoteId();
-    let note = getNote(selectedNoteId);
-    let method = note.published ? "DELETE" : "PUT";
-    let response = await fetch(`http://localhost:5000/api/notes/${selectedNoteId}/publish`, {
-        method
-    });
-
-    await processResponse(response);
-}
-
-async function processResponse(response) {
-    if (response.ok) {
-        await updateNoteList();
-    }
-    else {
-        alert(response.statusText);
+function reverseIfNeeded(notes, descending) {
+    if (descending) {
+        notes.reverse();
     }
 }

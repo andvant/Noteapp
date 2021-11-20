@@ -21,13 +21,13 @@
 
 .notes {
     display: grid;
-    grid-template-rows: 50px 1fr;
+    grid-template-rows: 50px 50px 1fr;
     overflow: auto;
 }
 
 .selected-note {
     display: grid;
-    grid-template-rows: 50px 1fr;
+    grid-template-rows: 50px 50px 1fr;
 }
 
 .notes-new {
@@ -35,6 +35,10 @@
     align-items: center;
     justify-content: center;
     justify-items: center;
+}
+
+.notes-sort {
+    display: flex;
 }
 
 .notes-list {
@@ -46,10 +50,12 @@
     display: flex;
     justify-content: right;
     padding: 10px;
+    grid-row-start: 1;
 }
 
 .selected-note-text {
     padding: 5px;
+    grid-row-start: 3;
 }
 
 .note {
