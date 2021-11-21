@@ -1,165 +1,109 @@
-﻿import { ajaxService } from "./ajaxService.js";
+﻿import * as ajaxService from "./ajaxService.js";
+import * as noteService from "./noteService.js";
 
-"use strict";
+const saveNoteButton = document.getElementById('save-note-button');
+const newNoteButton = document.getElementById('new-note-button');
+const deleteNoteButton = document.getElementById('delete-note-button');
+const pinNoteButton = document.getElementById('pin-note-button');
+const lockNoteButton = document.getElementById('lock-note-button');
+const archiveNoteButton = document.getElementById('archive-note-button');
+const publishNoteButton = document.getElementById('publish-note-button');
+const sortByCreatedButton = document.getElementById('sortby-created-button');
+const sortByUpdatedButton = document.getElementById('sortby-updated-button');
+const sortByTextButton = document.getElementById('sortby-text-button');
+const notesListDiv = document.getElementById('notes-list')
+const noteTextElement = document.getElementById('note-text');
 
 document.addEventListener('DOMContentLoaded', async () => {
-    addEventListenersForButtons();
+    addEventListenersToButtons();
     await updateNoteList();
 });
 
-function addEventListenersForButtons() {
-    document.getElementById('save-note-button').addEventListener('click', async () => {
-        await ajaxService.updateNote(getSelectedNoteId(), getSelectedNoteText());
+function addEventListenersToButtons() {
+    saveNoteButton.addEventListener('click', async () => {
+        await ajaxService.updateNote(noteService.getSelectedNoteId(), getSelectedNoteText());
         await updateNoteList();
     });
 
-    document.getElementById('new-note-button').addEventListener('click', async () => {
+    newNoteButton.addEventListener('click', async () => {
         await ajaxService.createNote();
         await updateNoteList();
     });
 
-    document.getElementById('delete-note-button').addEventListener('click', async () => {
-        await ajaxService.deleteNote(getSelectedNoteId());
+    deleteNoteButton.addEventListener('click', async () => {
+        await ajaxService.deleteNote(noteService.getSelectedNoteId());
         await updateNoteList();
     });
 
-    document.getElementById('pin-note-button').addEventListener('click', async () => {
-        await ajaxService.togglePinned(getSelectedNote());
+    pinNoteButton.addEventListener('click', async () => {
+        await ajaxService.togglePinned(noteService.getSelectedNote());
         await updateNoteList();
     });
 
-    document.getElementById('lock-note-button').addEventListener('click', async () => {
-        await ajaxService.toggleLocked(getSelectedNote());
+    lockNoteButton.addEventListener('click', async () => {
+        await ajaxService.toggleLocked(noteService.getSelectedNote());
         await updateNoteList();
     });
 
-    document.getElementById('archive-note-button').addEventListener('click', async () => {
-        await ajaxService.toggleArchived(getSelectedNote());
+    archiveNoteButton.addEventListener('click', async () => {
+        await ajaxService.toggleArchived(noteService.getSelectedNote());
         await updateNoteList();
     });
 
-    document.getElementById('publish-note-button').addEventListener('click', async () => {
-        await ajaxService.togglePublished(getSelectedNote());
+    publishNoteButton.addEventListener('click', async () => {
+        await ajaxService.togglePublished(noteService.getSelectedNote());
         await updateNoteList();
     });
 
-    document.getElementById('sort-created-button').addEventListener('click', async () => {
+    sortByCreatedButton.addEventListener('click', async () => {
         let notes = await ajaxService.getNotes();
-        sortCreated(notes);
-        addNoteElements(getNotesToBeDisplayed(notes));
-
+        noteService.sortByCreated(notes);
+        addNoteElements(noteService.getNotesToBeDisplayed(notes));
         await updateNoteList();
     });
 
-    document.getElementById('sort-updated-button').addEventListener('click', async () => {
+    sortByUpdatedButton.addEventListener('click', async () => {
         let notes = await ajaxService.getNotes();
-        sortUpdated(notes);
-        addNoteElements(getNotesToBeDisplayed(notes));
-
+        noteService.sortByUpdated(notes);
+        addNoteElements(noteService.getNotesToBeDisplayed(notes));
         await updateNoteList();
     });
 
-    document.getElementById('sort-text-button').addEventListener('click', async () => {
+    sortByTextButton.addEventListener('click', async () => {
         let notes = await ajaxService.getNotes();
-        sortText(notes);
-        addNoteElements(getNotesToBeDisplayed(notes));
-
+        noteService.sortByText(notes);
+        addNoteElements(noteService.getNotesToBeDisplayed(notes));
         await updateNoteList();
     });
 }
 
 async function updateNoteList() {
     let notes = await ajaxService.getNotes();
-    saveNotesToLocalStorage(notes);
+    noteService.saveLocalNotes(notes);
 
-    addNoteElements(getNotesToBeDisplayed(notes));
-    
-    setCheckboxes(getSelectedNote());
-}
-
-function orderByPinned(notes) {
-    return notes.sort((note1, note2) => note1.pinned === note2.pinned ? 0 : note1.pinned ? -1 : 1);
-}
-
-function getNotesToBeDisplayed(notes) {
-    let archivedNotes = getNonArchivedNotes(notes);
-    return orderByPinned(archivedNotes);
-}
-
-function getNonArchivedNotes(notes) {
-    return notes.filter(note => !note.archived);
+    addNoteElements(noteService.getNotesToBeDisplayed(notes));
+    setCheckboxes(noteService.getSelectedNote());
 }
 
 function getNoteId(noteElement) {
     return noteElement.id.split('-')[1];
 }
 
-function getNote(noteId) {
-    return JSON.parse(localStorage.getItem('notes')).find(note => note.id == noteId);
-}
-
-function getNoteTextElement() {
-    return document.getElementById('note-text');
-}
-
-function setSelectedNoteId(noteId) {
-    localStorage.setItem('selectedNoteId', noteId);
-}
-
-function getSelectedNoteId() {
-    return localStorage.getItem('selectedNoteId');
-}
-
-function getSelectedNote() {
-    return getNote(getSelectedNoteId());
+function getSelectedNoteText() {
+    return noteTextElement.value;
 }
 
 function setSelectedNoteText(text) {
-    getNoteTextElement().value = text;
+    noteTextElement.value = text;
 }
 
-function getSelectedNoteText() {
-    return getNoteTextElement().value;
-}
-
-function saveNotesToLocalStorage(notes) {
-    localStorage.setItem('notes', JSON.stringify(notes));
-}
-
-function noteSelectedHandler(event) {
-    let noteElement = event.target.closest('.note');
-    let noteId = getNoteId(noteElement);
-    let noteText = getNote(noteId).text;
-
-    setSelectedNoteId(noteId);
-    setSelectedNoteText(noteText);
-
-    let note = getNote(noteId);
-
-    setCheckboxes(note);
-
-    disableNoteEditingIfLocked(note.locked);
-}
-
-function addNoteClickHandlers() {
-    document.getElementById('notes-list').addEventListener('click', noteSelectedHandler);
-}
-
-function disableNoteEditingIfLocked(locked) {
-    if (locked) {
-        getNoteTextElement().readOnly = true;
-        document.getElementById('save-note-button').disabled = true;
-    }
-    else {
-        getNoteTextElement().readOnly = false;
-        document.getElementById('save-note-button').disabled = false;
-    }
+function makeNoteReadOnly(locked) {
+    noteTextElement.readOnly = locked ? true : false;
+    saveNoteButton.disabled = locked ? true : false;
 }
 
 function addNoteElements(notes) {
-    let noteList = document.getElementById('notes-list');
-
-    noteList.innerHTML = '';
+    notesListDiv.innerHTML = '';
 
     for (let note of notes) {
         let noteDiv = document.createElement('div');
@@ -171,11 +115,27 @@ function addNoteElements(notes) {
             `<div>Created: ${new Date(note.created).toISOString()}</div>` +
             `<div>Updated: ${new Date(note.updated).toISOString()}</div>` +
             `<div>PublicURL: ${note.publicUrl}</div>`;
-            `<div>Text: ${note.text}</div>`;
-        noteList.append(noteDiv);
+        `<div>Text: ${note.text}</div>`;
+        notesListDiv.append(noteDiv);
     }
 
     addNoteClickHandlers();
+}
+
+function noteSelectedHandler(event) {
+    let noteElement = event.target.closest('.note');
+    let noteId = getNoteId(noteElement);
+    let note = noteService.getLocalNote(noteId);
+
+    noteService.setSelectedNoteId(noteId);
+    setSelectedNoteText(note.text);
+
+    setCheckboxes(note);
+    makeNoteReadOnly(note.locked);
+}
+
+function addNoteClickHandlers() {
+    notesListDiv.addEventListener('click', noteSelectedHandler);
 }
 
 function setCheckboxes(note) {
@@ -183,34 +143,4 @@ function setCheckboxes(note) {
     document.getElementById("note-locked").checked = note.locked;
     document.getElementById("note-archived").checked = note.archived;
     document.getElementById("note-published").checked = note.published;
-}
-
-function sortCreated(notes) {
-    notes.sort((note1, note2) => new Date(note1.created) - new Date(note2.created));
-
-    let descending = localStorage.getItem('sortCreatedDescending') === 'true';
-    reverseIfNeeded(notes, descending);
-    localStorage.setItem('sortCreatedDescending', descending ? 'false' : 'true');
-}
-
-function sortUpdated(notes) {
-    notes.sort((note1, note2) => new Date(note1.updated) - new Date(note2.updated));
-
-    let descending = localStorage.getItem('sortUpdatedDescending') === 'true';
-    reverseIfNeeded(notes, descending);
-    localStorage.setItem('sortUpdatedDescending', descending ? 'false' : 'true');
-}
-
-function sortText(notes) {
-    notes.sort((note1, note2) => note1.text > note2.text ? 1 : -1);
-
-    let descending = localStorage.getItem('sortTextDescending') === 'true';
-    reverseIfNeeded(notes, descending);
-    localStorage.setItem('sortTextDescending', descending ? 'false' : 'true');
-}
-
-function reverseIfNeeded(notes, descending) {
-    if (descending) {
-        notes.reverse();
-    }
 }
