@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Noteapp.Core.Services
 {
-    // Assumes: that user with provided userId is authenticated (for all methods)
+    // ASSUMED: that user with provided userId is authenticated (for all methods)
     public class NoteService : INoteService
     {
         private readonly INoteRepository _repository;

@@ -18,7 +18,7 @@ namespace Noteapp.Infrastructure.Data
         {
             const int userId = 1;
 
-            var notes = new List<Note>()
+            return new()
             {
                 new()
                 {
@@ -45,8 +45,6 @@ namespace Noteapp.Infrastructure.Data
                     AuthorId = userId
                 }
             };
-
-            return notes;
         }
     }
 }

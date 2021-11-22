@@ -31,8 +31,10 @@ namespace Noteapp.Api
 
             // Singleton because it uses in-memory data which should be the same between different calls
             services.AddSingleton<INoteRepository, NoteRepository>();
+            services.AddSingleton<IAppUserRepository, AppUserRepository>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddTransient<INoteService, NoteService>();
+            services.AddTransient<IAppUserService, AppUserService>();
 
             services.AddCors(setup =>
             {
