@@ -33,6 +33,7 @@ namespace Noteapp.Core.Services
             return appUser;
         }
 
+        // ASSUMED: that email is unique for all users
         public bool CredentialsValid(string email, string password)
         {
             var appUser = _repository.AppUsers.Find(user => user.Email == email);

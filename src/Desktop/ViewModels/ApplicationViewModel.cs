@@ -18,11 +18,14 @@ namespace Noteapp.Desktop.ViewModels
         {
             var httpClient = new HttpClient()
             {
-                BaseAddress = new Uri("http://localhost:5000/api/notes/")
+                BaseAddress = new Uri("http://localhost:5000/")
             };
+            var apiCaller = new ApiCaller(httpClient);
 
             PageViewModels = new();
-            PageViewModels.Add(new NotesViewModel(new ApiCaller(httpClient)));
+            PageViewModels.Add(new NotesViewModel(apiCaller));
+            PageViewModels.Add(new RegisterViewModel(apiCaller));
+            PageViewModels.Add(new LoginViewModel(apiCaller));
 
             CurrentPageViewModel = PageViewModels[0];
 

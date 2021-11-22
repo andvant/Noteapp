@@ -21,6 +21,7 @@ namespace Noteapp.Api.Controllers
             return Ok(_appUserService.Create(dto.Email, dto.Password));
         }
 
+        // TODO: throw in service and catch exception in error handling filter
         [HttpPost("login")]
         public IActionResult Login(LoginDto dto)
         {
