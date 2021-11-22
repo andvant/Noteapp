@@ -1,7 +1,6 @@
-﻿using Noteapp.Desktop.Exceptions;
+﻿using Noteapp.Core.Exceptions;
 using Noteapp.Desktop.ViewModels;
 using Noteapp.Desktop.Views;
-using System;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -18,8 +17,8 @@ namespace Noteapp.Desktop
             this.DispatcherUnhandledException += HandleGlobalExceptions;
 
             ApplicationView app = new ApplicationView();
-            ApplicationViewModel viewModel = new ApplicationViewModel();
-            app.DataContext = viewModel;
+            ApplicationViewModel appViewModel = new ApplicationViewModel();
+            app.DataContext = appViewModel;
             app.Show();
         }
 

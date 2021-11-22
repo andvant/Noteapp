@@ -1,13 +1,14 @@
 ﻿using Noteapp.Core.Entities;
-using Noteapp.Desktop.Exceptions;
+using Noteapp.Core.Exceptions;
+using Noteapp.Core.Interfaces;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-namespace Noteapp.Desktop.Networking
+namespace Noteapp.Infrastructure.Networking
 {
-    public class ApiCaller
+    public class ApiCaller : IApiCaller
     {
         private readonly HttpClient _httpClient;
 

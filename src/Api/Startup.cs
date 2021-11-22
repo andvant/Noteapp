@@ -33,8 +33,8 @@ namespace Noteapp.Api
             services.AddSingleton<INoteRepository, NoteRepository>();
             services.AddSingleton<IAppUserRepository, AppUserRepository>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
-            services.AddTransient<INoteService, NoteService>();
-            services.AddTransient<IAppUserService, AppUserService>();
+            services.AddTransient<NoteService>();
+            services.AddTransient<AppUserService>();
 
             services.AddCors(setup =>
             {

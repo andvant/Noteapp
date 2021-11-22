@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Noteapp.Core.Services
 {
-    public class AppUserService : IAppUserService
+    public class AppUserService
     {
         private readonly IAppUserRepository _repository;
 

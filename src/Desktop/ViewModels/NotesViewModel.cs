@@ -1,5 +1,4 @@
 ﻿using Noteapp.Desktop.MVVM;
-using Noteapp.Desktop.Networking;
 using Noteapp.Core.Entities;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -9,6 +8,7 @@ using System.Collections.Generic;
 using Microsoft.Win32;
 using System.IO;
 using System.Text.Json;
+using Noteapp.Core.Interfaces;
 
 namespace Noteapp.Desktop.ViewModels
 {
@@ -18,7 +18,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private ObservableCollection<Note> _notes;
         private Note _selectedNote;
-        private readonly ApiCaller _apiCaller;
+        private readonly IApiCaller _apiCaller;
         private bool _descendingUpdated;
         private bool _descendingCreated;
         private bool _descendingText;
@@ -49,7 +49,7 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand ExportNotesCommand { get; }
         public ICommand ImportNotesCommand { get; }
 
-        public NotesViewModel(ApiCaller apiCaller)
+        public NotesViewModel(IApiCaller apiCaller)
         {
             _apiCaller = apiCaller;
 

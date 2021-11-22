@@ -1,6 +1,4 @@
-﻿using Noteapp.Core.Exceptions;
-
-namespace Noteapp.Desktop.Exceptions
+﻿namespace Noteapp.Core.Exceptions
 {
     public class ApiBadResponseException : NoteappException
     {

@@ -14,9 +14,9 @@ namespace Noteapp.Api.Controllers
     {
         // hardcode user id for now
         private const int _userId = 1;
-        private readonly INoteService _noteService;
+        private readonly NoteService _noteService;
 
-        public NoteController(INoteService noteService)
+        public NoteController(NoteService noteService)
         {
             _noteService = noteService;
         }

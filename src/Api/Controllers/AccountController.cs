@@ -8,9 +8,9 @@ namespace Noteapp.Api.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly IAppUserService _appUserService;
+        private readonly AppUserService _appUserService;
 
-        public AccountController(IAppUserService appUserService)
+        public AccountController(AppUserService appUserService)
         {
             _appUserService = appUserService;
         }

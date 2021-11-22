@@ -1,5 +1,5 @@
-﻿using Noteapp.Desktop.MVVM;
-using Noteapp.Desktop.Networking;
+﻿using Noteapp.Core.Interfaces;
+using Noteapp.Desktop.MVVM;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -8,7 +8,7 @@ namespace Noteapp.Desktop.ViewModels
     {
         public string Name => "Login";
 
-        private readonly ApiCaller _apiCaller;
+        private readonly IApiCaller _apiCaller;
 
         public string Email { get; set; }
         public string Password { get; set; }
@@ -17,7 +17,7 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand LogoutCommand { get; private set; }
         public ICommand CheckAuthCommand { get; private set; }
 
-        public LoginViewModel(ApiCaller apiCaller)
+        public LoginViewModel(IApiCaller apiCaller)
         {
             _apiCaller = apiCaller;
             LoginCommand = new RelayCommand(LoginCommandExecute);

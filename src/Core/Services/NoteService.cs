@@ -9,7 +9,7 @@ using System.Text;
 namespace Noteapp.Core.Services
 {
     // ASSUMED: that user with provided userId is authenticated (for all methods)
-    public class NoteService : INoteService
+    public class NoteService
     {
         private readonly INoteRepository _repository;
         private readonly IDateTimeProvider _dateTimeProvider;

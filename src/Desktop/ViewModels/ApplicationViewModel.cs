@@ -1,5 +1,6 @@
-﻿using Noteapp.Desktop.MVVM;
-using Noteapp.Desktop.Networking;
+﻿using Noteapp.Core.Interfaces;
+using Noteapp.Desktop.MVVM;
+using Noteapp.Infrastructure.Networking;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -20,7 +21,7 @@ namespace Noteapp.Desktop.ViewModels
             {
                 BaseAddress = new Uri("http://localhost:5000/")
             };
-            var apiCaller = new ApiCaller(httpClient);
+            IApiCaller apiCaller = new ApiCaller(httpClient);
 
             PageViewModels = new();
             PageViewModels.Add(new NotesViewModel(apiCaller));
