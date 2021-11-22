@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Noteapp.Infrastructure.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Web.Controllers
+namespace Noteapp.Web.Controllers
 {
     public class AppController : Controller
     {
