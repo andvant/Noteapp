@@ -11,6 +11,8 @@ const publishNoteButton = document.getElementById('publish-note-button');
 const sortByCreatedButton = document.getElementById('sortby-created-button');
 const sortByUpdatedButton = document.getElementById('sortby-updated-button');
 const sortByTextButton = document.getElementById('sortby-text-button');
+const loginButton = document.getElementById('login-button');
+const registerButton = document.getElementById('register-button');
 const notesListDiv = document.getElementById('notes-list')
 const noteTextElement = document.getElementById('note-text');
 
@@ -56,24 +58,29 @@ function addEventListenersToButtons() {
     });
 
     sortByCreatedButton.addEventListener('click', async () => {
-        let notes = await ajaxService.getNotes();
+        let notes = noteService.getLocalNotes();
         noteService.sortByCreated(notes);
         addNoteElements(noteService.getNotesToBeDisplayed(notes));
-        await updateNoteList();
     });
 
     sortByUpdatedButton.addEventListener('click', async () => {
-        let notes = await ajaxService.getNotes();
+        let notes = noteService.getLocalNotes();
         noteService.sortByUpdated(notes);
         addNoteElements(noteService.getNotesToBeDisplayed(notes));
-        await updateNoteList();
     });
 
     sortByTextButton.addEventListener('click', async () => {
-        let notes = await ajaxService.getNotes();
+        let notes = noteService.getLocalNotes();
         noteService.sortByText(notes);
         addNoteElements(noteService.getNotesToBeDisplayed(notes));
-        await updateNoteList();
+    });
+
+    loginButton.addEventListener('click', async () => {
+        await ajaxService.login(getLoginEmail(), getLoginPassword());
+    });
+
+    registerButton.addEventListener('click', async () => {
+        await ajaxService.register(getRegisterEmail(), getRegisterPassword());
     });
 }
 
@@ -91,6 +98,22 @@ function getNoteId(noteElement) {
 
 function getSelectedNoteText() {
     return noteTextElement.value;
+}
+
+function getLoginEmail() {
+    return document.getElementById('login-email').value;
+}
+
+function getLoginPassword() {
+    return document.getElementById('login-password').value;
+}
+
+function getRegisterEmail() {
+    return document.getElementById('register-email').value;
+}
+
+function getRegisterPassword() {
+    return document.getElementById('register-password').value;
 }
 
 function setSelectedNoteText(text) {

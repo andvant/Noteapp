@@ -25,9 +25,25 @@
     overflow: auto;
 }
 
+.third-column {
+    display: grid;
+    grid-template-rows: 1fr 120px;
+}
+
 .selected-note {
     display: grid;
     grid-template-rows: 50px 50px 1fr;
+}
+
+.authentication {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+}
+
+.authentication-row {
+    display: flex;
+    padding: 10px;
+    font-size: 22px;
 }
 
 .notes-new {

@@ -1,5 +1,6 @@
 ﻿export {
     getNotesToBeDisplayed,
+    getLocalNotes,
     getLocalNote,
     getSelectedNote,
     sortByCreated,
@@ -22,8 +23,16 @@ function getNotesToBeDisplayed(notes) {
     return orderByPinned(getNonArchivedNotes(notes));
 }
 
+function getLocalNotes() {
+    return JSON.parse(localStorage.getItem('notes'));
+}
+
 function getLocalNote(noteId) {
     return getLocalNotes().find(note => note.id == noteId);
+}
+
+function saveLocalNotes(notes) {
+    localStorage.setItem('notes', JSON.stringify(notes));
 }
 
 function getSelectedNote() {
@@ -66,12 +75,4 @@ function setSelectedNoteId(noteId) {
 
 function getSelectedNoteId() {
     return localStorage.getItem('selectedNoteId');
-}
-
-function saveLocalNotes(notes) {
-    localStorage.setItem('notes', JSON.stringify(notes));
-}
-
-function getLocalNotes() {
-    return JSON.parse(localStorage.getItem('notes'));
 }
