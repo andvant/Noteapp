@@ -1,13 +1,17 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using Noteapp.Infrastructure;
 using Noteapp.Infrastructure.Data;
+using System;
+using System.Text;
 
 namespace Noteapp.Api
 {
@@ -45,6 +49,26 @@ namespace Noteapp.Api
                     policy.AllowAnyMethod();
                 });
             });
+
+            services.AddAuthentication(configure =>
+            {
+                configure.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                configure.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new()
+                    {
+                        ValidIssuer = "NoteappIssuer",
+                        ValidateIssuer = true,
+                        ValidAudience = "NoteappAudience",
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("supersecretkey123")),
+                        ValidateIssuerSigningKey = true,
+                        ClockSkew = TimeSpan.FromSeconds(5)
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -61,6 +85,7 @@ namespace Noteapp.Api
 
             app.UseCors();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

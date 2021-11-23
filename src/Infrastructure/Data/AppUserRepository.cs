@@ -20,7 +20,7 @@ namespace Noteapp.Infrastructure.Data
                 new()
                 {
                     Id = 1,
-                    Email = "user1@mail.com",
+                    Email = "anonymous@mail.com",
                     Password = "pass1",
                     Notes = new List<Note>()
                 },
@@ -36,6 +36,13 @@ namespace Noteapp.Infrastructure.Data
                     Id = 3,
                     Email = "user3@mail.com",
                     Password = "pass3",
+                    Notes = new List<Note>()
+                },
+                new()
+                {
+                    Id = 4,
+                    Email = "user5",
+                    Password = "pass5",
                     Notes = new List<Note>()
                 }
             };

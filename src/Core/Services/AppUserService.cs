@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace Noteapp.Core.Services
 {
+    // ASSUMED: that email is unique for all users
     public class AppUserService
     {
         private readonly IAppUserRepository _repository;
@@ -30,7 +31,6 @@ namespace Noteapp.Core.Services
             return appUser;
         }
 
-        // ASSUMED: that email is unique for all users
         public bool CredentialsValid(string email, string password)
         {
             var appUser = _repository.AppUsers.Find(user => user.Email == email);
@@ -41,6 +41,11 @@ namespace Noteapp.Core.Services
             }
 
             return true;
+        }
+
+        public AppUser Get(string email)
+        {
+            return _repository.AppUsers.Find(user => user.Email == email);
         }
 
         // just for testing, should delete later

@@ -8,7 +8,6 @@ using System.Text;
 
 namespace Noteapp.Core.Services
 {
-    // ASSUMED: that user with provided userId is authenticated (for all methods)
     public class NoteService
     {
         private readonly INoteRepository _repository;
@@ -34,6 +33,12 @@ namespace Noteapp.Core.Services
                 notes = notes.Where(note => note.Archived == archived.Value);
             }
             return notes.ToList();
+        }
+
+        // just for testing
+        public IEnumerable<Note> GetAllForAll()
+        {
+            return _repository.Notes.ToList();
         }
 
         public Note Create(int userId, string text)
