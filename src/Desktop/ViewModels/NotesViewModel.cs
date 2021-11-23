@@ -14,7 +14,7 @@ namespace Noteapp.Desktop.ViewModels
 {
     public class NotesViewModel : NotifyPropertyChanged, IPageViewModel
     {
-        public string Name => "Notes";
+        public string Name => PageNames.Notes;
 
         private ObservableCollection<Note> _notes;
         private Note _selectedNote;

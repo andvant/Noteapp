@@ -1,5 +1,6 @@
 ﻿using Noteapp.Core.Interfaces;
 using Noteapp.Desktop.MVVM;
+using Noteapp.Desktop.Session;
 using Noteapp.Infrastructure.Networking;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Noteapp.Desktop.ViewModels
     {
         private IPageViewModel _currentPageViewModel;
 
-        public List<IPageViewModel> PageViewModels { get; }
+        public List<IPageViewModel> PageViewModels { get; } = new();
         public ICommand ChangePageCommand { get; }
 
         public ApplicationViewModel()
@@ -21,18 +22,26 @@ namespace Noteapp.Desktop.ViewModels
             {
                 BaseAddress = new Uri("http://localhost:5000/")
             };
+            // has to be the same instance in LoginViewModel and NotesViewModel
             IApiCaller apiCaller = new ApiCaller(httpClient);
+            SessionManager sessionManager = new SessionManager();
 
-            PageViewModels = new();
-            PageViewModels.Add(new NotesViewModel(apiCaller));
+            LoadAccessToken(apiCaller, sessionManager);
+
             PageViewModels.Add(new RegisterViewModel(apiCaller));
-            PageViewModels.Add(new LoginViewModel(apiCaller));
+            PageViewModels.Add(new LoginViewModel(apiCaller, sessionManager));
+            PageViewModels.Add(new NotesViewModel(apiCaller));
 
-            CurrentPageViewModel = PageViewModels[0];
+            CurrentPageViewModel = PageViewModels.Find(vm => vm.Name == PageNames.Notes);
 
             ChangePageCommand = new RelayCommand(
                 vm => ChangeViewModel((IPageViewModel)vm),
                 vm => vm is IPageViewModel);
+        }
+
+        private void LoadAccessToken(IApiCaller apiCaller, SessionManager sessionManager)
+        {
+            apiCaller.AccessToken = sessionManager.GetUserInfo()?.Result?.access_token;
         }
 
         public IPageViewModel CurrentPageViewModel

@@ -6,7 +6,7 @@ namespace Noteapp.Desktop.ViewModels
 {
     public class RegisterViewModel : NotifyPropertyChanged, IPageViewModel
     {
-        public string Name => "Register";
+        public string Name => PageNames.Register;
 
         private readonly IApiCaller _apiCaller;
 

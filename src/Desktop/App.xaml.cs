@@ -32,7 +32,7 @@ namespace Noteapp.Desktop
                     args.Handled = true;
                     break;
                 default:
-                    MessageBox.Show($"{ex.ToString()}");
+                    MessageBox.Show($"UNEXPECTED EXCEPTION:\n{ex.ToString()}\n\nThe application will be closed.");
                     break;
             }
         }

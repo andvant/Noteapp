@@ -1,8 +1,10 @@
 ﻿using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
+using Noteapp.Core.Models;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
@@ -11,6 +13,8 @@ namespace Noteapp.Infrastructure.Networking
     public class ApiCaller : IApiCaller
     {
         private readonly HttpClient _httpClient;
+
+        public string AccessToken { get; set; }
 
         public ApiCaller(HttpClient httpClient)
         {
@@ -94,11 +98,13 @@ namespace Noteapp.Infrastructure.Networking
             await SendRequestAsync(request);
         }
 
-        public async Task Login(string email, string password)
+        public async Task<UserInfo> Login(string email, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "api/account/login");
             request.Content = JsonContent.Create(new { email, password });
-            await SendRequestAsync(request);
+            var response = await SendRequestAsync(request);
+
+            return await response.Content.ReadFromJsonAsync<UserInfo>();
         }
 
         private async Task<IEnumerable<Note>> GetNotes(string filter)
@@ -110,6 +116,8 @@ namespace Noteapp.Infrastructure.Networking
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)
         {
+            AddAuthorizationHeader(request);
+
             HttpResponseMessage response;
             try
             {
@@ -128,6 +136,14 @@ namespace Noteapp.Infrastructure.Networking
             }
 
             return response;
+        }
+
+        private void AddAuthorizationHeader(HttpRequestMessage request)
+        {
+            if (!string.IsNullOrWhiteSpace(AccessToken))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            }
         }
     }
 }

@@ -45,24 +45,24 @@ namespace Noteapp.Api.Controllers
                 new(ClaimTypes.Email, user.Email)
             };
 
-            // TODO: change claims to subject (claimsidentity)
-            var jwt = new JwtSecurityToken
+            var identity = new ClaimsIdentity(claims);
+
+            var jwt = new JwtSecurityTokenHandler().CreateEncodedJwt
             (
-                claims: claims,
                 issuer: "NoteappIssuer",
                 audience: "NoteappAudience",
+                subject: identity,
                 notBefore: DateTime.UtcNow,
                 expires: DateTime.UtcNow.Add(TimeSpan.FromDays(1)),
+                issuedAt: DateTime.UtcNow,
                 signingCredentials: new SigningCredentials(
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes("supersecretkey123")), SecurityAlgorithms.HmacSha256)
             );
 
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
             return Ok(new
             {
-                access_token = encodedJwt,
-                email = claims.Single(claim => claim.Type == ClaimTypes.Email).Value
+                access_token = jwt,
+                email = identity.FindFirst(ClaimTypes.Email).Value
             });
         }
 
