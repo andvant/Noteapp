@@ -58,6 +58,8 @@ namespace Noteapp.Api
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddTransient<NoteService>();
             services.AddTransient<AppUserService>();
+            services.AddTransient<UserService>();
+            services.AddTransient<TokenService>();
 
             services.AddCors(setup =>
             {

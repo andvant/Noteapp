@@ -35,7 +35,7 @@ namespace Noteapp.Core.Services
             return _repository.AppUsers.Find(user => user.Email == email);
         }
 
-        // just for testing, should delete later
+        // just for testing, remove later
         public IEnumerable<AppUser> GetAll()
         {
             return _repository.AppUsers.ToList();

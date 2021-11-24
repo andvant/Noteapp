@@ -1,5 +1,6 @@
 ﻿using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -24,6 +25,7 @@ namespace Noteapp.Desktop.ViewModels
         private async void RegisterCommandExecute(object parameter)
         {
             await _apiCaller.Register(Email, Password);
+            MessageBox.Show("Successfully registered.");
         }
     }
 }
