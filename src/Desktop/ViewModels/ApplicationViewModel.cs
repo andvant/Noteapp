@@ -1,7 +1,6 @@
-﻿using Noteapp.Core.Interfaces;
-using Noteapp.Desktop.MVVM;
+﻿using Noteapp.Desktop.MVVM;
+using Noteapp.Desktop.Networking;
 using Noteapp.Desktop.Session;
-using Noteapp.Infrastructure.Networking;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -22,9 +21,9 @@ namespace Noteapp.Desktop.ViewModels
             {
                 BaseAddress = new Uri("http://localhost:5000/")
             };
-            // has to be the same instance in LoginViewModel and NotesViewModel
-            IApiCaller apiCaller = new ApiCaller(httpClient);
-            SessionManager sessionManager = new SessionManager();
+            // has to be the same instance of ApiCaller in LoginViewModel and NotesViewModel
+            var apiCaller = new ApiCaller(httpClient);
+            var sessionManager = new SessionManager();
 
             LoadAccessToken(apiCaller, sessionManager);
 
@@ -39,7 +38,7 @@ namespace Noteapp.Desktop.ViewModels
                 vm => vm is IPageViewModel);
         }
 
-        private void LoadAccessToken(IApiCaller apiCaller, SessionManager sessionManager)
+        private void LoadAccessToken(ApiCaller apiCaller, SessionManager sessionManager)
         {
             apiCaller.AccessToken = sessionManager.GetUserInfo()?.Result?.access_token;
         }

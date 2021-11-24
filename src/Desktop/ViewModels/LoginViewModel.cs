@@ -1,5 +1,5 @@
-﻿using Noteapp.Core.Interfaces;
-using Noteapp.Desktop.MVVM;
+﻿using Noteapp.Desktop.MVVM;
+using Noteapp.Desktop.Networking;
 using Noteapp.Desktop.Session;
 using System.Windows;
 using System.Windows.Input;
@@ -10,7 +10,7 @@ namespace Noteapp.Desktop.ViewModels
     {
         public string Name => PageNames.Login;
 
-        private readonly IApiCaller _apiCaller;
+        private readonly ApiCaller _apiCaller;
         private readonly SessionManager _sessionManager;
 
         public string Email { get; set; }
@@ -19,7 +19,7 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand LoginCommand { get; }
         public ICommand LogoutCommand { get; }
 
-        public LoginViewModel(IApiCaller apiCaller, SessionManager sessionManager)
+        public LoginViewModel(ApiCaller apiCaller, SessionManager sessionManager)
         {
             _apiCaller = apiCaller;
             _sessionManager = sessionManager;

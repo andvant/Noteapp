@@ -8,9 +8,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-namespace Noteapp.Infrastructure.Networking
+namespace Noteapp.Desktop.Networking
 {
-    public class ApiCaller : IApiCaller
+    public class ApiCaller
     {
         private readonly HttpClient _httpClient;
 

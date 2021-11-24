@@ -1,5 +1,5 @@
-﻿using Noteapp.Core.Interfaces;
-using Noteapp.Desktop.MVVM;
+﻿using Noteapp.Desktop.MVVM;
+using Noteapp.Desktop.Networking;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -8,14 +8,14 @@ namespace Noteapp.Desktop.ViewModels
     {
         public string Name => PageNames.Register;
 
-        private readonly IApiCaller _apiCaller;
+        private readonly ApiCaller _apiCaller;
 
         public string Email { get; set; }
         public string Password { get; set; }
 
         public ICommand RegisterCommand { get; }
 
-        public RegisterViewModel(IApiCaller apiCaller)
+        public RegisterViewModel(ApiCaller apiCaller)
         {
             _apiCaller = apiCaller;
             RegisterCommand = new RelayCommand(RegisterCommandExecute);
