@@ -16,15 +16,15 @@ namespace Noteapp.Desktop.ViewModels
         public string Email { get; set; }
         public string Password { get; set; }
 
-        public ICommand LoginCommand { get; private set; }
-        public ICommand LogoutCommand { get; private set; }
-        public ICommand CheckAuthCommand { get; private set; }
+        public ICommand LoginCommand { get; }
+        public ICommand LogoutCommand { get; }
 
         public LoginViewModel(IApiCaller apiCaller, SessionManager sessionManager)
         {
             _apiCaller = apiCaller;
             _sessionManager = sessionManager;
             LoginCommand = new RelayCommand(LoginCommandExecute);
+            LogoutCommand = new RelayCommand(LogoutCommandExecute);
         }
 
         private async void LoginCommandExecute(object parameter)
@@ -33,6 +33,13 @@ namespace Noteapp.Desktop.ViewModels
             _apiCaller.AccessToken = userInfo.access_token;
             await _sessionManager.SaveUserInfo(userInfo);
             MessageBox.Show("Successfully logged in.");
+        }
+
+        private void LogoutCommandExecute(object parameter)
+        {
+            _apiCaller.AccessToken = null;
+            _sessionManager.DeleteUserInfo();
+            MessageBox.Show("Successfully logged out.");
         }
     }
 }

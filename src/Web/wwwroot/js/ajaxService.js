@@ -8,7 +8,8 @@
     togglePinned,
     togglePublished,
     login,
-    register
+    register,
+    logout
 }
 
 const baseUrl = "http://localhost:5000/api";
@@ -73,6 +74,11 @@ async function register(email, password) {
     let headers = { "Content-Type": "application/json" };
     let body = JSON.stringify({ email, password });
     await sendRequest("account/register", "POST", headers, body);
+}
+
+function logout() {
+    accessToken = null;
+    localStorage.removeItem('accessToken');
 }
 
 async function sendRequest(url, method, headers, body) {

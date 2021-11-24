@@ -29,5 +29,13 @@ namespace Noteapp.Desktop.Session
             var userInfoJson = await File.ReadAllTextAsync(_userInfoPath);
             return JsonSerializer.Deserialize<UserInfo>(userInfoJson);
         }
+
+        public void DeleteUserInfo()
+        {
+            if (File.Exists(_userInfoPath))
+            {
+                File.Delete(_userInfoPath);
+            }
+        }
     }
 }

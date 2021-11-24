@@ -13,6 +13,7 @@ const sortByUpdatedButton = document.getElementById('sortby-updated-button');
 const sortByTextButton = document.getElementById('sortby-text-button');
 const loginButton = document.getElementById('login-button');
 const registerButton = document.getElementById('register-button');
+const logoutButton = document.getElementById('logout-button');
 const notesListDiv = document.getElementById('notes-list')
 const noteTextElement = document.getElementById('note-text');
 
@@ -81,6 +82,10 @@ function addEventListenersToButtons() {
 
     registerButton.addEventListener('click', async () => {
         await ajaxService.register(getRegisterEmail(), getRegisterPassword());
+    });
+
+    logoutButton.addEventListener('click', async () => {
+        ajaxService.logout();
     });
 }
 

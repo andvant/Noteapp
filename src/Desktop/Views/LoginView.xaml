@@ -10,6 +10,7 @@
             <RowDefinition />
             <RowDefinition />
             <RowDefinition />
+            <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -25,7 +26,10 @@
         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Password}" />
 
         <!--Row 2-->
-        <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Command="{Binding LoginCommand}" Content="Login" />
+        <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Command="{Binding LoginCommand}" Content="Log in" />
+        
+        <!--Row 3-->
+        <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Command="{Binding LogoutCommand}" Content="Log out" />
         
     </Grid>
 </UserControl>
