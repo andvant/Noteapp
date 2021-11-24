@@ -81,11 +81,7 @@ async function sendRequest(url, method, headers, body) {
         headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
-    let response = await fetch(`${baseUrl}/${url}`, {
-        method,
-        headers,
-        body
-    });
+    let response = await fetch(`${baseUrl}/${url}`, { method, headers, body });
 
     if (!response.ok) {
         alert(response.statusText);

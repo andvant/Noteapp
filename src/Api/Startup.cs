@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +12,7 @@ using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using Noteapp.Infrastructure;
 using Noteapp.Infrastructure.Data;
+using Noteapp.Infrastructure.Identity;
 using System;
 using System.Text;
 
@@ -32,6 +35,22 @@ namespace Noteapp.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Noteapp.Api", Version = "v1" });
             });
+
+            services.AddDbContext<IdentityContext>(options =>
+            {
+                options.UseInMemoryDatabase("Identity");
+            });
+
+            services.AddIdentity<AppUserIdentity, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 3;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            })
+                .AddEntityFrameworkStores<IdentityContext>();
 
             // Singleton because it uses in-memory data which should be the same between different calls
             services.AddSingleton<INoteRepository, NoteRepository>();
