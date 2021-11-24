@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using Noteapp.Infrastructure;
@@ -36,9 +37,15 @@ namespace Noteapp.Api
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Noteapp.Api", Version = "v1" });
             });
 
+            services.AddDbContext<ApplicationContext>(options =>
+            {
+                options.LogTo(Console.WriteLine);
+                options.UseInMemoryDatabase("ApplicationDb");
+            });
+
             services.AddDbContext<IdentityContext>(options =>
             {
-                options.UseInMemoryDatabase("Identity");
+                options.UseInMemoryDatabase("IdentityDb");
             });
 
             services.AddIdentity<AppUserIdentity, IdentityRole>(options =>
@@ -56,8 +63,12 @@ namespace Noteapp.Api
             services.AddSingleton<INoteRepository, NoteRepository>();
             services.AddSingleton<IAppUserRepository, AppUserRepository>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+            services.AddTransient<IRepository<Note>, EfRepository<Note>>();
+            services.AddTransient<IRepository<AppUser>, EfRepository<AppUser>>();
             services.AddTransient<NoteService>();
+            services.AddTransient<NoteServiceNew>();
             services.AddTransient<AppUserService>();
+            services.AddTransient<AppUserServiceNew>();
             services.AddTransient<UserService>();
             services.AddTransient<TokenService>();
 

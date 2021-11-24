@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Noteapp.Infrastructure.Identity;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Noteapp.Infrastructure.Data.Seed
+namespace Noteapp.Infrastructure.Identity
 {
     public static class IdentityContextSeed
     {

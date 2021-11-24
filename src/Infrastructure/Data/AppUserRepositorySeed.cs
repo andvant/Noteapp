@@ -2,7 +2,7 @@
 using Noteapp.Core.Interfaces;
 using System.Collections.Generic;
 
-namespace Noteapp.Infrastructure.Data.Seed
+namespace Noteapp.Infrastructure.Data
 {
     public static class AppUserRepositorySeed
     {

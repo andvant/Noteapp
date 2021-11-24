@@ -1,6 +1,5 @@
 ﻿using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
-using System;
 using System.Collections.Generic;
 
 namespace Noteapp.Infrastructure.Data

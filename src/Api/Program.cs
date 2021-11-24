@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Noteapp.Core.Interfaces;
-using Noteapp.Infrastructure.Data.Seed;
+using Noteapp.Infrastructure.Data;
 using Noteapp.Infrastructure.Identity;
 using System.Threading.Tasks;
 
