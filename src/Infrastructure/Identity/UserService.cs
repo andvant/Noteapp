@@ -12,10 +12,10 @@ namespace Noteapp.Infrastructure.Identity
     // ASSUMED: that email is unique for all users
     public class UserService
     {
-        private readonly AppUserServiceNew _appUserService;
+        private readonly AppUserService _appUserService;
         private readonly UserManager<AppUserIdentity> _userManager;
 
-        public UserService(AppUserServiceNew appUserService, UserManager<AppUserIdentity> userManager)
+        public UserService(AppUserService appUserService, UserManager<AppUserIdentity> userManager)
         {
             _appUserService = appUserService;
             _userManager = userManager;

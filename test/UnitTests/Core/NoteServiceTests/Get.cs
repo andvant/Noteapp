@@ -11,15 +11,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Get
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
-        private readonly INoteRepository _noteRepository;
+        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
-
-        public Get()
-        {
-            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
-            _noteRepository = _mock.Object;
-        }
 
         [Fact]
         public void ReturnsNoteGivenValidUserIdAndNoteId()
@@ -30,11 +23,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
             };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            var returnedNote = noteService.Get(1, 1);
+            var returnedNote = noteService.Get(userId: 1, noteId: 1);
 
             // Assert
             Assert.Same(note, returnedNote);
@@ -49,11 +42,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
             };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Get(1, 2);
+            Action act = () => noteService.Get(userId: 1, noteId: 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
@@ -68,11 +61,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
             };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Get(2, 1);
+            Action act = () => noteService.Get(userId: 2, noteId: 1);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);

@@ -11,18 +11,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class GetPublishedNoteText
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
-        private readonly INoteRepository _noteRepository;
+        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
-        public GetPublishedNoteText()
-        {
-            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
-            _noteRepository = _mock.Object;
-        }
-
         [Fact]
-        public void ReturnsNoteTextGivenRightUrl()
+        public void ReturnsNoteTextGivenValidUrl()
         {
             // Arrange
             var note = new Note()
@@ -31,8 +24,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Text = "note 1",
                 PublicUrl = "testtest"
             };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(note => note.PublicUrl == "testtest")).Returns(new[] { note });
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             var text = noteService.GetPublishedNoteText("testtest");
@@ -45,7 +38,14 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         public void ThrowsGivenWrongUrl()
         {
             // Arrange
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            var note = new Note()
+            {
+                Id = 1,
+                Text = "note 1",
+                PublicUrl = "testtest"
+            };
+            _mock.Setup(repo => repo.Find(note => note.PublicUrl == "testtest")).Returns(new[] { note });
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.GetPublishedNoteText("shouldfail");

@@ -10,11 +10,11 @@ namespace Noteapp.Core.Services
 {
     public class NoteService
     {
-        private readonly INoteRepository _repository;
+        private readonly IRepository<Note> _repository;
         private readonly IDateTimeProvider _dateTimeProvider;
         private const int MAX_BULK_NOTES = 20; // might want to move it somewhere else
 
-        public NoteService(INoteRepository repository, IDateTimeProvider dateTimeProvider)
+        public NoteService(IRepository<Note> repository, IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
             _dateTimeProvider = dateTimeProvider;
@@ -27,24 +27,26 @@ namespace Noteapp.Core.Services
 
         public IEnumerable<Note> GetAll(int userId, bool? archived)
         {
-            var notes = _repository.Notes.Where(note => note.AuthorId == userId);
+            var notes = _repository.Find(note => note.AuthorId == userId);
+
             if (archived.HasValue)
             {
                 notes = notes.Where(note => note.Archived == archived.Value);
             }
-            return notes.ToList();
+
+            return notes;
         }
 
         // just for testing
         public IEnumerable<Note> GetAllForAll()
         {
-            return _repository.Notes.ToList();
+            return _repository.GetAll();
         }
 
         public Note Create(int userId, string text)
         {
             var note = CreateNote(userId, text);
-            _repository.Notes.Add(note);
+            _repository.Add(note);
             return note;
         }
 
@@ -58,7 +60,7 @@ namespace Noteapp.Core.Services
 
                 // TODO: add the whole list to the repository at once, but for that need to
                 // change the implementation of GenerateNewNoteId() first
-                _repository.Notes.Add(note);
+                _repository.Add(note);
             }
         }
 
@@ -76,66 +78,80 @@ namespace Noteapp.Core.Services
 
         public void Delete(int userId, int noteId)
         {
-            _repository.Notes.Remove(GetNote(userId, noteId));
+            _repository.Delete(GetNote(userId, noteId));
         }
 
         public void Archive(int userId, int noteId)
         {
-            GetNote(userId, noteId).Archived = true;
+            var note = GetNote(userId, noteId);
+            note.Archived = true;
+            _repository.Update(note);
         }
 
         public void Unarchive(int userId, int noteId)
         {
-            GetNote(userId, noteId).Archived = false;
+            var note = GetNote(userId, noteId);
+            note.Archived = false;
+            _repository.Update(note);
         }
 
         public void Pin(int userId, int noteId)
         {
-            GetNote(userId, noteId).Pinned = true;
+            var note = GetNote(userId, noteId);
+            note.Pinned = true;
+            _repository.Update(note);
         }
 
         public void Unpin(int userId, int noteId)
         {
-            GetNote(userId, noteId).Pinned = false;
+            var note = GetNote(userId, noteId);
+            note.Pinned = false;
+            _repository.Update(note);
         }
 
         public void Lock(int userId, int noteId)
         {
-            GetNote(userId, noteId).Locked = true;
+            var note = GetNote(userId, noteId);
+            note.Locked = true;
+            _repository.Update(note);
         }
 
         public void Unlock(int userId, int noteId)
         {
-            GetNote(userId, noteId).Locked = false;
+            var note = GetNote(userId, noteId);
+            note.Locked = false;
+            _repository.Update(note);
         }
 
         public string Publish(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
             note.PublicUrl = GenerateUrl();
+            _repository.Update(note);
             return note.PublicUrl;
         }
 
         public void Unpublish(int userId, int noteId)
         {
-            GetNote(userId, noteId).PublicUrl = null;
+            var note = GetNote(userId, noteId);
+            note.PublicUrl = null;
+            _repository.Update(note);
         }
 
         public string GetPublishedNoteText(string url)
         {
-            var note = _repository.Notes.Find(note => note.PublicUrl == url);
+            var note = _repository.Find(note => note.PublicUrl == url).SingleOrDefault();
             return note?.Text ?? throw new NoteNotFoundException(url);
         }
 
         private Note GetNote(int userId, int noteId)
         {
-            var note = _repository.Notes.Find(note => note.Id == noteId && note.AuthorId == userId);
-            //if (note is null || note.AuthorId != userId)
-            //{
-            //    throw new NoteNotFoundException(userId, noteId);
-            //}
-            //return note;
-            return note ?? throw new NoteNotFoundException(userId, noteId);
+            var note = _repository.Find(noteId);
+            if (note is null || note.AuthorId != userId)
+            {
+                throw new NoteNotFoundException(userId, noteId);
+            }
+            return note;
         }
 
         private Note CreateNote(int userId, string text)
@@ -154,12 +170,13 @@ namespace Noteapp.Core.Services
         {
             note.Text = text;
             note.Updated = _dateTimeProvider.Now;
+            _repository.Update(note);
         }
 
         // TODO: make thread-safe
         private int GenerateNewNoteId()
         {
-            return _repository.Notes.Max(note => note?.Id) + 1 ?? 1;
+            return _repository.GetAll().Max(note => note?.Id) + 1 ?? 1;
         }
 
         private string GenerateUrl()

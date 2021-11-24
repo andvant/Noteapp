@@ -11,35 +11,26 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Create
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
-        private readonly INoteRepository _noteRepository;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly DateTime _dateTime = new DateTime(2021, 1, 1);
-
-        public Create()
-        {
-            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
-            _noteRepository = _mock.Object;
-            _dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider =>
-                dateTimeProvider.Now == _dateTime);
-        }
+        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
 
         [Fact]
         public void CreatesNewNote()
         {
             // Arrange
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            var dateTime = new DateTime(2021, 1, 1);
+            var dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider =>
+                dateTimeProvider.Now == dateTime);
+            var noteService = new NoteService(_mock.Object, dateTimeProvider);
 
             // Act
             var createdNote = noteService.Create(userId: 1, text: "new note");
 
             // Assert
-            Assert.Same(createdNote, _noteRepository.Notes.Single());
-            Assert.Equal(_dateTime, createdNote.Created);
-            Assert.Equal(_dateTime, createdNote.Updated);
-            Assert.Equal(1, createdNote.Id);
+            Assert.Equal(dateTime, createdNote.Created);
+            Assert.Equal(dateTime, createdNote.Updated);
             Assert.Equal(1, createdNote.AuthorId);
             Assert.Equal("new note", createdNote.Text);
+            _mock.Verify(repo => repo.Add(createdNote));
         }
     }
 }

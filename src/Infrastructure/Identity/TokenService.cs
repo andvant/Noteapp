@@ -9,9 +9,9 @@ namespace Noteapp.Infrastructure.Identity
 {
     public class TokenService
     {
-        private readonly AppUserServiceNew _appUserService;
+        private readonly AppUserService _appUserService;
 
-        public TokenService(AppUserServiceNew appUserService)
+        public TokenService(AppUserService appUserService)
         {
             _appUserService = appUserService;
         }

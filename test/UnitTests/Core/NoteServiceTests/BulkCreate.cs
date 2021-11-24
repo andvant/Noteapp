@@ -12,71 +12,43 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class BulkCreate
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
-        private readonly INoteRepository _noteRepository;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly DateTime _dateTime = new DateTime(2021, 1, 1);
-
-        public BulkCreate()
-        {
-            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
-            _noteRepository = _mock.Object;
-            _dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider =>
-                dateTimeProvider.Now == _dateTime);
-        }
+        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
+        private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
         public void CreatesNewNotes()
         {
             // Arrange
-            var note = new Note()
-            {
-                Id = 1,
-                AuthorId = 1
-            };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            var dateTime = new DateTime(2021, 1, 1);
+            var dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider => 
+                dateTimeProvider.Now == dateTime);
+            var noteService = new NoteService(_mock.Object, dateTimeProvider);
 
-            var newNotesTexts = new List<string>
+            var noteTexts = new List<string>
             {
+                "note1",
                 "note2",
-                "note3",
-                "note4"
+                "note3"
             };
 
             // Act
-            noteService.BulkCreate(1, newNotesTexts);
+            noteService.BulkCreate(1, noteTexts);
 
             // Assert
-            Assert.Equal(newNotesTexts.Count + 1, _noteRepository.Notes.Count);
-            Assert.Equal(_dateTime, _noteRepository.Notes[1].Created);
-            Assert.Equal(_dateTime, _noteRepository.Notes[1].Updated);
-
-            Assert.Equal(2, _noteRepository.Notes[1].Id);
-            Assert.Equal(1, _noteRepository.Notes[1].AuthorId);
-            Assert.Equal("note2", _noteRepository.Notes[1].Text);
-
-            Assert.Equal(3, _noteRepository.Notes[2].Id);
-            Assert.Equal(1, _noteRepository.Notes[2].AuthorId);
-            Assert.Equal("note3", _noteRepository.Notes[2].Text);
-
-            Assert.Equal(4, _noteRepository.Notes[3].Id);
-            Assert.Equal(1, _noteRepository.Notes[3].AuthorId);
-            Assert.Equal("note4", _noteRepository.Notes[3].Text);
+            _mock.Verify(repo => 
+                repo.Add(It.Is<Note>(note => 
+                    noteTexts.Contains(note.Text) &&
+                    note.AuthorId == 1 && 
+                    note.Created == dateTime &&
+                    note.Updated == dateTime)),
+                Times.Exactly(noteTexts.Count));
         }
 
         [Fact]
         public void ThrowsGivenTooManyNotes()
         {
             // Arrange
-            var note = new Note()
-            {
-                Id = 1,
-                AuthorId = 1
-            };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
-
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
             var newNotesTexts = Enumerable.Repeat("note", 21);
 
             // Act
@@ -84,7 +56,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 
             // Assert
             Assert.Throws<TooManyNotesException>(act);
-            Assert.Single(_noteRepository.Notes);
+            _mock.VerifyNoOtherCalls();
         }
     }
 }

@@ -66,9 +66,7 @@ namespace Noteapp.Api
             services.AddTransient<IRepository<Note>, EfRepository<Note>>();
             services.AddTransient<IRepository<AppUser>, EfRepository<AppUser>>();
             services.AddTransient<NoteService>();
-            services.AddTransient<NoteServiceNew>();
             services.AddTransient<AppUserService>();
-            services.AddTransient<AppUserServiceNew>();
             services.AddTransient<UserService>();
             services.AddTransient<TokenService>();
 

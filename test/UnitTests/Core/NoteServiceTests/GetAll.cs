@@ -10,15 +10,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class GetAll
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
-        private readonly INoteRepository _noteRepository;
+        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
-
-        public GetAll()
-        {
-            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
-            _noteRepository = _mock.Object;
-        }
 
         [Fact]
         public void ReturnsAllNotesForGivenUserId()
@@ -42,10 +35,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            _noteRepository.Notes.Add(note1);
-            _noteRepository.Notes.Add(note2);
-            _noteRepository.Notes.Add(note3);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(note => note.AuthorId == 1)).Returns(new[] { note1, note2 });
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             var returnedNotes = noteService.GetAll(userId: 1, archived: null);
@@ -78,10 +69,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            _noteRepository.Notes.Add(note1);
-            _noteRepository.Notes.Add(note2);
-            _noteRepository.Notes.Add(note3);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(note => note.AuthorId == 1)).Returns(new[] { note1, note2 });
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             var returnedNotes = noteService.GetAll(userId: 1, archived: true);
@@ -113,10 +102,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            _noteRepository.Notes.Add(note1);
-            _noteRepository.Notes.Add(note2);
-            _noteRepository.Notes.Add(note3);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(note => note.AuthorId == 1)).Returns(new[] { note1, note2 });
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             var returnedNotes = noteService.GetAll(userId: 1, archived: false);

@@ -12,15 +12,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Delete
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
-        private readonly INoteRepository _noteRepository;
+        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
-
-        public Delete()
-        {
-            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
-            _noteRepository = _mock.Object;
-        }
 
         [Fact]
         public void DeletesNoteGivenValidUserIdAndNoteId()
@@ -36,15 +29,14 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 2,
                 AuthorId = 2,
             };
-            _noteRepository.Notes.Add(note1);
-            _noteRepository.Notes.Add(note2);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note1);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             noteService.Delete(userId: 1, noteId: 1);
 
             // Assert
-            Assert.Equal(note2, _noteRepository.Notes.Single());
+            _mock.Verify(repo => repo.Delete(note1), Times.Once);
         }
 
         [Fact]
@@ -56,15 +48,15 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
             };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.Delete(userId: 1, noteId: 2);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Equal(note, _noteRepository.Notes.Single());
+            _mock.Verify(repo => repo.Delete(It.IsAny<Note>()), Times.Never);
         }
 
         [Fact]
@@ -76,15 +68,15 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
             };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.Delete(userId: 2, noteId: 1);
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Equal(note, _noteRepository.Notes.Single());
+            _mock.Verify(repo => repo.Delete(It.IsAny<Note>()), Times.Never);
         }
     }
 }

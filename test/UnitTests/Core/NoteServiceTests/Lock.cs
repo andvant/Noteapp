@@ -11,15 +11,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Lock
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
-        private readonly INoteRepository _noteRepository;
+        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
-
-        public Lock()
-        {
-            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
-            _noteRepository = _mock.Object;
-        }
 
         [Fact]
         public void LocksNoteGivenValidUserIdAndNoteId()
@@ -31,14 +24,15 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Locked = false
             };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             noteService.Lock(userId: 1, noteId: 1);
 
             // Assert
             Assert.True(note.Locked);
+            _mock.Verify(repo => repo.Update(note), Times.Once);
         }
 
         [Fact]
@@ -51,8 +45,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Locked = false
             };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.Lock(userId: 1, noteId: 2);
@@ -72,8 +66,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Locked = false
             };
-            _noteRepository.Notes.Add(note);
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.Lock(userId: 2, noteId: 1);

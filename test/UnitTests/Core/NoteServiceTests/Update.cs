@@ -12,16 +12,13 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Update
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
-        private readonly INoteRepository _noteRepository;
+        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DateTime _created = new DateTime(2021, 1, 1);
         private readonly DateTime _updated = new DateTime(2021, 2, 2);
 
         public Update()
         {
-            _mock.Setup(repo => repo.Notes).Returns(new List<Note>());
-            _noteRepository = _mock.Object;
             _dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider =>
                 dateTimeProvider.Now == _updated);
         }
@@ -38,17 +35,16 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Updated = _created,
                 Text = "original text"
             };
-            _noteRepository.Notes.Add(note);
-
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             noteService.Update(userId: 1, noteId: 1, text: "updated text");
 
             // Assert
-            Assert.Equal("updated text", _noteRepository.Notes.Single().Text);
-            Assert.Equal(_updated, _noteRepository.Notes.Single().Updated, TimeSpan.Zero);
-            Assert.Equal(_created, _noteRepository.Notes.Single().Created, TimeSpan.Zero);
+            Assert.Equal("updated text", note.Text);
+            Assert.Equal(_updated, note.Updated, TimeSpan.Zero);
+            Assert.Equal(_created, note.Created, TimeSpan.Zero);
         }
 
         [Fact]
@@ -63,18 +59,17 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Updated = _created,
                 Text = "original text"
             };
-            _noteRepository.Notes.Add(note);
-
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.Update(userId: 1, noteId: 2, text: "updated text");
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Equal("original text", _noteRepository.Notes.Single().Text);
-            Assert.Equal(_created, _noteRepository.Notes.Single().Updated, TimeSpan.Zero);
-            Assert.Equal(_created, _noteRepository.Notes.Single().Created, TimeSpan.Zero);
+            Assert.Equal("original text", note.Text);
+            Assert.Equal(_created, note.Updated, TimeSpan.Zero);
+            Assert.Equal(_created, note.Created, TimeSpan.Zero);
         }
 
         [Fact]
@@ -89,18 +84,17 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Updated = _created,
                 Text = "original text"
             };
-            _noteRepository.Notes.Add(note);
-
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.Update(userId: 2, noteId: 1, text: "updated text");
 
             // Assert
             Assert.Throws<NoteNotFoundException>(act);
-            Assert.Equal("original text", _noteRepository.Notes.Single().Text);
-            Assert.Equal(_created, _noteRepository.Notes.Single().Updated, TimeSpan.Zero);
-            Assert.Equal(_created, _noteRepository.Notes.Single().Created, TimeSpan.Zero);
+            Assert.Equal("original text", note.Text);
+            Assert.Equal(_created, note.Updated, TimeSpan.Zero);
+            Assert.Equal(_created, note.Created, TimeSpan.Zero);
         }
 
         [Fact]
@@ -116,18 +110,17 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Text = "original text",
                 Locked = true
             };
-            _noteRepository.Notes.Add(note);
-
-            var noteService = new NoteService(_noteRepository, _dateTimeProvider);
+            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
             Action act = () => noteService.Update(userId: 1, noteId: 1, text: "updated text");
 
             // Assert
             Assert.Throws<NoteLockedException>(act);
-            Assert.Equal("original text", _noteRepository.Notes.Single().Text);
-            Assert.Equal(_created, _noteRepository.Notes.Single().Updated, TimeSpan.Zero);
-            Assert.Equal(_created, _noteRepository.Notes.Single().Created, TimeSpan.Zero);
+            Assert.Equal("original text", note.Text);
+            Assert.Equal(_created, note.Updated, TimeSpan.Zero);
+            Assert.Equal(_created, note.Created, TimeSpan.Zero);
         }
     }
 }

@@ -14,9 +14,9 @@ namespace Noteapp.Api.Controllers
     [ApiController]
     public class NoteController : ControllerBase
     {
-        private readonly NoteServiceNew _noteService;
+        private readonly NoteService _noteService;
 
-        public NoteController(NoteServiceNew noteService)
+        public NoteController(NoteService noteService)
         {
             _noteService = noteService;
         }
