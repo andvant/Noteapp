@@ -100,7 +100,7 @@ namespace Noteapp.Infrastructure.Networking
 
         public async Task<UserInfo> Login(string email, string password)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "api/account/login");
+            var request = new HttpRequestMessage(HttpMethod.Post, "api/account/token");
             request.Content = JsonContent.Create(new { email, password });
             var response = await SendRequestAsync(request);
 

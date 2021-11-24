@@ -48,7 +48,7 @@ namespace Noteapp.Api.Controllers
         }
 
         // TODO: throw in service and catch exception in error handling filter
-        [HttpPost("login")]
+        [HttpPost("token")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
             var userIdentity = await _userManager.FindByEmailAsync(dto.Email);

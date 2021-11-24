@@ -62,7 +62,7 @@ async function togglePublished(note) {
 async function login(email, password) {
     let headers = { "Content-Type": "application/json" };
     let body = JSON.stringify({ email, password });
-    let response = await sendRequest("account/login", "POST", headers, body);
+    let response = await sendRequest("account/token", "POST", headers, body);
 
     if (response.ok) {
         accessToken = (await response.json()).access_token
