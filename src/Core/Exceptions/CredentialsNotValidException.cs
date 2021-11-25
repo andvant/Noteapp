@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Noteapp.Core.Exceptions
+﻿namespace Noteapp.Core.Exceptions
 {
     public class CredentialsNotValidException : NoteappException
     {

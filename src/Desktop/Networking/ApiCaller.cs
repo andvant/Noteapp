@@ -1,6 +1,5 @@
 ﻿using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
-using Noteapp.Core.Interfaces;
 using Noteapp.Core.Models;
 using System.Collections.Generic;
 using System.Net.Http;

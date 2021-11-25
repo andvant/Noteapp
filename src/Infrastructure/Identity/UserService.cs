@@ -2,7 +2,6 @@
 using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
 using Noteapp.Core.Services;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +19,7 @@ namespace Noteapp.Infrastructure.Identity
             _appUserService = appUserService;
             _userManager = userManager;
         }
-        
+
         // TODO: check for a valid email and password
         public async Task Register(string email, string password)
         {

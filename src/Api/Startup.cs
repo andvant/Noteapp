@@ -59,9 +59,6 @@ namespace Noteapp.Api
             })
                 .AddEntityFrameworkStores<IdentityContext>();
 
-            // Singleton because it uses in-memory data which should be the same between different calls
-            services.AddSingleton<INoteRepository, NoteRepository>();
-            services.AddSingleton<IAppUserRepository, AppUserRepository>();
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddTransient<IRepository<Note>, EfRepository<Note>>();
             services.AddTransient<IRepository<AppUser>, EfRepository<AppUser>>();

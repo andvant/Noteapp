@@ -1,14 +1,14 @@
-﻿using Noteapp.Desktop.MVVM;
+﻿using Microsoft.Win32;
 using Noteapp.Core.Entities;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
-using System.Linq;
+using Noteapp.Desktop.MVVM;
+using Noteapp.Desktop.Networking;
 using System;
 using System.Collections.Generic;
-using Microsoft.Win32;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
-using Noteapp.Desktop.Networking;
+using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
 {
@@ -167,7 +167,7 @@ namespace Noteapp.Desktop.ViewModels
             if (result == true)
             {
                 File.WriteAllText(dialog.FileName,
-                    JsonSerializer.Serialize(notes, new JsonSerializerOptions() { WriteIndented = true } ));
+                    JsonSerializer.Serialize(notes, new JsonSerializerOptions() { WriteIndented = true }));
             }
         }
 

@@ -14,7 +14,7 @@ namespace Noteapp.Core.Services
         {
             _repository = repository;
         }
-        
+
         // TODO: check for a valid email and password
         public AppUser Create(string email)
         {

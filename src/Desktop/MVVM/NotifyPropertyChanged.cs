@@ -17,7 +17,7 @@ namespace Noteapp.Desktop.MVVM
         protected void Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value))
-                return; 
+                return;
 
             field = value;
 

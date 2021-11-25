@@ -20,7 +20,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         {
             // Arrange
             var dateTime = new DateTime(2021, 1, 1);
-            var dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider => 
+            var dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider =>
                 dateTimeProvider.Now == dateTime);
             var noteService = new NoteService(_mock.Object, dateTimeProvider);
 
@@ -35,10 +35,10 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             noteService.BulkCreate(1, noteTexts);
 
             // Assert
-            _mock.Verify(repo => 
-                repo.Add(It.Is<Note>(note => 
+            _mock.Verify(repo =>
+                repo.Add(It.Is<Note>(note =>
                     noteTexts.Contains(note.Text) &&
-                    note.AuthorId == 1 && 
+                    note.AuthorId == 1 &&
                     note.Created == dateTime &&
                     note.Updated == dateTime)),
                 Times.Exactly(noteTexts.Count));

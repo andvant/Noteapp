@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Noteapp.Core.Exceptions;
 using System;
-using System.Net;
 
 namespace Noteapp.Api.Filters
 {

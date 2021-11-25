@@ -4,8 +4,6 @@ using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests

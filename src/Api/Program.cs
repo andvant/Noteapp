@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Noteapp.Core.Interfaces;
 using Noteapp.Infrastructure.Data;
 using Noteapp.Infrastructure.Identity;
 using System.Threading.Tasks;
@@ -15,7 +14,7 @@ namespace Noteapp.Api
         {
             var host = CreateHostBuilder(args).Build();
 
-            await SeedRepositories(host);
+            await SeedDatabases(host);
 
             host.Run();
         }
@@ -29,19 +28,15 @@ namespace Noteapp.Api
                 });
         }
 
-        private static async Task SeedRepositories(IHost host)
+        private static async Task SeedDatabases(IHost host)
         {
-            using (var scope = host.Services.CreateScope())
-            {
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUserIdentity>>();
-                await IdentityContextSeed.Seed(userManager);
+            using var scope = host.Services.CreateScope();
 
-                var userRepository = scope.ServiceProvider.GetRequiredService<IAppUserRepository>();
-                AppUserRepositorySeed.Seed(userRepository);
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUserIdentity>>();
+            await IdentityContextSeed.Seed(userManager);
 
-                var noteRepository = scope.ServiceProvider.GetRequiredService<INoteRepository>();
-                NoteRepositorySeed.Seed(noteRepository);
-            }
+            var appContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+            ApplicationContextSeed.Seed(appContext);
         }
     }
 }

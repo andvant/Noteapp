@@ -1,15 +1,45 @@
 ﻿using Noteapp.Core.Entities;
-using Noteapp.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 
 namespace Noteapp.Infrastructure.Data
 {
-    public static class NoteRepositorySeed
+    public static class ApplicationContextSeed
     {
-        public static void Seed(INoteRepository repository)
+        public static void Seed(ApplicationContext context)
         {
-            repository.Notes = GetNotes();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Notes.AddRange(GetNotes());
+            context.AppUsers.AddRange(GetAppUsers());
+
+            context.SaveChanges();
+        }
+
+        private static List<AppUser> GetAppUsers()
+        {
+            return new()
+            {
+                new()
+                {
+                    Id = 1,
+                    Email = "default@mail.com",
+                    Notes = new List<Note>()
+                },
+                new()
+                {
+                    Id = 2,
+                    Email = "user1@mail.com",
+                    Notes = new List<Note>()
+                },
+                new()
+                {
+                    Id = 3,
+                    Email = "user2@mail.com",
+                    Notes = new List<Note>()
+                }
+            };
         }
 
         private static List<Note> GetNotes()
