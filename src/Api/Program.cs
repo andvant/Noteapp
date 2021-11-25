@@ -32,8 +32,14 @@ namespace Noteapp.Api
         {
             using var scope = host.Services.CreateScope();
 
+
+            var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
+            identityContext.Database.EnsureCreated();
+
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUserIdentity>>();
             await IdentityContextSeed.Seed(userManager);
+
+
 
             var appContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
             ApplicationContextSeed.Seed(appContext);

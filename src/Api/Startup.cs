@@ -39,12 +39,15 @@ namespace Noteapp.Api
 
             services.AddDbContext<ApplicationContext>(options =>
             {
-                // options.LogTo(Console.WriteLine);
+                //options.EnableSensitiveDataLogging(true);
+                //options.LogTo(Console.WriteLine);
+                //options.UseSqlite("Data Source=app.db");
                 options.UseInMemoryDatabase("ApplicationDb");
             });
 
             services.AddDbContext<IdentityContext>(options =>
             {
+                //options.UseSqlite("Data Source=identity.db");
                 options.UseInMemoryDatabase("IdentityDb");
             });
 

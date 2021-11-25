@@ -25,7 +25,7 @@ namespace Noteapp.Infrastructure.Data
 
         public void Update(T entity)
         {
-            _context.Entry(entity).State = EntityState.Modified; // not sure if needed
+            _context.Entry(entity).State = EntityState.Modified;
             _context.SaveChanges();
         }
 
@@ -35,19 +35,33 @@ namespace Noteapp.Infrastructure.Data
             _context.SaveChanges();
         }
 
-        public T Find(int id)
+        public T Find(int id, bool? includeSnapshots = null)
         {
-            return _context.Set<T>().Find(id);
+            return _context.Set<T>().Where(note => note.Id == id).Include("Snapshots").SingleOrDefault();
         }
 
-        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
+        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate, bool? includeSnapshots = null)
         {
-            return _context.Set<T>().Where(predicate).AsEnumerable();
+            var entities = _context.Set<T>().Where(predicate);
+
+            return EntitiesWithIncludedProperties(entities, includeSnapshots);
         }
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll(bool? includeSnapshots = null)
         {
-            return _context.Set<T>().AsEnumerable();
+            var entities = _context.Set<T>();
+
+            return EntitiesWithIncludedProperties(entities, includeSnapshots);
+        }
+
+        private IEnumerable<T> EntitiesWithIncludedProperties(IQueryable<T> entities, bool? includeSnapshots)
+        {
+            if (includeSnapshots.HasValue && includeSnapshots.Value)
+            {
+                entities = entities.Include("Snapshots");
+            }
+
+            return entities.AsEnumerable();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Noteapp.Infrastructure.Identity
@@ -10,7 +11,7 @@ namespace Noteapp.Infrastructure.Identity
         {
             foreach (var user in GetUsers())
             {
-                await userManager.CreateAsync(user, "password");
+                if (!userManager.Users.Any()) await userManager.CreateAsync(user, "password");
             }
         }
 

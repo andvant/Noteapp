@@ -133,6 +133,20 @@ namespace Noteapp.Api.Controllers
             return Ok(text);
         }
 
+        [HttpGet("{id:int}/snapshots")]
+        public IActionResult GetAllSnapshots(int id)
+        {
+            var snapshots = _noteService.GetAllSnapshots(GetUserId(), id);
+            return Ok(snapshots);
+        }
+
+        [HttpGet("{noteId:int}/snapshots/{snapshotId:int}")]
+        public IActionResult GetSnapshot(int snapshotId, int noteId)
+        {
+            var snapshot = _noteService.GetSnapshot(GetUserId(), noteId, snapshotId);
+            return Ok(snapshot);
+        }
+
         private int GetUserId()
         {
             return User.Identity.IsAuthenticated ? int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)) : 1;

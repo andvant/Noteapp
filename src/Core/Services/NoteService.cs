@@ -14,10 +14,10 @@ namespace Noteapp.Core.Services
         private readonly IDateTimeProvider _dateTimeProvider;
         private const int MAX_BULK_NOTES = 20; // might want to move it somewhere else
 
-        public NoteService(IRepository<Note> repository, IDateTimeProvider dateTimeProvider)
+        public NoteService(IDateTimeProvider dateTimeProvider, IRepository<Note> repository)
         {
-            _repository = repository;
             _dateTimeProvider = dateTimeProvider;
+            _repository = repository;
         }
 
         public Note Get(int userId, int noteId)
@@ -27,7 +27,7 @@ namespace Noteapp.Core.Services
 
         public IEnumerable<Note> GetAll(int userId, bool? archived)
         {
-            var notes = _repository.Find(note => note.AuthorId == userId);
+            var notes = _repository.Find(note => note.AuthorId == userId, true);
 
             if (archived.HasValue)
             {
@@ -40,7 +40,7 @@ namespace Noteapp.Core.Services
         // just for testing
         public IEnumerable<Note> GetAllForAll()
         {
-            return _repository.GetAll();
+            return _repository.GetAll(true);
         }
 
         public Note Create(int userId, string text)
@@ -73,9 +73,10 @@ namespace Noteapp.Core.Services
                 throw new NoteLockedException(noteId);
             }
 
-            UpdateNote(note, text);
+            AddNoteSnapshot(note, text);
+            _repository.Update(note);
         }
-
+ 
         public void Delete(int userId, int noteId)
         {
             _repository.Delete(GetNote(userId, noteId));
@@ -144,9 +145,35 @@ namespace Noteapp.Core.Services
             return note?.Text ?? throw new NoteNotFoundException(url);
         }
 
+        public NoteSnapshot GetSnapshot(int userId, int noteId, int snapshotId)
+        {
+            var note = GetNote(userId, noteId);
+
+            var snapshot = note.Snapshots.Where(snapshot => snapshot.Id == snapshotId).SingleOrDefault();
+
+            if (snapshot is null)
+            {
+                // TODO: create a custom exception
+                throw new Exception("Snapshot was not found");
+            }
+
+            return snapshot;
+        }
+
+        public IEnumerable<NoteSnapshot> GetAllSnapshots(int userId, int noteId)
+        {
+            var note = _repository.Find(noteId, true);
+            if (note is null || note.AuthorId != userId)
+            {
+                throw new NoteNotFoundException(userId, noteId);
+            }
+
+            return note.Snapshots;
+        }
+
         private Note GetNote(int userId, int noteId)
         {
-            var note = _repository.Find(noteId);
+            var note = _repository.Find(noteId, true);
             if (note is null || note.AuthorId != userId)
             {
                 throw new NoteNotFoundException(userId, noteId);
@@ -156,21 +183,28 @@ namespace Noteapp.Core.Services
 
         private Note CreateNote(int userId, string text)
         {
-            return new Note()
+            var note = new Note()
             {
-                Created = _dateTimeProvider.Now,
-                Updated = _dateTimeProvider.Now,
                 Id = GenerateNewNoteId(),
-                Text = text,
-                AuthorId = userId
+                AuthorId = userId,
+                Snapshots = new(),
+                Created = _dateTimeProvider.Now,
             };
+            AddNoteSnapshot(note, text);
+
+            return note;
         }
 
-        private void UpdateNote(Note note, string text)
+        private void AddNoteSnapshot(Note note, string text)
         {
-            note.Text = text;
-            note.Updated = _dateTimeProvider.Now;
-            _repository.Update(note);
+            var noteSnapshot = new NoteSnapshot()
+            {
+                Note = note,
+                NoteId = note.Id,
+                Created = _dateTimeProvider.Now,
+                Text = text
+            };
+            note.Snapshots.Add(noteSnapshot);
         }
 
         // TODO: make thread-safe

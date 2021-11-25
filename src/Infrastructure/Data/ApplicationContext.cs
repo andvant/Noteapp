@@ -7,6 +7,7 @@ namespace Noteapp.Infrastructure.Data
     {
         public DbSet<Note> Notes { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<NoteSnapshot> NoteSnapshots { get; set; }
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {

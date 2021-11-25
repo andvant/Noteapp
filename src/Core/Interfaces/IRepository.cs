@@ -10,8 +10,8 @@ namespace Noteapp.Core.Interfaces
         public void Add(T entity);
         public void Update(T entity);
         public void Delete(T entity);
-        public T Find(int id);
-        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
-        public IEnumerable<T> GetAll();
+        public T Find(int id, bool? includeSnapshots = null);
+        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate, bool? includeSnapshots = null);
+        public IEnumerable<T> GetAll(bool? includeSnapshots = null);
     }
 }
