@@ -14,6 +14,9 @@ const sortByTextButton = document.getElementById('sortby-text-button');
 const loginButton = document.getElementById('login-button');
 const registerButton = document.getElementById('register-button');
 const logoutButton = document.getElementById('logout-button');
+const importNotesButton = document.getElementById('import-notes-button');
+const importNotesInput = document.getElementById('import-notes-input');
+const exportNotesButton = document.getElementById('export-notes-button');
 const notesListDiv = document.getElementById('notes-list')
 const noteTextElement = document.getElementById('note-text');
 
@@ -58,19 +61,19 @@ function addEventListenersToButtons() {
         await updateNoteList();
     });
 
-    sortByCreatedButton.addEventListener('click', async () => {
+    sortByCreatedButton.addEventListener('click', () => {
         let notes = noteService.getLocalNotes();
         noteService.sortByCreated(notes);
         addNoteElements(noteService.getNotesToBeDisplayed(notes));
     });
 
-    sortByUpdatedButton.addEventListener('click', async () => {
+    sortByUpdatedButton.addEventListener('click', () => {
         let notes = noteService.getLocalNotes();
         noteService.sortByUpdated(notes);
         addNoteElements(noteService.getNotesToBeDisplayed(notes));
     });
 
-    sortByTextButton.addEventListener('click', async () => {
+    sortByTextButton.addEventListener('click', () => {
         let notes = noteService.getLocalNotes();
         noteService.sortByText(notes);
         addNoteElements(noteService.getNotesToBeDisplayed(notes));
@@ -84,8 +87,32 @@ function addEventListenersToButtons() {
         await ajaxService.register(getRegisterEmail(), getRegisterPassword());
     });
 
-    logoutButton.addEventListener('click', async () => {
+    logoutButton.addEventListener('click', () => {
         ajaxService.logout();
+    });
+
+    importNotesButton.addEventListener('click', () => {
+        importNotesInput.click();
+    });
+
+    importNotesInput.addEventListener('change', () => {
+        const reader = new FileReader();
+        reader.readAsText(importNotesInput.files[0]);
+        reader.onload = async () => {
+            let notesJson = reader.result;
+            await ajaxService.bulkCreateNotes(notesJson);
+        }
+    });
+
+    exportNotesButton.addEventListener('click', () => {
+        let notesJson = JSON.stringify(noteService.getLocalNotes());
+        let blob = new Blob([notesJson], {
+            type: "application/json"
+        });
+        let a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "exportedNotes-[date].json";
+        a.click();
     });
 }
 

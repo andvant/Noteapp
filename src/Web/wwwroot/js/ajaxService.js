@@ -1,5 +1,6 @@
 ﻿export {
     createNote,
+    bulkCreateNotes,
     getNotes,
     updateNote,
     deleteNote,
@@ -33,6 +34,12 @@ async function createNote() {
     let headers = { "Content-Type": "application/json" };
     let body = JSON.stringify({ text: "" });
     await sendRequest("notes", "POST", headers, body);
+}
+
+async function bulkCreateNotes(notesJson) {
+    let headers = { "Content-Type": "application/json" };
+    let body = notesJson;
+    await sendRequest("notes/bulk", "POST", headers, body);
 }
 
 async function deleteNote(noteId) {
