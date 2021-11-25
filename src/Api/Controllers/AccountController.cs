@@ -27,7 +27,6 @@ namespace Noteapp.Api.Controllers
             return NoContent();
         }
 
-        // TODO: throw in service and catch exception in error handling filter
         [HttpPost("token")]
         public async Task<IActionResult> Login(LoginDto dto)
         {

@@ -18,7 +18,7 @@ let accessToken = localStorage.getItem('accessToken');
 
 async function getNotes() {
     let response = await sendRequest("notes", "GET", {}, null);
-    if (response.ok) {
+    if (response?.ok) {
         return await response.json();
     }
 }
@@ -64,21 +64,27 @@ async function login(email, password) {
     let body = JSON.stringify({ email, password });
     let response = await sendRequest("account/token", "POST", headers, body);
 
-    if (response.ok) {
+    if (response?.ok) {
         accessToken = (await response.json()).access_token
         localStorage.setItem('accessToken', accessToken);
+        alert('Successfully logged in.')
     }
 }
 
 async function register(email, password) {
     let headers = { "Content-Type": "application/json" };
     let body = JSON.stringify({ email, password });
-    await sendRequest("account/register", "POST", headers, body);
+    let response = await sendRequest("account/register", "POST", headers, body);
+
+    if (response?.ok) {
+        alert('Successfully registered.')
+    }
 }
 
 function logout() {
     accessToken = null;
     localStorage.removeItem('accessToken');
+    alert('Successfully logged out.')
 }
 
 async function sendRequest(url, method, headers, body) {
@@ -86,11 +92,17 @@ async function sendRequest(url, method, headers, body) {
     if (accessToken != null) {
         headers['Authorization'] = `Bearer ${accessToken}`;
     }
-
-    let response = await fetch(`${baseUrl}/${url}`, { method, headers, body });
+    let response;
+    try {
+        response = await fetch(`${baseUrl}/${url}`, { method, headers, body });
+    }
+    catch {
+        alert(`Failed to connect to the server.`)
+        return null;
+    }
 
     if (!response.ok) {
-        alert(response.statusText);
+        alert(`${response.statusText}\n${await response.text()}`);
     }
 
     return response;

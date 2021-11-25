@@ -22,6 +22,7 @@ namespace Noteapp.Infrastructure.Identity
         }
 
         // TODO: check for a valid email and password
+        // Creates both AppUserIdentity (only identity-related functionality) and AppUser (domain entity) with the same email
         public async Task Register(string email, string password)
         {
             var userIdentity = new AppUserIdentity(email);
