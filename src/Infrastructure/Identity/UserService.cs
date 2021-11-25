@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
+using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 namespace Noteapp.Infrastructure.Identity
 {
     // ASSUMED: that email is unique for all users
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly AppUserService _appUserService;
         private readonly UserManager<AppUserIdentity> _userManager;

@@ -39,7 +39,7 @@ namespace Noteapp.Api
 
             services.AddDbContext<ApplicationContext>(options =>
             {
-                options.LogTo(Console.WriteLine);
+                // options.LogTo(Console.WriteLine);
                 options.UseInMemoryDatabase("ApplicationDb");
             });
 
@@ -64,8 +64,8 @@ namespace Noteapp.Api
             services.AddTransient<IRepository<AppUser>, EfRepository<AppUser>>();
             services.AddTransient<NoteService>();
             services.AddTransient<AppUserService>();
-            services.AddTransient<UserService>();
-            services.AddTransient<TokenService>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ITokenService, TokenService>();
 
             services.AddCors(setup =>
             {

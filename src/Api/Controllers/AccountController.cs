@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Noteapp.Api.Dtos;
 using Noteapp.Api.Filters;
-using Noteapp.Infrastructure.Identity;
+using Noteapp.Core.Interfaces;
 using System.Threading.Tasks;
 
 namespace Noteapp.Api.Controllers
@@ -11,10 +11,10 @@ namespace Noteapp.Api.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserService _userService;
-        private readonly TokenService _tokenService;
+        private readonly IUserService _userService;
+        private readonly ITokenService _tokenService;
 
-        public AccountController(UserService userService, TokenService tokenService)
+        public AccountController(IUserService userService, ITokenService tokenService)
         {
             _userService = userService;
             _tokenService = tokenService;

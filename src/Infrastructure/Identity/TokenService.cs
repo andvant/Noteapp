@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace Noteapp.Infrastructure.Identity
 {
-    public class TokenService
+    public class TokenService : ITokenService
     {
         private readonly AppUserService _appUserService;
 
