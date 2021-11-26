@@ -4,10 +4,5 @@
     <TargetFramework>net5.0</TargetFramework>
 	<RootNamespace>Noteapp.Web</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-  </ItemGroup>
-
+	
 </Project>

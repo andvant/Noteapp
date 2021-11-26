@@ -1,4 +1,4 @@
-﻿using Noteapp.Core.Exceptions;
+﻿using Noteapp.Desktop.Exceptions;
 using Noteapp.Desktop.ViewModels;
 using Noteapp.Desktop.Views;
 using System.Windows;

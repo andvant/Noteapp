@@ -75,7 +75,7 @@ namespace Noteapp.Core.Services
             AddNoteSnapshot(note, text);
             _repository.Update(note);
         }
- 
+
         public void Delete(int userId, int noteId)
         {
             _repository.Delete(GetNote(userId, noteId));

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Noteapp.Core.Entities;
 
 namespace Noteapp.Infrastructure.Data

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Noteapp.Core.Exceptions
+namespace Noteapp.Desktop.Exceptions
 {
     public class ApiConnectionException : NoteappException
     {

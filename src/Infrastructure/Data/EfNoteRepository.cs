@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace Noteapp.Infrastructure.Data
 {

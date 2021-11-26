@@ -1,5 +1,5 @@
 ﻿using Microsoft.Win32;
-using Noteapp.Core.Entities;
+using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
 using System;

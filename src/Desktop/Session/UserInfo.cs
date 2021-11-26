@@ -1,4 +1,4 @@
-﻿namespace Noteapp.Core.Models
+﻿namespace Noteapp.Desktop.Session
 {
     public class UserInfo
     {
