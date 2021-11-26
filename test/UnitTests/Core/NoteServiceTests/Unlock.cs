@@ -10,7 +10,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Unlock
     {
-        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
+        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
@@ -23,7 +23,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Locked = true
             };
-            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -43,7 +43,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Locked = true
             };
-            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -64,7 +64,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Locked = true
             };
-            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act

@@ -4,13 +4,14 @@ using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Update
     {
-        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
+        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DateTime _created = new DateTime(2021, 1, 1);
         private readonly DateTime _updated = new DateTime(2021, 2, 2);
@@ -30,10 +31,16 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
                 Created = _created,
-                Updated = _created,
-                Text = "original text"
             };
-            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteSnapshot = new NoteSnapshot()
+            {
+                NoteId = 1,
+                Text = "original text",
+                Created = _created
+            };
+            note.Snapshots = new List<NoteSnapshot>() { noteSnapshot };
+
+            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -54,10 +61,16 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
                 Created = _created,
-                Updated = _created,
-                Text = "original text"
             };
-            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteSnapshot = new NoteSnapshot()
+            {
+                NoteId = 1,
+                Text = "original text",
+                Created = _created
+            };
+            note.Snapshots = new List<NoteSnapshot>() { noteSnapshot };
+
+            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -79,10 +92,16 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
                 Created = _created,
-                Updated = _created,
-                Text = "original text"
             };
-            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteSnapshot = new NoteSnapshot()
+            {
+                NoteId = 1,
+                Text = "original text",
+                Created = _created
+            };
+            note.Snapshots = new List<NoteSnapshot>() { noteSnapshot };
+
+            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -104,11 +123,17 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Id = 1,
                 AuthorId = 1,
                 Created = _created,
-                Updated = _created,
-                Text = "original text",
                 Locked = true
             };
-            _mock.Setup(repo => repo.Find(1)).Returns(note);
+            var noteSnapshot = new NoteSnapshot()
+            {
+                NoteId = 1,
+                Text = "original text",
+                Created = _created
+            };
+            note.Snapshots = new List<NoteSnapshot>() { noteSnapshot };
+
+            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act

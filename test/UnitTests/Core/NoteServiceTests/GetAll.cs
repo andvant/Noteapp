@@ -9,7 +9,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class GetAll
     {
-        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
+        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
@@ -34,7 +34,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            _mock.Setup(repo => repo.Find(note => note.AuthorId == 1)).Returns(new[] { note1, note2 });
+            _mock.Setup(repo => repo.FindByAuthorId(1)).Returns(new[] { note1, note2 });
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -68,7 +68,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            _mock.Setup(repo => repo.Find(note => note.AuthorId == 1)).Returns(new[] { note1, note2 });
+            _mock.Setup(repo => repo.FindByAuthorId(1)).Returns(new[] { note1, note2 });
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -101,7 +101,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            _mock.Setup(repo => repo.Find(note => note.AuthorId == 1)).Returns(new[] { note1, note2 });
+            _mock.Setup(repo => repo.FindByAuthorId(1)).Returns(new[] { note1, note2 });
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act

@@ -4,13 +4,14 @@ using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class GetPublishedNoteText
     {
-        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
+        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
@@ -20,10 +21,16 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             var note = new Note()
             {
                 Id = 1,
-                Text = "note 1",
                 PublicUrl = "testtest"
             };
-            _mock.Setup(repo => repo.Find(note => note.PublicUrl == "testtest")).Returns(new[] { note });
+            var noteSnapshot = new NoteSnapshot()
+            {
+                NoteId = 1,
+                Text = "note 1"
+            };
+            note.Snapshots = new List<NoteSnapshot>() { noteSnapshot };
+
+            _mock.Setup(repo => repo.FindByPublicUrl("testtest")).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -40,10 +47,16 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             var note = new Note()
             {
                 Id = 1,
-                Text = "note 1",
                 PublicUrl = "testtest"
             };
-            _mock.Setup(repo => repo.Find(note => note.PublicUrl == "testtest")).Returns(new[] { note });
+            var noteSnapshot = new NoteSnapshot()
+            {
+                NoteId = 1,
+                Text = "note 1"
+            };
+            note.Snapshots = new List<NoteSnapshot>() { noteSnapshot };
+
+            _mock.Setup(repo => repo.FindByPublicUrl("testtest")).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act

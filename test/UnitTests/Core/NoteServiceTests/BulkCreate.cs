@@ -12,7 +12,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class BulkCreate
     {
-        private readonly Mock<IRepository<Note>> _mock = new Mock<IRepository<Note>>();
+        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
