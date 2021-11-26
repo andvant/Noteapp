@@ -10,27 +10,28 @@ namespace Noteapp.Core.Services
 {
     public class NoteService
     {
-        private readonly IRepository<Note> _repository;
+        private readonly INoteRepository _repository;
         private readonly IDateTimeProvider _dateTimeProvider;
         private const int MAX_BULK_NOTES = 20; // might want to move it somewhere else
 
-        public NoteService(IDateTimeProvider dateTimeProvider, IRepository<Note> repository)
+        public NoteService(INoteRepository repository, IDateTimeProvider dateTimeProvider)
         {
-            _dateTimeProvider = dateTimeProvider;
             _repository = repository;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public Note Get(int userId, int noteId)
         {
-            return GetNote(userId, noteId);
+            return GetNote(userId, noteId, true);
         }
 
         public IEnumerable<Note> GetAll(int userId, bool? archived)
         {
-            var notes = _repository.Find(note => note.AuthorId == userId, true);
+            var notes = _repository.FindByAuthorId(userId);
 
             if (archived.HasValue)
             {
+                // TODO: filter in the query to the database
                 notes = notes.Where(note => note.Archived == archived.Value);
             }
 
@@ -54,14 +55,12 @@ namespace Noteapp.Core.Services
         {
             TooManyNotesException.ThrowIfTooManyNotes(texts.Count(), MAX_BULK_NOTES);
 
+            var notes = new List<Note>();
             foreach (var text in texts)
             {
-                var note = CreateNote(userId, text);
-
-                // TODO: add the whole list to the repository at once, but for that need to
-                // change the implementation of GenerateNewNoteId() first
-                _repository.Add(note);
+                notes.Add(CreateNote(userId, text));
             }
+            _repository.AddRange(notes);
         }
 
         public void Update(int userId, int noteId, string text)
@@ -141,20 +140,19 @@ namespace Noteapp.Core.Services
 
         public string GetPublishedNoteText(string url)
         {
-            var note = _repository.Find(note => note.PublicUrl == url).SingleOrDefault();
+            var note = _repository.FindByPublicUrl(url);
             return note?.Text ?? throw new NoteNotFoundException(url);
         }
 
         public NoteSnapshot GetSnapshot(int userId, int noteId, int snapshotId)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNote(userId, noteId, true);
 
             var snapshot = note.Snapshots.Where(snapshot => snapshot.Id == snapshotId).SingleOrDefault();
 
             if (snapshot is null)
             {
-                // TODO: create a custom exception
-                throw new Exception("Snapshot was not found");
+                throw new SnapshotNotFoundException(noteId, snapshotId);
             }
 
             return snapshot;
@@ -162,18 +160,14 @@ namespace Noteapp.Core.Services
 
         public IEnumerable<NoteSnapshot> GetAllSnapshots(int userId, int noteId)
         {
-            var note = _repository.Find(noteId, true);
-            if (note is null || note.AuthorId != userId)
-            {
-                throw new NoteNotFoundException(userId, noteId);
-            }
+            var note = GetNote(userId, noteId, true);
 
             return note.Snapshots;
         }
 
-        private Note GetNote(int userId, int noteId)
+        private Note GetNote(int userId, int noteId, bool includeSnapshots = false)
         {
-            var note = _repository.Find(noteId, true);
+            var note = _repository.Find(noteId, includeSnapshots);
             if (note is null || note.AuthorId != userId)
             {
                 throw new NoteNotFoundException(userId, noteId);
@@ -185,9 +179,7 @@ namespace Noteapp.Core.Services
         {
             var note = new Note()
             {
-                Id = GenerateNewNoteId(),
                 AuthorId = userId,
-                Snapshots = new(),
                 Created = _dateTimeProvider.Now,
             };
             AddNoteSnapshot(note, text);
@@ -204,13 +196,8 @@ namespace Noteapp.Core.Services
                 Created = _dateTimeProvider.Now,
                 Text = text
             };
+            note.Snapshots = new List<NoteSnapshot>();
             note.Snapshots.Add(noteSnapshot);
-        }
-
-        // TODO: make thread-safe
-        private int GenerateNewNoteId()
-        {
-            return _repository.GetAll().Max(note => note?.Id) + 1 ?? 1;
         }
 
         private string GenerateUrl()

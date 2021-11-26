@@ -15,10 +15,10 @@ namespace Noteapp.Infrastructure.Data
             if (!context.Notes.Any())
             {
                 context.Notes.AddRange(GetNotes());
+                context.NoteSnapshots.AddRange(GetNoteSnapshots());
                 context.AppUsers.AddRange(GetAppUsers());
                 context.SaveChanges();
             }
-
         }
 
         private static List<AppUser> GetAppUsers()
@@ -50,25 +50,6 @@ namespace Noteapp.Infrastructure.Data
         {
             const int userId = 1;
 
-            var snapshots = new List<NoteSnapshot>()
-            {   
-                new()
-                {
-                    Text = "note 1",
-                    Created = DateTime.Now
-                },
-                new()
-                {
-                    Text = "note 2",
-                    Created = DateTime.Now
-                },
-                new()
-                {
-                    Text = "note 3",
-                    Created = DateTime.Now
-                }
-            };
-
             var notes = new List<Note>()
             {
                 new()
@@ -76,25 +57,50 @@ namespace Noteapp.Infrastructure.Data
                     Id = 1,
                     Created = DateTime.Now,
                     AuthorId = userId,
-                    Snapshots = new List<NoteSnapshot>(new[] { snapshots[0] })
                 },
                 new()
                 {
                     Id = 2,
                     Created = DateTime.Now,
                     AuthorId = userId,
-                    Snapshots = new List<NoteSnapshot>(new[] { snapshots[1] })
                 },
                 new()
                 {
                     Id = 3,
                     Created = DateTime.Now,
                     AuthorId = userId,
-                    Snapshots = new List<NoteSnapshot>(new[] { snapshots[2] })
                 }
             };
 
             return notes;
+        }
+
+        private static List<NoteSnapshot> GetNoteSnapshots()
+        {
+            return new List<NoteSnapshot>()
+            {
+                new()
+                {
+                    Id = 1,
+                    Text = "note 1",
+                    Created = DateTime.Now,
+                    NoteId = 1
+                },
+                new()
+                {
+                    Id = 2,
+                    Text = "note 2",
+                    Created = DateTime.Now,
+                    NoteId = 2
+                },
+                new()
+                {
+                    Id = 3,
+                    Text = "note 3",
+                    Created = DateTime.Now,
+                    NoteId = 3
+                }
+            };
         }
     }
 }

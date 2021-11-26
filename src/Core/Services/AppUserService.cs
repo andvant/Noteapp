@@ -8,42 +8,34 @@ namespace Noteapp.Core.Services
     // ASSUMED: that email is unique for all users
     public class AppUserService
     {
-        private readonly IRepository<AppUser> _repository;
+        private readonly IAppUserRepository _repository;
 
-        public AppUserService(IRepository<AppUser> repository)
+        public AppUserService(IAppUserRepository repository)
         {
             _repository = repository;
         }
 
-        // TODO: check for a valid email and password
+        // TODO: check for a valid email
         public AppUser Create(string email)
         {
-            var appUser = new AppUser()
+            var user = new AppUser()
             {
-                Id = GenerateNewAppUserId(),
-                Email = email,
-                Notes = new List<Note>()
+                Email = email
             };
 
-            _repository.Add(appUser);
-            return appUser;
+            _repository.Add(user);
+            return user;
         }
 
         public AppUser Get(string email)
         {
-            return _repository.Find(user => user.Email == email).Single();
+            return _repository.Find(email);
         }
 
         // just for testing, remove later
         public IEnumerable<AppUser> GetAll()
         {
             return _repository.GetAll();
-        }
-
-        // TODO: make thread-safe
-        private int GenerateNewAppUserId()
-        {
-            return _repository.GetAll().Max(user => user?.Id) + 1 ?? 1;
         }
     }
 }

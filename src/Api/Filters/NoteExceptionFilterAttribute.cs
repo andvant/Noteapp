@@ -23,6 +23,9 @@ namespace Noteapp.Api.Filters
                 case TooManyNotesException:
                     context.Result = new ObjectResult(error) { StatusCode = (int)HttpStatusCode.RequestEntityTooLarge };
                     break;
+                case SnapshotNotFoundException:
+                    context.Result = new NotFoundObjectResult(error);
+                    break;
             }
         }
     }

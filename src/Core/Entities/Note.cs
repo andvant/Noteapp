@@ -17,9 +17,9 @@ namespace Noteapp.Core.Entities
         public AppUser Author { get; set; }
         public int AuthorId { get; set; }
         [JsonIgnore]
-        public List<NoteSnapshot> Snapshots { get; set; }
+        public ICollection<NoteSnapshot> Snapshots { get; set; }
         [JsonIgnore]
-        public NoteSnapshot CurrentSnapshot => Snapshots.Last();
+        public NoteSnapshot CurrentSnapshot => Snapshots?.OrderByDescending(snapshot => snapshot.Created).FirstOrDefault();
         public int CurrentSnapshotId => CurrentSnapshot.Id;
         public string Text => CurrentSnapshot.Text;
         public DateTime Updated => CurrentSnapshot.Created;

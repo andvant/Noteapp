@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Noteapp.Core.Entities;
@@ -39,16 +40,15 @@ namespace Noteapp.Api
 
             services.AddDbContext<ApplicationContext>(options =>
             {
-                //options.EnableSensitiveDataLogging(true);
-                //options.LogTo(Console.WriteLine);
-                //options.UseSqlite("Data Source=app.db");
-                options.UseInMemoryDatabase("ApplicationDb");
+                options.EnableSensitiveDataLogging(true);
+                options.UseSqlite("Data Source=app.db");
+                //options.UseInMemoryDatabase("ApplicationDb");
             });
 
             services.AddDbContext<IdentityContext>(options =>
             {
-                //options.UseSqlite("Data Source=identity.db");
-                options.UseInMemoryDatabase("IdentityDb");
+                options.UseSqlite("Data Source=identity.db");
+                //options.UseInMemoryDatabase("IdentityDb");
             });
 
             services.AddIdentity<AppUserIdentity, IdentityRole>(options =>
@@ -63,8 +63,8 @@ namespace Noteapp.Api
                 .AddEntityFrameworkStores<IdentityContext>();
 
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
-            services.AddTransient<IRepository<Note>, EfRepository<Note>>();
-            services.AddTransient<IRepository<AppUser>, EfRepository<AppUser>>();
+            services.AddTransient<INoteRepository, EfNoteRepository>();
+            services.AddTransient<IAppUserRepository, EfAppUserRepository>();
             services.AddTransient<NoteService>();
             services.AddTransient<AppUserService>();
             services.AddTransient<IUserService, UserService>();

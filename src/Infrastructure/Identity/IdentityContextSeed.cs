@@ -9,9 +9,12 @@ namespace Noteapp.Infrastructure.Identity
     {
         public static async Task Seed(UserManager<AppUserIdentity> userManager)
         {
-            foreach (var user in GetUsers())
+            if (!userManager.Users.Any())
             {
-                if (!userManager.Users.Any()) await userManager.CreateAsync(user, "password");
+                foreach (var user in GetUsers())
+                {
+                    await userManager.CreateAsync(user, "password");
+                }
             }
         }
 

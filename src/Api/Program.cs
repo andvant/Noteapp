@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Noteapp.Infrastructure.Data;
 using Noteapp.Infrastructure.Identity;
 using System.Threading.Tasks;
@@ -13,9 +14,7 @@ namespace Noteapp.Api
         public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
-
             await SeedDatabases(host);
-
             host.Run();
         }
 
@@ -32,14 +31,11 @@ namespace Noteapp.Api
         {
             using var scope = host.Services.CreateScope();
 
-
             var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
             identityContext.Database.EnsureCreated();
 
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUserIdentity>>();
             await IdentityContextSeed.Seed(userManager);
-
-
 
             var appContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
             ApplicationContextSeed.Seed(appContext);
