@@ -90,6 +90,13 @@ namespace Noteapp.Desktop.Networking
             await SendRequestAsync(request);
         }
 
+        public async Task<IEnumerable<NoteSnapshot>> GetAllSnapshots(int noteId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/notes/{noteId}/snapshots");
+            var response = await SendRequestAsync(request);
+            return await response.Content.ReadFromJsonAsync<IEnumerable<NoteSnapshot>>();
+        }
+
         public async Task Register(string email, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "api/account/register");

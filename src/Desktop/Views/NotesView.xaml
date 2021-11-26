@@ -10,7 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="45"/>
             <RowDefinition Height="50"/>
-            <RowDefinition />
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
@@ -22,6 +22,7 @@
             <Button DockPanel.Dock="Left"  Command="{Binding EditCommand}" Content="Save note" Width="100" />
             <Button DockPanel.Dock="Right" Command="{Binding ExportNotesCommand}" Content="Export notes" Width="160" />
             <Button DockPanel.Dock="Right" Command="{Binding ImportNotesCommand}" Content="Import notes" Width="160" />
+            <Button DockPanel.Dock="Right" Command="{Binding ShowHistoryCommand}" Content="History" Width="160" />
         </DockPanel>
         
 
@@ -77,10 +78,39 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <TextBox Grid.Row="2" Grid.Column="1" IsReadOnly="{Binding SelectedNote.Locked}" 
-                 Text="{Binding SelectedNote.Text, UpdateSourceTrigger=PropertyChanged}"
-                 TextWrapping="Wrap" AcceptsReturn="True" Height="Auto" Width="Auto"
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+
+        <Grid Grid.Row="2" Grid.Column="1" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!--Selected note text-->
+            <TextBox Grid.Row="0" IsReadOnly="{Binding SelectedNote.Locked}" 
+                Text="{Binding SelectedNote.Text, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap" AcceptsReturn="True" Height="Auto" Width="Auto"
+                     HorizontalAlignment="Stretch"/>
+
+            
+            <!--Selected note history-->
+            <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{Binding HistoryVisibility}" Margin="10">
+                <Slider Minimum="0" Maximum="{Binding MaximumSnapshotIndex}" 
+                    Width="400"
+                    TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" 
+                    Value="{Binding CurrentSnapshotIndex}"/>
+                
+                <TextBlock Text="{Binding CurrentSnapshotDate}" HorizontalAlignment="Center"/>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancel" Command="{Binding CancelHistoryCommand}" />
+                    <Button Content="Restore" Command="{Binding RestoreSnapshotCommand}"/>
+                </StackPanel>
+            </StackPanel>
+
+            
+
+        </Grid>
 
     </Grid>
 </UserControl>

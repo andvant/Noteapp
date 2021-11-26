@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -35,6 +36,46 @@ namespace Noteapp.Desktop.ViewModels
             set => Set(ref _selectedNote, value);
         }
 
+        // Note history
+        private Visibility _historyVisibility = Visibility.Collapsed;
+        public Visibility HistoryVisibility
+        {
+            get => _historyVisibility;
+            set => Set(ref _historyVisibility, value);
+        }
+
+        private ObservableCollection<NoteSnapshot> _snapshots;
+        public ObservableCollection<NoteSnapshot> Snapshots
+        {
+            get => _snapshots;
+            set
+            {
+                Set(ref _snapshots, value);
+                OnPropertyChanged(nameof(MaximumSnapshotIndex));
+                OnPropertyChanged(nameof(CurrentSnapshotText));
+                OnPropertyChanged(nameof(CurrentSnapshotDate));
+            }
+        }
+
+        private string _oldNoteText;
+        public int MaximumSnapshotIndex => Snapshots.Count - 1;
+
+        private int _currentSnapshotIndex;
+        public int CurrentSnapshotIndex
+        {
+            get => _currentSnapshotIndex;
+            set
+            {
+                Set(ref _currentSnapshotIndex, value);
+                SelectedNote.Text = CurrentSnapshotText;
+                OnPropertyChanged(nameof(CurrentSnapshotText));
+                OnPropertyChanged(nameof(CurrentSnapshotDate));
+                OnPropertyChanged(nameof(SelectedNote));
+            }
+        }
+        public string CurrentSnapshotText => Snapshots[CurrentSnapshotIndex].Text;
+        public string CurrentSnapshotDate => Snapshots[CurrentSnapshotIndex].Created.ToString();
+
         public ICommand ListCommand { get; }
         public ICommand CreateCommand { get; }
         public ICommand EditCommand { get; }
@@ -48,6 +89,9 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand SortyByTextCommand { get; }
         public ICommand ExportNotesCommand { get; }
         public ICommand ImportNotesCommand { get; }
+        public ICommand ShowHistoryCommand { get; }
+        public ICommand RestoreSnapshotCommand { get; }
+        public ICommand CancelHistoryCommand { get; }
 
         public NotesViewModel(ApiCaller apiCaller)
         {
@@ -66,6 +110,9 @@ namespace Noteapp.Desktop.ViewModels
             SortyByTextCommand = new RelayCommand(SortByTextCommandExecute, SortByCanExecute);
             ExportNotesCommand = new RelayCommand(ExportNotesCommandExecute);
             ImportNotesCommand = new RelayCommand(ImportNotesCommandExecute);
+            ShowHistoryCommand = new RelayCommand(ShowHistoryCommandExecute);
+            RestoreSnapshotCommand = new RelayCommand(RestoreSnapshotCommandExecute);
+            CancelHistoryCommand = new RelayCommand(CancelHistoryCommandExecute);
 
             ListCommand.Execute(null);
         }
@@ -149,7 +196,7 @@ namespace Noteapp.Desktop.ViewModels
             SortNotes(comparison, ref _descendingText);
         }
 
-        private bool SortByCanExecute(object obj)
+        private bool SortByCanExecute(object parameter)
         {
             return Notes?.Count > 0;
         }
@@ -186,6 +233,37 @@ namespace Noteapp.Desktop.ViewModels
                 await _apiCaller.BulkCreateNotes(notes);
                 ListCommand.Execute(null);
             }
+        }
+        private void RestoreSnapshotCommandExecute(object parameter)
+        {
+            HistoryVisibility = Visibility.Collapsed;
+
+            SelectedNote.Text = CurrentSnapshotText;
+            Snapshots = null;
+            EditCommand.Execute(null);
+        }
+
+        private async void ShowHistoryCommandExecute(object parameter)
+        {
+            if (HistoryVisibility == Visibility.Visible) return;
+
+            HistoryVisibility = Visibility.Visible;
+
+            _oldNoteText = SelectedNote.Text;
+
+            var snapshots = await _apiCaller.GetAllSnapshots(SelectedNote.Id);
+            Snapshots = new ObservableCollection<NoteSnapshot>(snapshots);
+
+            CurrentSnapshotIndex = MaximumSnapshotIndex;
+        }
+
+        private void CancelHistoryCommandExecute(object parameter)
+        {
+            HistoryVisibility = Visibility.Collapsed;
+
+            SelectedNote.Text = _oldNoteText;
+            OnPropertyChanged(nameof(SelectedNote));
+            Snapshots = null;
         }
 
         private void SortNotes(Comparison<Note> comparison, ref bool descending)
