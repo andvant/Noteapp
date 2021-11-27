@@ -1,4 +1,6 @@
-﻿body {
+﻿
+/* Global */
+body {
     margin: 0;
 }
 
@@ -7,16 +9,28 @@
     box-sizing: border-box;
 }
 
-.wrapper {
+#wrapper {
     display: grid;
     height: 100vh;
-    grid-template-columns: 140px 280px 1fr;
+    grid-template-columns: 140px 1fr;
 }
 
-.views {
+#views {
     display: flex;
     flex-direction: column;
     padding: 5px;
+    gap: 10px;
+}
+
+#current-view {
+    display: grid;
+}
+
+
+/* Notes view */
+.notes-view {
+    display: grid;
+    grid-template-columns: 280px 1fr;
 }
 
 .notes {
@@ -40,18 +54,6 @@
 .note-history {
     flex-basis: 120px;
     display: none;
-}
-
-.authentication {
-    flex-basis: 120px;
-    display: grid;
-    grid-template-rows: 1fr 1fr;
-}
-
-.authentication-row {
-    display: flex;
-    padding: 10px;
-    font-size: 22px;
 }
 
 .notes-new {
@@ -102,4 +104,57 @@
     width: 100%;
     font-size: 24px;
     resize: none;
+}
+
+
+/* Login view */
+#login-view {
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    margin: 10%;
+}
+
+#login-button {
+    grid-row-start: 3;
+    grid-column: span 2;
+}
+
+#logout-button {
+    grid-row-start: 4;
+    grid-column: span 2;
+}
+
+#login-view > * {
+    margin: auto;
+    font-size: 22px
+}
+
+#login-view > button {
+    width: 200px;
+    height: 50px;
+}
+
+
+/* Register view */
+#register-view {
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    margin: 10%;
+}
+
+#register-button {
+    grid-row-start: 3;
+    grid-column: span 2;
+}
+
+#register-view > button {
+    width: 200px;
+    height: 50px;
+}
+
+#register-view > * {
+    margin: auto;
+    font-size: 22px
 }

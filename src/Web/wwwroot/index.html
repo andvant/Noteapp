@@ -5,73 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noteapp</title>
     <link rel="stylesheet" href="css/app.css">
+    <script type="module" src="js/App.js"></script>
 </head>
 <body>
-    <div class="wrapper">
-        <div class="views">
-            <button>Notes</button>
-        </div>
-        <div class="notes">
-            <div class="notes-new">
-                <button id="new-note-button">New note</button>
-                <button id="archived-view-button">Archived</button>
-            </div>
-            <div class="notes-sort">
-                <label>Sort by:</label>
-                <button id="sortby-created-button">Created</button>
-                <button id="sortby-updated-button">Updated</button>
-                <button id="sortby-text-button">Text</button>
-            </div>
-            <div id="notes-list"></div>
-        </div>
-        <div class="third-column">
-            <div class="selected-note">
-                <div class="selected-note-actions">
-                    <button id="save-note-button">Save note</button>
-                    <button id="delete-note-button">Delete note</button>
-                    <button id="pin-note-button">Pin note</button>
-                    <input id="note-pinned" type="checkbox" disabled />
-                    <button id="lock-note-button">Lock note</button>
-                    <input id="note-locked" type="checkbox" disabled />
-                    <button id="archive-note-button">Archive note</button>
-                    <input id="note-archived" type="checkbox" disabled />
-                    <button id="publish-note-button">Publish note</button>
-                    <input id="note-published" type="checkbox" disabled />
-                    <button id="import-notes-button">Import notes</button>
-                    <input id="import-notes-input" type="file" style="display: none;" />
-                    <button id="export-notes-button">Export notes</button>
-                    <button id="history-button">History</button>
-                </div>
-                <div class="selected-note-text">
-                    <textarea id="note-text" placeholder="Note text here..."></textarea>
-                </div>
-            </div>
-            <div class="note-history">
-                <input type="range" id="history-slider" min="0" max="9" step="1"/>
-                <div id="snapshot-date"></div>
-                <button id="cancel-history-button">Cancel</button>
-                <button id="restore-snapshot-button">Restore</button>
-            </div>
-            <div class="authentication">
-                <div class="authentication-row">
-                    <label>Email</label>
-                    <input type="text" id="login-email" />
-                    <label>Password</label>
-                    <input type="text" id="login-password" />
-                    <button id="login-button">Log in</button>
-                    <button id="logout-button">Log out</button>
-                </div>
-                <div class="authentication-row">
-                    <label>Email</label>
-                    <input type="text" id="register-email" />
-                    <label>Password</label>
-                    <input type="text" id="register-password" />
-                    <button id="register-button">Register</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <script src="js/app.js" type="module"></script>
+    <div id="wrapper">
+        <div id="views">
+            <button id="register-view-button">Register</button>
+            <button id="login-view-button">Login</button>
+            <button id="notes-view-button">Notes</button>
+        </div>
+
+        <div id="current-view"></div>
+    </div>
+    
 </body>
 </html>

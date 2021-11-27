@@ -15,7 +15,6 @@
 }
 
 const baseUrl = "http://localhost:5000/api";
-
 let accessToken = localStorage.getItem('accessToken');
 
 async function getNotes() {
