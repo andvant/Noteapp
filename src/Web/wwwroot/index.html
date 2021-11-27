@@ -37,12 +37,19 @@
                     <button id="publish-note-button">Publish note</button>
                     <input id="note-published" type="checkbox" disabled />
                     <button id="import-notes-button">Import notes</button>
-                    <input id="import-notes-input" type="file" style="display: none;"/>
+                    <input id="import-notes-input" type="file" style="display: none;" />
                     <button id="export-notes-button">Export notes</button>
+                    <button id="history-button">History</button>
                 </div>
                 <div class="selected-note-text">
                     <textarea id="note-text" placeholder="Note text here..."></textarea>
                 </div>
+            </div>
+            <div class="note-history">
+                <input type="range" id="history-slider" min="0" max="9" step="1"/>
+                <div id="snapshot-date"></div>
+                <button id="cancel-history-button">Cancel</button>
+                <button id="restore-snapshot-button">Restore</button>
             </div>
             <div class="authentication">
                 <div class="authentication-row">

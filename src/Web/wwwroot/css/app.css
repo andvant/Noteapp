@@ -26,16 +26,24 @@
 }
 
 .third-column {
-    display: grid;
-    grid-template-rows: 1fr 120px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .selected-note {
+    flex-grow: 1;
     display: grid;
     grid-template-rows: 50px 50px 1fr;
 }
 
+.note-history {
+    flex-basis: 120px;
+    display: none;
+}
+
 .authentication {
+    flex-basis: 120px;
     display: grid;
     grid-template-rows: 1fr 1fr;
 }

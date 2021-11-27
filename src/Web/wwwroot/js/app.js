@@ -20,12 +20,28 @@ const exportNotesButton = document.getElementById('export-notes-button');
 const notesListDiv = document.getElementById('notes-list')
 const noteTextElement = document.getElementById('note-text');
 
+
+
+// Note history
+const historyDiv = document.getElementsByClassName('note-history')[0];
+const snapshotTextDiv = document.getElementById('snapshot-text');
+const snapshotDateDiv = document.getElementById('snapshot-date');
+const historySlider = document.getElementById('history-slider');
+const historyButton = document.getElementById('history-button');
+const cancelHistoryButton = document.getElementById('cancel-history-button');
+const restoreSnapshotButton = document.getElementById('restore-snapshot-button');
+
+let oldNoteText;
+let snapshots;
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
-    addEventListenersToButtons();
+    addEventListeners();
     await updateNoteList();
 });
 
-function addEventListenersToButtons() {
+function addEventListeners() {
     saveNoteButton.addEventListener('click', async () => {
         await ajaxService.updateNote(noteService.getSelectedNoteId(), getSelectedNoteText());
         await updateNoteList();
@@ -114,6 +130,41 @@ function addEventListenersToButtons() {
         a.download = "exportedNotes-[date].json";
         a.click();
     });
+
+
+    // Note history
+    historyButton.addEventListener('click', async () => {
+        if (historyDiv.style.display == 'block') return;
+
+        snapshots = await ajaxService.getAllSnapshots(noteService.getSelectedNoteId());
+
+        oldNoteText = getSelectedNoteText();
+        historySlider.setAttribute('min', '0');
+        historySlider.setAttribute('max', (snapshots.length - 1).toString());
+        historySlider.value = snapshots.length - 1;
+
+        snapshotDateDiv.textContent = snapshots[historySlider.value].date;
+        setSelectedNoteText(snapshots[historySlider.value].text);
+
+        historyDiv.style.display = 'block';
+    });
+
+    cancelHistoryButton.addEventListener('click', () => {
+        setSelectedNoteText(oldNoteText);
+        historyDiv.style.display = 'none';
+    });
+
+    historySlider.addEventListener('input', () => {
+        snapshotDateDiv.textContent = snapshots[historySlider.value].created;
+        setSelectedNoteText(snapshots[historySlider.value].text);
+    });
+
+    restoreSnapshotButton.addEventListener('click', () => {
+        setSelectedNoteText(snapshots[historySlider.value].text);
+        saveNoteButton.click();
+        historyDiv.style.display = 'none';
+        oldNoteText = null;
+    });
 }
 
 async function updateNoteList() {
@@ -132,6 +183,10 @@ function getSelectedNoteText() {
     return noteTextElement.value;
 }
 
+function setSelectedNoteText(text) {
+    noteTextElement.value = text;
+}
+
 function getLoginEmail() {
     return document.getElementById('login-email').value;
 }
@@ -146,10 +201,6 @@ function getRegisterEmail() {
 
 function getRegisterPassword() {
     return document.getElementById('register-password').value;
-}
-
-function setSelectedNoteText(text) {
-    noteTextElement.value = text;
 }
 
 function makeNoteReadOnly(locked) {

@@ -8,6 +8,7 @@
     toggleLocked,
     togglePinned,
     togglePublished,
+    getAllSnapshots,
     login,
     register,
     logout
@@ -64,6 +65,13 @@ async function toggleArchived(note) {
 async function togglePublished(note) {
     let method = note.published ? "DELETE" : "PUT";
     await sendRequest(`notes/${note.id}/publish`, method, {}, null);
+}
+
+async function getAllSnapshots(noteId) {
+    let response = await sendRequest(`notes/${noteId}/snapshots`);
+    if (response?.ok) {
+        return await response.json();
+    }
 }
 
 async function login(email, password) {
