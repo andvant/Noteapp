@@ -20,19 +20,12 @@ namespace Noteapp.Desktop.Networking
             _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<Note>> GetNonArchivedNotes()
+        public async Task<IEnumerable<Note>> GetNotes(bool? archived = null)
         {
-            return await GetNotes("?archived=false");
-        }
-
-        public async Task<IEnumerable<Note>> GetArchivedNotes()
-        {
-            return await GetNotes("?archived=true");
-        }
-
-        public async Task<IEnumerable<Note>> GetAllNotes()
-        {
-            return await GetNotes(string.Empty);
+            string filter = archived.HasValue ? $"?archived={archived.Value}" : string.Empty;
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/notes{filter}");
+            var response = await SendRequestAsync(request);
+            return await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
         }
 
         public async Task CreateNote()
@@ -111,13 +104,6 @@ namespace Noteapp.Desktop.Networking
             var response = await SendRequestAsync(request);
 
             return await response.Content.ReadFromJsonAsync<UserInfo>();
-        }
-
-        private async Task<IEnumerable<Note>> GetNotes(string filter)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/notes/{filter}");
-            var response = await SendRequestAsync(request);
-            return await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)

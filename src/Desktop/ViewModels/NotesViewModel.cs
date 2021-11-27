@@ -23,6 +23,7 @@ namespace Noteapp.Desktop.ViewModels
         private bool _descendingUpdated;
         private bool _descendingCreated;
         private bool _descendingText;
+        public bool ArchivedView { get; set; }
 
         public ObservableCollection<Note> Notes
         {
@@ -92,6 +93,7 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand ShowHistoryCommand { get; }
         public ICommand RestoreSnapshotCommand { get; }
         public ICommand CancelHistoryCommand { get; }
+        public ICommand ToggleArchivedViewCommand { get; }
 
         public NotesViewModel(ApiCaller apiCaller)
         {
@@ -113,6 +115,7 @@ namespace Noteapp.Desktop.ViewModels
             ShowHistoryCommand = new RelayCommand(ShowHistoryCommandExecute);
             RestoreSnapshotCommand = new RelayCommand(RestoreSnapshotCommandExecute);
             CancelHistoryCommand = new RelayCommand(CancelHistoryCommandExecute);
+            ToggleArchivedViewCommand = new RelayCommand(ToggleArchivedViewCommandExecute);
 
             ListCommand.Execute(null);
         }
@@ -121,7 +124,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             var selectedNoteId = SelectedNote?.Id;
 
-            var notes = await _apiCaller.GetNonArchivedNotes();
+            var notes = ArchivedView ? await _apiCaller.GetNotes(true) : await _apiCaller.GetNotes(false);
             Notes = new ObservableCollection<Note>(OrderByPinned(notes));
 
             SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId);
@@ -203,7 +206,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void ExportNotesCommandExecute(object parameter)
         {
-            var notes = await _apiCaller.GetAllNotes();
+            var notes = await _apiCaller.GetNotes();
 
             var dialog = new SaveFileDialog()
             {
@@ -264,6 +267,12 @@ namespace Noteapp.Desktop.ViewModels
             SelectedNote.Text = _oldNoteText;
             OnPropertyChanged(nameof(SelectedNote));
             Snapshots = null;
+        }
+
+        private void ToggleArchivedViewCommandExecute(object parameter)
+        {
+            ArchivedView = !ArchivedView;
+            ListCommand.Execute(null);
         }
 
         private void SortNotes(Comparison<Note> comparison, ref bool descending)
