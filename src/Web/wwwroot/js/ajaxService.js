@@ -19,6 +19,7 @@ const baseUrl = "http://localhost:5000/api";
 let accessToken = localStorage.getItem('accessToken');
 
 async function getNotes() {
+    //let filter = archived === true ? "?archived=true" : archived === false ? "?archived=false" : "";
     let response = await sendRequest("notes", "GET", {}, null);
     if (response?.ok) {
         return await response.json();

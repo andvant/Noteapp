@@ -92,7 +92,7 @@
     height: 100%;
 }
 
-#new-note-button {
+#new-note-button, #archived-view-button {
     width: 35%;
     height: 60%;
 }

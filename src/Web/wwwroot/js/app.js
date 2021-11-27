@@ -19,22 +19,19 @@ const importNotesInput = document.getElementById('import-notes-input');
 const exportNotesButton = document.getElementById('export-notes-button');
 const notesListDiv = document.getElementById('notes-list')
 const noteTextElement = document.getElementById('note-text');
+const archivedViewButton = document.getElementById('archived-view-button');
 
-
+let archivedView = false;
 
 // Note history
 const historyDiv = document.getElementsByClassName('note-history')[0];
-const snapshotTextDiv = document.getElementById('snapshot-text');
 const snapshotDateDiv = document.getElementById('snapshot-date');
 const historySlider = document.getElementById('history-slider');
 const historyButton = document.getElementById('history-button');
 const cancelHistoryButton = document.getElementById('cancel-history-button');
 const restoreSnapshotButton = document.getElementById('restore-snapshot-button');
-
 let oldNoteText;
 let snapshots;
-
-
 
 document.addEventListener('DOMContentLoaded', async () => {
     addEventListeners();
@@ -80,19 +77,19 @@ function addEventListeners() {
     sortByCreatedButton.addEventListener('click', () => {
         let notes = noteService.getLocalNotes();
         noteService.sortByCreated(notes);
-        addNoteElements(noteService.getNotesToBeDisplayed(notes));
+        addNoteElements(noteService.getNotesForDisplay(notes, archivedView));
     });
 
     sortByUpdatedButton.addEventListener('click', () => {
         let notes = noteService.getLocalNotes();
         noteService.sortByUpdated(notes);
-        addNoteElements(noteService.getNotesToBeDisplayed(notes));
+        addNoteElements(noteService.getNotesForDisplay(notes, archivedView));
     });
 
     sortByTextButton.addEventListener('click', () => {
         let notes = noteService.getLocalNotes();
         noteService.sortByText(notes);
-        addNoteElements(noteService.getNotesToBeDisplayed(notes));
+        addNoteElements(noteService.getNotesForDisplay(notes, archivedView));
     });
 
     loginButton.addEventListener('click', async () => {
@@ -131,6 +128,10 @@ function addEventListeners() {
         a.click();
     });
 
+    archivedViewButton.addEventListener('click', async () => {
+        archivedView = !archivedView;
+        await updateNoteList();
+    });
 
     // Note history
     historyButton.addEventListener('click', async () => {
@@ -171,7 +172,7 @@ async function updateNoteList() {
     let notes = await ajaxService.getNotes();
     noteService.saveLocalNotes(notes);
 
-    addNoteElements(noteService.getNotesToBeDisplayed(notes));
+    addNoteElements(noteService.getNotesForDisplay(notes, archivedView));
     setCheckboxes(noteService.getSelectedNote());
 }
 
