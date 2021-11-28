@@ -29,6 +29,7 @@ namespace Noteapp.Desktop.ViewModels
             PageViewModels.Add(new RegisterViewModel(apiCaller));
             PageViewModels.Add(new LoginViewModel(apiCaller));
             PageViewModels.Add(new NotesViewModel(apiCaller));
+            PageViewModels.Add(new SettingsViewModel(apiCaller));
 
             CurrentPageViewModel = PageViewModels.Find(vm => vm.Name == PageNames.Notes);
 

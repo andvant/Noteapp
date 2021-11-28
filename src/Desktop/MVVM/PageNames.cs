@@ -5,5 +5,6 @@
         public const string Notes = "Notes";
         public const string Login = "Login";
         public const string Register = "Register";
+        public const string Settings = "Settings";
     }
 }
