@@ -1,4 +1,4 @@
-﻿import * as AjaxService from "./AjaxService.js";
+﻿import * as AjaxService from "../AjaxService.js";
 
 export {
     render,
@@ -6,7 +6,7 @@ export {
 }
 
 async function render() {
-    return `
+    return /*html*/ `
         <div id="register-view">
             <label>Email</label>
             <input type="text" placeholder="Email here" id="email" />

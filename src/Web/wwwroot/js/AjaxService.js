@@ -15,7 +15,7 @@
 }
 
 const baseUrl = "http://localhost:5000/api";
-let accessToken = localStorage.getItem('accessToken');
+let userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
 async function getNotes() {
     //let filter = archived === true ? "?archived=true" : archived === false ? "?archived=false" : "";
@@ -80,8 +80,8 @@ async function login(email, password) {
     let response = await sendRequest("account/token", "POST", headers, body);
 
     if (response?.ok) {
-        accessToken = (await response.json()).access_token
-        localStorage.setItem('accessToken', accessToken);
+        userInfo = await response.json();
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
         alert('Successfully logged in.')
     }
 }
@@ -97,15 +97,15 @@ async function register(email, password) {
 }
 
 function logout() {
-    accessToken = null;
-    localStorage.removeItem('accessToken');
+    userInfo = null;
+    localStorage.removeItem('userInfo');
     alert('Successfully logged out.')
 }
 
 async function sendRequest(url, method, headers, body) {
 
-    if (accessToken != null) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
+    if (userInfo != null) {
+        headers['Authorization'] = `Bearer ${userInfo.access_token}`;
     }
     let response;
     try {

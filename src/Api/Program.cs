@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Noteapp.Infrastructure.Data;
 using Noteapp.Infrastructure.Identity;
+using System;
 using System.Threading.Tasks;
 
 namespace Noteapp.Api
@@ -13,7 +14,7 @@ namespace Noteapp.Api
         public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
-            await SeedDatabases(host);
+            await SeedDatabases(host.Services);
             host.Run();
         }
 
@@ -26,9 +27,9 @@ namespace Noteapp.Api
                 });
         }
 
-        private static async Task SeedDatabases(IHost host)
+        private static async Task SeedDatabases(IServiceProvider services)
         {
-            using var scope = host.Services.CreateScope();
+            using var scope = services.CreateScope();
 
             var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
             //identityContext.Database.EnsureDeleted();

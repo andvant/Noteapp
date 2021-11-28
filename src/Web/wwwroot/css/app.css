@@ -118,21 +118,13 @@ body {
 #login-button {
     grid-row-start: 3;
     grid-column: span 2;
-}
-
-#logout-button {
-    grid-row-start: 4;
-    grid-column: span 2;
+    width: 200px;
+    height: 50px;
 }
 
 #login-view > * {
     margin: auto;
     font-size: 22px
-}
-
-#login-view > button {
-    width: 200px;
-    height: 50px;
 }
 
 
@@ -157,4 +149,31 @@ body {
 #register-view > * {
     margin: auto;
     font-size: 22px
+}
+
+/* Settings view */
+#settings-view {
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    margin: 10%;
+}
+
+#logout-button {
+    grid-row-start: 3;
+}
+
+#delete-account-button {
+    grid-row-start: 4;
+}
+
+#settings-view > * {
+    margin: auto;
+    font-size: 22px
+}
+
+#settings-view > button {
+    width: 200px;
+    height: 50px;
+    grid-column: span 2;
 }

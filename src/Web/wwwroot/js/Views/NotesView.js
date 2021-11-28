@@ -1,5 +1,5 @@
-﻿import * as AjaxService from "./AjaxService.js";
-import * as NoteService from "./NoteService.js";
+﻿import * as AjaxService from "../AjaxService.js";
+import * as NoteService from "../NoteService.js";
 
 export {
     render,
@@ -7,7 +7,7 @@ export {
 }
 
 async function render() {
-    return `
+    return /*html*/ `
         <div class="notes-view">
             <div class="notes">
                 <div class="notes-new">
@@ -266,6 +266,7 @@ async function init() {
     }
 
     function setCheckboxes(note) {
+        if (!note) return;
         document.getElementById("note-pinned").checked = note.pinned;
         document.getElementById("note-locked").checked = note.locked;
         document.getElementById("note-archived").checked = note.archived;
