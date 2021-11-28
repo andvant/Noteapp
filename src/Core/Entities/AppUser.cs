@@ -7,5 +7,6 @@ namespace Noteapp.Core.Entities
         // ASSUMED: unique for all AppUsers
         public string Email { get; set; }
         public ICollection<Note> Notes { get; set; }
+        public string EncryptionSalt { get; set; }
     }
 }

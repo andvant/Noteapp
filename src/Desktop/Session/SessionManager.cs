@@ -12,8 +12,16 @@ namespace Noteapp.Desktop.Session
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             "noteapp_userinfo.json");
 
-        public async Task SaveUserInfo(UserInfo userInfo)
+        public async Task SaveUserInfo(UserInfoDto userInfoDto, string encryptionKey)
         {
+            var userInfo = new UserInfo()
+            {
+                AccessToken = userInfoDto.access_token,
+                Email = userInfoDto.email,
+                EncryptionKey = encryptionKey,
+                EncryptionSalt = userInfoDto.encryption_salt
+            };
+
             var userInfoJson = JsonSerializer.Serialize(userInfo, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(_userInfoPath, userInfoJson);
         }
@@ -21,7 +29,6 @@ namespace Noteapp.Desktop.Session
         public async Task<UserInfo> GetUserInfo()
         {
             if (!File.Exists(_userInfoPath)) return null;
-
             var userInfoJson = await File.ReadAllTextAsync(_userInfoPath);
             return JsonSerializer.Deserialize<UserInfo>(userInfoJson);
         }

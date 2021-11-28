@@ -9,7 +9,7 @@ namespace Noteapp.Infrastructure.Data
     {
         public static void Seed(ApplicationContext context)
         {
-            context.Database.EnsureDeleted();
+            //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
             if (!context.Notes.Any())

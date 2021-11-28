@@ -2,11 +2,14 @@
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
+using Noteapp.Desktop.Security;
+using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
@@ -122,6 +125,25 @@ namespace Noteapp.Desktop.ViewModels
             var selectedNoteId = SelectedNote?.Id;
 
             var notes = ShowArchived ? await _apiCaller.GetNotes(true) : await _apiCaller.GetNotes(false);
+
+            // TODO: use DI
+            var sessionManager = new SessionManager();
+            var userInfo = await sessionManager.GetUserInfo();
+            if (userInfo is null) return;
+            var protector = new Protector(userInfo.EncryptionKey);
+
+            foreach (var note in notes)
+            {
+                try
+                {
+                    note.Text = protector.Decrypt(note.Text);
+                }
+                catch (CryptographicException)
+                {
+                    note.Text = $"[not decrypted]{note.Text}";
+                }
+            }
+
             Notes = new ObservableCollection<Note>(OrderByPinned(notes));
 
             SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId);
@@ -135,7 +157,14 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void EditCommandExecute(object parameter)
         {
-            await _apiCaller.EditNote(SelectedNote.Id, SelectedNote.Text);
+            // TODO: use DI
+            var sessionManager = new SessionManager();
+            var userInfo = await sessionManager.GetUserInfo();
+            var protector = new Protector(userInfo.EncryptionKey);
+
+            var encryptedText = protector.Encrypt(SelectedNote.Text);
+
+            await _apiCaller.EditNote(SelectedNote.Id, encryptedText);
             ListCommand.Execute(null);
         }
 

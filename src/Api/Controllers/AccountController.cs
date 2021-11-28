@@ -35,7 +35,8 @@ namespace Noteapp.Api.Controllers
             return Ok(new
             {
                 access_token = _tokenService.GenerateToken(dto.Email),
-                email = dto.Email
+                email = dto.Email,
+                encryption_salt = _userService.GetEncryptionSalt(dto.Email)
             });
         }
 

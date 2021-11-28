@@ -45,6 +45,11 @@ namespace Noteapp.Infrastructure.Identity
             }
         }
 
+        public string GetEncryptionSalt(string email)
+        {
+            return _appUserService.Get(email).EncryptionSalt;
+        }
+
         // just for testing, remove later
         public IEnumerable<AppUser> GetAllAppUsers()
         {

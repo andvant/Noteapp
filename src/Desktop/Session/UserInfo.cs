@@ -2,7 +2,9 @@
 {
     public class UserInfo
     {
-        public string access_token { get; set; }
-        public string email { get; set; }
+        public string AccessToken { get; set; }
+        public string Email { get; set; }
+        public string EncryptionSalt { get; set; }
+        public string EncryptionKey { get; set; }
     }
 }

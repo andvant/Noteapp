@@ -9,5 +9,6 @@ namespace Noteapp.Core.Interfaces
         IEnumerable<AppUser> GetAllAppUsers();
         Task Register(string email, string password);
         Task ValidatePassword(string email, string password);
+        string GetEncryptionSalt(string email);
     }
 }

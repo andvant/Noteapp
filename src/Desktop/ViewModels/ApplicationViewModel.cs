@@ -40,7 +40,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private void LoadAccessToken(ApiCaller apiCaller, SessionManager sessionManager)
         {
-            apiCaller.AccessToken = sessionManager.GetUserInfo()?.Result?.access_token;
+            apiCaller.AccessToken = sessionManager.GetUserInfo()?.Result?.AccessToken;
         }
 
         public IPageViewModel CurrentPageViewModel

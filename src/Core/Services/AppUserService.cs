@@ -1,6 +1,8 @@
 ﻿using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
+using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace Noteapp.Core.Services
 {
@@ -19,7 +21,8 @@ namespace Noteapp.Core.Services
         {
             var user = new AppUser()
             {
-                Email = email
+                Email = email,
+                EncryptionSalt = GenerateEncryptionSalt()
             };
 
             _repository.Add(user);
@@ -35,6 +38,14 @@ namespace Noteapp.Core.Services
         public IEnumerable<AppUser> GetAll()
         {
             return _repository.GetAll();
+        }
+
+        private string GenerateEncryptionSalt()
+        {
+            var rng = RandomNumberGenerator.Create();
+            byte[] saltBytes = new byte[8];
+            rng.GetBytes(saltBytes);
+            return Convert.ToBase64String(saltBytes);
         }
     }
 }

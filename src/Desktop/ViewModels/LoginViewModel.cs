@@ -1,5 +1,6 @@
 ﻿using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
+using Noteapp.Desktop.Security;
 using Noteapp.Desktop.Session;
 using System.Windows;
 using System.Windows.Input;
@@ -29,9 +30,11 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void LoginCommandExecute(object parameter)
         {
-            var userInfo = await _apiCaller.Login(Email, Password);
-            _apiCaller.AccessToken = userInfo.access_token;
-            await _sessionManager.SaveUserInfo(userInfo);
+            var userInfoDto = await _apiCaller.Login(Email, Password);
+
+            _apiCaller.AccessToken = userInfoDto.access_token;
+            var encryptionkey = Protector.GenerateEncryptionKey(Password, userInfoDto.encryption_salt);
+            await _sessionManager.SaveUserInfo(userInfoDto, encryptionkey);
             MessageBox.Show("Successfully logged in.");
         }
 

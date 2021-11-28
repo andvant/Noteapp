@@ -97,13 +97,13 @@ namespace Noteapp.Desktop.Networking
             await SendRequestAsync(request);
         }
 
-        public async Task<UserInfo> Login(string email, string password)
+        public async Task<UserInfoDto> Login(string email, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "api/account/token");
             request.Content = JsonContent.Create(new { email, password });
             var response = await SendRequestAsync(request);
 
-            return await response.Content.ReadFromJsonAsync<UserInfo>();
+            return await response.Content.ReadFromJsonAsync<UserInfoDto>();
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)
