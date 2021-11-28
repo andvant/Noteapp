@@ -23,7 +23,7 @@ namespace Noteapp.Desktop.ViewModels
         private bool _descendingUpdated;
         private bool _descendingCreated;
         private bool _descendingText;
-        public bool ArchivedView { get; set; }
+
 
         public ObservableCollection<Note> Notes
         {
@@ -36,16 +36,19 @@ namespace Noteapp.Desktop.ViewModels
             get => _selectedNote;
             set => Set(ref _selectedNote, value);
         }
+        public bool ShowArchived { get; set; }
 
         // Note history
         private Visibility _historyVisibility = Visibility.Collapsed;
+        private ObservableCollection<NoteSnapshot> _snapshots;
+        private int _currentSnapshotIndex;
+        private string _oldNoteText;
         public Visibility HistoryVisibility
         {
             get => _historyVisibility;
             set => Set(ref _historyVisibility, value);
         }
 
-        private ObservableCollection<NoteSnapshot> _snapshots;
         public ObservableCollection<NoteSnapshot> Snapshots
         {
             get => _snapshots;
@@ -53,15 +56,8 @@ namespace Noteapp.Desktop.ViewModels
             {
                 Set(ref _snapshots, value);
                 OnPropertyChanged(nameof(MaximumSnapshotIndex));
-                OnPropertyChanged(nameof(CurrentSnapshotText));
-                OnPropertyChanged(nameof(CurrentSnapshotDate));
             }
         }
-
-        private string _oldNoteText;
-        public int MaximumSnapshotIndex => Snapshots.Count - 1;
-
-        private int _currentSnapshotIndex;
         public int CurrentSnapshotIndex
         {
             get => _currentSnapshotIndex;
@@ -69,14 +65,15 @@ namespace Noteapp.Desktop.ViewModels
             {
                 Set(ref _currentSnapshotIndex, value);
                 SelectedNote.Text = CurrentSnapshotText;
-                OnPropertyChanged(nameof(CurrentSnapshotText));
                 OnPropertyChanged(nameof(CurrentSnapshotDate));
-                OnPropertyChanged(nameof(SelectedNote));
             }
         }
+
+        public int MaximumSnapshotIndex => Snapshots.Count - 1;
         public string CurrentSnapshotText => Snapshots[CurrentSnapshotIndex].Text;
         public string CurrentSnapshotDate => Snapshots[CurrentSnapshotIndex].Created.ToString();
 
+        // Commands
         public ICommand ListCommand { get; }
         public ICommand CreateCommand { get; }
         public ICommand EditCommand { get; }
@@ -93,7 +90,7 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand ShowHistoryCommand { get; }
         public ICommand RestoreSnapshotCommand { get; }
         public ICommand CancelHistoryCommand { get; }
-        public ICommand ToggleArchivedViewCommand { get; }
+        public ICommand ToggleShowArchivedCommand { get; }
 
         public NotesViewModel(ApiCaller apiCaller)
         {
@@ -112,10 +109,10 @@ namespace Noteapp.Desktop.ViewModels
             SortyByTextCommand = new RelayCommand(SortByTextCommandExecute, SortByCanExecute);
             ExportNotesCommand = new RelayCommand(ExportNotesCommandExecute);
             ImportNotesCommand = new RelayCommand(ImportNotesCommandExecute);
-            ShowHistoryCommand = new RelayCommand(ShowHistoryCommandExecute);
+            ShowHistoryCommand = new RelayCommand(ShowHistoryCommandExecute, ShowHistoryCommandCanExecute);
             RestoreSnapshotCommand = new RelayCommand(RestoreSnapshotCommandExecute);
             CancelHistoryCommand = new RelayCommand(CancelHistoryCommandExecute);
-            ToggleArchivedViewCommand = new RelayCommand(ToggleArchivedViewCommandExecute);
+            ToggleShowArchivedCommand = new RelayCommand(ToggleArchivedViewCommandExecute);
 
             ListCommand.Execute(null);
         }
@@ -124,7 +121,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             var selectedNoteId = SelectedNote?.Id;
 
-            var notes = ArchivedView ? await _apiCaller.GetNotes(true) : await _apiCaller.GetNotes(false);
+            var notes = ShowArchived ? await _apiCaller.GetNotes(true) : await _apiCaller.GetNotes(false);
             Notes = new ObservableCollection<Note>(OrderByPinned(notes));
 
             SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId);
@@ -144,7 +141,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private bool EditCommandCanExecute(object parameter)
         {
-            return SelectedNote != null && !SelectedNote.Locked;
+            return SelectedNote != null && !SelectedNote.Locked && HistoryVisibility == Visibility.Collapsed;
         }
 
         private async void DeleteCommandExecute(object parameter)
@@ -248,16 +245,17 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void ShowHistoryCommandExecute(object parameter)
         {
-            if (HistoryVisibility == Visibility.Visible) return;
-
             HistoryVisibility = Visibility.Visible;
-
             _oldNoteText = SelectedNote.Text;
 
             var snapshots = await _apiCaller.GetAllSnapshots(SelectedNote.Id);
             Snapshots = new ObservableCollection<NoteSnapshot>(snapshots);
-
             CurrentSnapshotIndex = MaximumSnapshotIndex;
+        }
+
+        private bool ShowHistoryCommandCanExecute(object parameter)
+        {
+            return HistoryVisibility == Visibility.Collapsed && SelectedNote != null;
         }
 
         private void CancelHistoryCommandExecute(object parameter)
@@ -265,13 +263,12 @@ namespace Noteapp.Desktop.ViewModels
             HistoryVisibility = Visibility.Collapsed;
 
             SelectedNote.Text = _oldNoteText;
-            OnPropertyChanged(nameof(SelectedNote));
             Snapshots = null;
         }
 
         private void ToggleArchivedViewCommandExecute(object parameter)
         {
-            ArchivedView = !ArchivedView;
+            ShowArchived = !ShowArchived;
             ListCommand.Execute(null);
         }
 

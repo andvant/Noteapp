@@ -18,7 +18,7 @@
         </Grid.ColumnDefinitions>
 
         <DockPanel Grid.Row="0" Grid.Column="0">
-            <Button Content="Archived" Command="{Binding ToggleArchivedViewCommand}" DockPanel.Dock="Left"/>
+            <Button Content="Archived" Command="{Binding ToggleShowArchivedCommand}" DockPanel.Dock="Left"/>
             <Button Grid.Row="0" Grid.Column="0" Command="{Binding CreateCommand}" Content="New note" Width="100" DockPanel.Dock="Right"/>
         </DockPanel>
         
