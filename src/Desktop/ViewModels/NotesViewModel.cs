@@ -124,21 +124,19 @@ namespace Noteapp.Desktop.ViewModels
         {
             var selectedNoteId = SelectedNote?.Id;
 
-            var notes = ShowArchived ? await _apiCaller.GetNotes(true) : await _apiCaller.GetNotes(false);
+            var notes = await _apiCaller.GetNotes(ShowArchived);
 
             // TODO: use DI
-            var sessionManager = new SessionManager();
-            var userInfo = await sessionManager.GetUserInfo();
-            if (userInfo is null) return;
-            var protector = new Protector(userInfo.EncryptionKey);
+            var userInfo = await SessionManager.GetUserInfo();
 
             foreach (var note in notes)
             {
                 try
                 {
+                    var protector = new Protector(userInfo?.EncryptionKey);
                     note.Text = protector.Decrypt(note.Text);
                 }
-                catch (CryptographicException)
+                catch
                 {
                     note.Text = $"[not decrypted]{note.Text}";
                 }
@@ -158,13 +156,20 @@ namespace Noteapp.Desktop.ViewModels
         private async void EditCommandExecute(object parameter)
         {
             // TODO: use DI
-            var sessionManager = new SessionManager();
-            var userInfo = await sessionManager.GetUserInfo();
-            var protector = new Protector(userInfo.EncryptionKey);
+            var userInfo = await SessionManager.GetUserInfo();
 
-            var encryptedText = protector.Encrypt(SelectedNote.Text);
+            string text;
+            try
+            {
+                var protector = new Protector(userInfo?.EncryptionKey);
+                text = protector.Encrypt(SelectedNote.Text);
+            }
+            catch
+            {
+                text = $"[not encrypted]{SelectedNote.Text}";
+            }
 
-            await _apiCaller.EditNote(SelectedNote.Id, encryptedText);
+            await _apiCaller.EditNote(SelectedNote.Id, text);
             ListCommand.Execute(null);
         }
 

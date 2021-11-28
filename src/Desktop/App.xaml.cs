@@ -2,6 +2,7 @@
 using Noteapp.Desktop.Security;
 using Noteapp.Desktop.ViewModels;
 using Noteapp.Desktop.Views;
+using System;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Windows;

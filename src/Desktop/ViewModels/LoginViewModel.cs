@@ -12,7 +12,6 @@ namespace Noteapp.Desktop.ViewModels
         public string Name => PageNames.Login;
 
         private readonly ApiCaller _apiCaller;
-        private readonly SessionManager _sessionManager;
 
         public string Email { get; set; }
         public string Password { get; set; }
@@ -20,10 +19,9 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand LoginCommand { get; }
         public ICommand LogoutCommand { get; }
 
-        public LoginViewModel(ApiCaller apiCaller, SessionManager sessionManager)
+        public LoginViewModel(ApiCaller apiCaller)
         {
             _apiCaller = apiCaller;
-            _sessionManager = sessionManager;
             LoginCommand = new RelayCommand(LoginCommandExecute);
             LogoutCommand = new RelayCommand(LogoutCommandExecute);
         }
@@ -34,14 +32,14 @@ namespace Noteapp.Desktop.ViewModels
 
             _apiCaller.AccessToken = userInfoDto.access_token;
             var encryptionkey = Protector.GenerateEncryptionKey(Password, userInfoDto.encryption_salt);
-            await _sessionManager.SaveUserInfo(userInfoDto, encryptionkey);
+            await SessionManager.SaveUserInfo(userInfoDto, encryptionkey);
             MessageBox.Show("Successfully logged in.");
         }
 
         private void LogoutCommandExecute(object parameter)
         {
             _apiCaller.AccessToken = null;
-            _sessionManager.DeleteUserInfo();
+            SessionManager.DeleteUserInfo();
             MessageBox.Show("Successfully logged out.");
         }
     }

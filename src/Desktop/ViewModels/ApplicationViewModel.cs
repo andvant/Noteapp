@@ -23,12 +23,11 @@ namespace Noteapp.Desktop.ViewModels
             };
             // has to be the same instance of ApiCaller in LoginViewModel and NotesViewModel
             var apiCaller = new ApiCaller(httpClient);
-            var sessionManager = new SessionManager();
 
-            LoadAccessToken(apiCaller, sessionManager);
+            LoadAccessToken(apiCaller);
 
             PageViewModels.Add(new RegisterViewModel(apiCaller));
-            PageViewModels.Add(new LoginViewModel(apiCaller, sessionManager));
+            PageViewModels.Add(new LoginViewModel(apiCaller));
             PageViewModels.Add(new NotesViewModel(apiCaller));
 
             CurrentPageViewModel = PageViewModels.Find(vm => vm.Name == PageNames.Notes);
@@ -38,9 +37,9 @@ namespace Noteapp.Desktop.ViewModels
                 vm => vm is IPageViewModel);
         }
 
-        private void LoadAccessToken(ApiCaller apiCaller, SessionManager sessionManager)
+        private void LoadAccessToken(ApiCaller apiCaller)
         {
-            apiCaller.AccessToken = sessionManager.GetUserInfo()?.Result?.AccessToken;
+            apiCaller.AccessToken = SessionManager.GetUserInfo()?.Result?.AccessToken;
         }
 
         public IPageViewModel CurrentPageViewModel

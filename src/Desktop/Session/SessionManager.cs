@@ -2,17 +2,18 @@
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Noteapp.Desktop.Session
 {
     // TODO: use configuration
-    public class SessionManager
+    public static class SessionManager
     {
-        private readonly string _userInfoPath = Path.Combine(
+        private static readonly string _userInfoPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             "noteapp_userinfo.json");
 
-        public async Task SaveUserInfo(UserInfoDto userInfoDto, string encryptionKey)
+        public static async Task SaveUserInfo(UserInfoDto userInfoDto, string encryptionKey)
         {
             var userInfo = new UserInfo()
             {
@@ -22,19 +23,26 @@ namespace Noteapp.Desktop.Session
                 EncryptionSalt = userInfoDto.encryption_salt
             };
 
+            Application.Current.Properties["userInfo"] = userInfo;
+
             var userInfoJson = JsonSerializer.Serialize(userInfo, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(_userInfoPath, userInfoJson);
         }
 
-        public async Task<UserInfo> GetUserInfo()
+        public static async Task<UserInfo> GetUserInfo()
         {
+            var userInfo = Application.Current.Properties["userInfo"] as UserInfo;
+            if (userInfo != null) return userInfo;
             if (!File.Exists(_userInfoPath)) return null;
+
             var userInfoJson = await File.ReadAllTextAsync(_userInfoPath);
             return JsonSerializer.Deserialize<UserInfo>(userInfoJson);
         }
 
-        public void DeleteUserInfo()
+        public static void DeleteUserInfo()
         {
+            Application.Current.Properties["userInfo"] = null;
+
             if (File.Exists(_userInfoPath))
             {
                 File.Delete(_userInfoPath);

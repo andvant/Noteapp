@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Noteapp.Infrastructure.Data
 {
@@ -9,9 +10,6 @@ namespace Noteapp.Infrastructure.Data
     {
         public static void Seed(ApplicationContext context)
         {
-            //context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-
             if (!context.Notes.Any())
             {
                 context.Notes.AddRange(GetNotes());
@@ -23,27 +21,39 @@ namespace Noteapp.Infrastructure.Data
 
         private static List<AppUser> GetAppUsers()
         {
+            var rng = new Random(1);
+
             return new()
             {
                 new()
                 {
                     Id = 1,
                     Email = "default@mail.com",
-                    Notes = new List<Note>()
+                    Notes = new List<Note>(),
+                    EncryptionSalt = GenerateEncryptionSalt()
                 },
                 new()
                 {
                     Id = 2,
                     Email = "user1@mail.com",
-                    Notes = new List<Note>()
+                    Notes = new List<Note>(),
+                    EncryptionSalt = GenerateEncryptionSalt()
                 },
                 new()
                 {
                     Id = 3,
                     Email = "user2@mail.com",
-                    Notes = new List<Note>()
+                    Notes = new List<Note>(),
+                    EncryptionSalt = GenerateEncryptionSalt()
                 }
             };
+
+            string GenerateEncryptionSalt()
+            {
+                byte[] saltBytes = new byte[8];
+                rng.NextBytes(saltBytes);
+                return Convert.ToBase64String(saltBytes);
+            }
         }
 
         private static List<Note> GetNotes()
