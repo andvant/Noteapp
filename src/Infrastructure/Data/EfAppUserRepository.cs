@@ -20,9 +20,20 @@ namespace Noteapp.Infrastructure.Data
             _context.SaveChanges();
         }
 
-        public AppUser Find(string email)
+        public void Delete(AppUser user)
+        {
+            _context.AppUsers.Remove(user);
+            _context.SaveChanges();
+        }
+
+        public AppUser FindByEmail(string email)
         {
             return _context.AppUsers.Where(user => user.Email == email).Single();
+        }
+
+        public AppUser FindById(int id)
+        {
+            return _context.AppUsers.Find(id);
         }
 
         public IEnumerable<AppUser> GetAll()

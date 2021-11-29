@@ -11,6 +11,7 @@
     getAllSnapshots,
     login,
     register,
+    deleteAccount,
     logout
 }
 
@@ -19,7 +20,7 @@ let userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
 async function getNotes() {
     //let filter = archived === true ? "?archived=true" : archived === false ? "?archived=false" : "";
-    let response = await sendRequest("notes", "GET", {}, null);
+    let response = await sendRequest("notes", "GET");
     if (response?.ok) {
         return await response.json();
     }
@@ -44,27 +45,27 @@ async function bulkCreateNotes(notesJson) {
 }
 
 async function deleteNote(noteId) {
-    await sendRequest(`notes/${noteId}`, "DELETE", {}, null);
+    await sendRequest(`notes/${noteId}`, "DELETE");
 }
 
 async function togglePinned(note) {
     let method = note.pinned ? "DELETE" : "PUT";
-    await sendRequest(`notes/${note.id}/pin`, method, {}, null);
+    await sendRequest(`notes/${note.id}/pin`, method);
 }
 
 async function toggleLocked(note) {
     let method = note.locked ? "DELETE" : "PUT";
-    await sendRequest(`notes/${note.id}/lock`, method, {}, null);
+    await sendRequest(`notes/${note.id}/lock`, method);
 }
 
 async function toggleArchived(note) {
     let method = note.archived ? "DELETE" : "PUT";
-    await sendRequest(`notes/${note.id}/archive`, method, {}, null);
+    await sendRequest(`notes/${note.id}/archive`, method);
 }
 
 async function togglePublished(note) {
     let method = note.published ? "DELETE" : "PUT";
-    await sendRequest(`notes/${note.id}/publish`, method, {}, null);
+    await sendRequest(`notes/${note.id}/publish`, method);
 }
 
 async function getAllSnapshots(noteId) {
@@ -96,13 +97,22 @@ async function register(email, password) {
     }
 }
 
+async function deleteAccount() {
+    let response = await sendRequest("account/delete", "DELETE");
+
+    if (response?.ok) {
+        alert('Account successfully deleted.')
+        logout();
+    }
+}
+
 function logout() {
     userInfo = null;
     localStorage.removeItem('userInfo');
     alert('Successfully logged out.')
 }
 
-async function sendRequest(url, method, headers, body) {
+async function sendRequest(url, method, headers = {}, body = null) {
 
     if (userInfo != null) {
         headers['Authorization'] = `Bearer ${userInfo.access_token}`;

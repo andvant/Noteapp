@@ -19,8 +19,13 @@ async function render() {
 
 async function init() {
     const logoutButton = document.getElementById('logout-button');
+    const deleteAccountButton = document.getElementById('delete-account-button');
 
     logoutButton.addEventListener('click', () => {
         AjaxService.logout();
+    });
+
+    deleteAccountButton.addEventListener('click', async () => {
+        await AjaxService.deleteAccount();
     });
 }

@@ -22,7 +22,7 @@
 
         <Button Grid.Row="1" Grid.ColumnSpan="2" Content="Log out" Command="{Binding LogoutCommand}" />
 
-        <Button Grid.Row="2" Grid.ColumnSpan="2" Content="Delete account" />
+        <Button Grid.Row="2" Grid.ColumnSpan="2" Content="Delete account" Command="{Binding DeleteAccountCommand}"/>
 
 
     </Grid>

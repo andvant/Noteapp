@@ -14,6 +14,7 @@ namespace Noteapp.Api.Controllers
     public class NoteController : ControllerBase
     {
         private readonly NoteService _noteService;
+        private const int _defaultUserId = 1;
 
         public NoteController(NoteService noteService)
         {
@@ -149,7 +150,7 @@ namespace Noteapp.Api.Controllers
 
         private int GetUserId()
         {
-            return User.Identity.IsAuthenticated ? int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)) : 1;
+            return User.Identity.IsAuthenticated ? int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)) : _defaultUserId;
         }
     }
 }

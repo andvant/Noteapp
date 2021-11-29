@@ -45,6 +45,15 @@ namespace Noteapp.Infrastructure.Identity
             }
         }
 
+        public async Task Delete(int userId)
+        {
+            var user = _appUserService.Get(userId);
+            var userIdentity = await _userManager.FindByEmailAsync(user.Email);
+
+            await _userManager.DeleteAsync(userIdentity);
+            _appUserService.Delete(userId);
+        }
+
         public string GetEncryptionSalt(string email)
         {
             return _appUserService.Get(email).EncryptionSalt;

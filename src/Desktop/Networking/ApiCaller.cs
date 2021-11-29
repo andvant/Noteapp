@@ -106,6 +106,12 @@ namespace Noteapp.Desktop.Networking
             return await response.Content.ReadFromJsonAsync<UserInfoDto>();
         }
 
+        public async Task DeleteAccount()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, "api/account/delete");
+            await SendRequestAsync(request);
+        }
+
         private async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)
         {
             AddAuthorizationHeader(request);

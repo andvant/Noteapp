@@ -2,6 +2,7 @@
 using Noteapp.Desktop.Networking;
 using Noteapp.Desktop.Security;
 using Noteapp.Desktop.Session;
+using System;
 using System.Windows;
 using System.Windows.Input;
 
@@ -15,11 +16,13 @@ namespace Noteapp.Desktop.ViewModels
 
         public string Email => SessionManager.GetUserInfo()?.Result?.Email ?? "Anonymous";
         public ICommand LogoutCommand { get; }
+        public ICommand DeleteAccountCommand { get; }
 
         public SettingsViewModel(ApiCaller apiCaller)
         {
             _apiCaller = apiCaller;
             LogoutCommand = new RelayCommand(LogoutCommandExecute);
+            DeleteAccountCommand = new RelayCommand(DeleteAccountCommandExecute);
         }
 
         private void LogoutCommandExecute(object parameter)
@@ -28,6 +31,13 @@ namespace Noteapp.Desktop.ViewModels
             SessionManager.DeleteUserInfo();
             MessageBox.Show("Successfully logged out.");
             OnPropertyChanged(nameof(Email));
+        }
+
+        private async void DeleteAccountCommandExecute(object parameter)
+        {
+            await _apiCaller.DeleteAccount();
+            MessageBox.Show("Account successfully deleted.");
+            LogoutCommand.Execute(null);
         }
     }
 }

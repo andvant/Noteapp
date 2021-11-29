@@ -31,7 +31,18 @@ namespace Noteapp.Core.Services
 
         public AppUser Get(string email)
         {
-            return _repository.Find(email);
+            return _repository.FindByEmail(email);
+        }
+
+        public AppUser Get(int id)
+        {
+            return _repository.FindById(id);
+        }
+
+        public void Delete(int id)
+        {
+            var user = _repository.FindById(id);
+            _repository.Delete(user);
         }
 
         // just for testing, remove later

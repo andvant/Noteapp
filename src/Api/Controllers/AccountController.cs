@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Noteapp.Api.Dtos;
 using Noteapp.Api.Filters;
 using Noteapp.Core.Interfaces;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Noteapp.Api.Controllers
@@ -38,6 +40,16 @@ namespace Noteapp.Api.Controllers
                 email = dto.Email,
                 encryption_salt = _userService.GetEncryptionSalt(dto.Email)
             });
+        }
+
+        [Authorize]
+        [HttpDelete("delete")]
+        public async Task<IActionResult> Delete()
+        {
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            await _userService.Delete(userId);
+
+            return NoContent();
         }
 
         // just for testing, remove later
