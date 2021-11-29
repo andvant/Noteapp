@@ -63,7 +63,7 @@ namespace Noteapp.Core.Services
             _repository.AddRange(notes);
         }
 
-        public void Update(int userId, int noteId, string text)
+        public Note Update(int userId, int noteId, string text)
         {
             var note = GetNote(userId, noteId);
 
@@ -74,6 +74,7 @@ namespace Noteapp.Core.Services
 
             AddNoteSnapshot(note, text);
             _repository.Update(note);
+            return note;
         }
 
         public void Delete(int userId, int noteId)
@@ -81,61 +82,68 @@ namespace Noteapp.Core.Services
             _repository.Delete(GetNote(userId, noteId));
         }
 
-        public void Archive(int userId, int noteId)
+        public Note Archive(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
             note.Archived = true;
             _repository.Update(note);
+            return note;
         }
 
-        public void Unarchive(int userId, int noteId)
+        public Note Unarchive(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
             note.Archived = false;
             _repository.Update(note);
+            return note;
         }
 
-        public void Pin(int userId, int noteId)
+        public Note Pin(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
             note.Pinned = true;
             _repository.Update(note);
+            return note;
         }
 
-        public void Unpin(int userId, int noteId)
+        public Note Unpin(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
             note.Pinned = false;
             _repository.Update(note);
+            return note;
         }
 
-        public void Lock(int userId, int noteId)
+        public Note Lock(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
             note.Locked = true;
             _repository.Update(note);
+            return note;
         }
 
-        public void Unlock(int userId, int noteId)
+        public Note Unlock(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
             note.Locked = false;
             _repository.Update(note);
+            return note;
         }
 
-        public string Publish(int userId, int noteId)
+        public Note Publish(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
             note.PublicUrl = GenerateUrl();
             _repository.Update(note);
-            return note.PublicUrl;
+            return note;
         }
 
-        public void Unpublish(int userId, int noteId)
+        public Note Unpublish(int userId, int noteId)
         {
             var note = GetNote(userId, noteId);
             note.PublicUrl = null;
             _repository.Update(note);
+            return note;
         }
 
         public string GetPublishedNoteText(string url)
@@ -165,7 +173,7 @@ namespace Noteapp.Core.Services
             return note.Snapshots;
         }
 
-        private Note GetNote(int userId, int noteId, bool includeSnapshots = false)
+        private Note GetNote(int userId, int noteId, bool includeSnapshots = true)
         {
             var note = _repository.Find(noteId, includeSnapshots);
             if (note is null || note.AuthorId != userId)

@@ -25,24 +25,27 @@ namespace Noteapp.Api.Controllers
         public IActionResult GetAll(bool? archived = null)
         {
             var notes = _noteService.GetAll(GetUserId(), archived);
-            return Ok(notes);
+            var noteDtos = notes.Select(note => new NoteDto(note));
+            return Ok(noteDtos);
         }
 
         // just for testing
         [HttpGet("forall")]
         public IActionResult GetAllForAll()
         {
-            return Ok(_noteService.GetAllForAll());
+            var notes = _noteService.GetAllForAll();
+            var noteDtos = notes.Select(note => new NoteDto(note));
+            return Ok(noteDtos);
         }
 
         [HttpPost]
         public IActionResult Create(CreateNoteDto dto)
         {
             var note = _noteService.Create(GetUserId(), dto.Text);
-            return CreatedAtAction(nameof(Get), new { id = note.Id }, note);
+            return CreatedAtAction(nameof(Get), new { id = note.Id }, new NoteDto(note));
         }
 
-        // might want to return created notes instead of NoContent
+        // TODO: return created notes instead of NoContent
         [HttpPost("bulk")]
         public IActionResult BulkCreate(IEnumerable<CreateNoteDto> dtos)
         {
@@ -54,14 +57,14 @@ namespace Noteapp.Api.Controllers
         public IActionResult Get(int id)
         {
             var note = _noteService.Get(GetUserId(), id);
-            return Ok(note);
+            return Ok(new NoteDto(note));
         }
 
         [HttpPut("{id:int}")]
         public IActionResult Update(int id, UpdateNoteDto dto)
         {
-            _noteService.Update(GetUserId(), id, dto.Text);
-            return NoContent();
+            var note = _noteService.Update(GetUserId(), id, dto.Text);
+            return Ok(new NoteDto(note));
         }
 
         [HttpDelete("{id:int}")]
@@ -74,64 +77,64 @@ namespace Noteapp.Api.Controllers
         [HttpPut("{id:int}/lock")]
         public IActionResult Lock(int id)
         {
-            _noteService.Lock(GetUserId(), id);
-            return NoContent();
+            var note = _noteService.Lock(GetUserId(), id);
+            return Ok(new NoteDto(note));
         }
 
         [HttpDelete("{id:int}/lock")]
         public IActionResult Unlock(int id)
         {
-            _noteService.Unlock(GetUserId(), id);
-            return NoContent();
+            var note = _noteService.Unlock(GetUserId(), id);
+            return Ok(new NoteDto(note));
         }
 
         [HttpPut("{id:int}/archive")]
         public IActionResult Archive(int id)
         {
-            _noteService.Archive(GetUserId(), id);
-            return NoContent();
+            var note = _noteService.Archive(GetUserId(), id);
+            return Ok(new NoteDto(note));
         }
 
         [HttpDelete("{id:int}/archive")]
         public IActionResult Unarchive(int id)
         {
-            _noteService.Unarchive(GetUserId(), id);
-            return NoContent();
+            var note = _noteService.Unarchive(GetUserId(), id);
+            return Ok(new NoteDto(note));
         }
 
         [HttpPut("{id:int}/pin")]
         public IActionResult Pin(int id)
         {
-            _noteService.Pin(GetUserId(), id);
-            return NoContent();
+            var note = _noteService.Pin(GetUserId(), id);
+            return Ok(new NoteDto(note));
         }
 
         [HttpDelete("{id:int}/pin")]
         public IActionResult Unpin(int id)
         {
-            _noteService.Unpin(GetUserId(), id);
-            return NoContent();
+            var note = _noteService.Unpin(GetUserId(), id);
+            return Ok(new NoteDto(note));
         }
 
         [HttpPut("{id:int}/publish")]
         public IActionResult Publish(int id)
         {
-            var url = _noteService.Publish(GetUserId(), id);
-            return CreatedAtAction(nameof(GetPublishedNoteText), new { url = url }, null);
+            var note = _noteService.Publish(GetUserId(), id);
+            return Ok(new NoteDto(note));
         }
 
         [HttpDelete("{id:int}/publish")]
         public IActionResult Unpublish(int id)
         {
-            _noteService.Unpublish(GetUserId(), id);
-            return NoContent();
+            var note = _noteService.Unpublish(GetUserId(), id);
+            return Ok(new NoteDto(note));
         }
 
         [HttpGet("/p/{url}")]
         public IActionResult GetPublishedNoteText(string url)
         {
             var text = _noteService.GetPublishedNoteText(url);
-            return Ok(text);
+            return Ok(new { text });
         }
 
         [HttpGet("{id:int}/snapshots")]
