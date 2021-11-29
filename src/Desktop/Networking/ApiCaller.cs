@@ -42,7 +42,7 @@ namespace Noteapp.Desktop.Networking
             await SendRequestAsync(request);
         }
 
-        public async Task EditNote(int noteId, string text)
+        public async Task UpdateNote(int noteId, string text)
         {
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/notes/{noteId}");
             request.Content = JsonContent.Create(new { text });

@@ -11,8 +11,8 @@ async function render() {
         <div class="notes-view">
             <div class="notes">
                 <div class="notes-new">
-                    <button id="new-note-button">New note</button>
-                    <button id="archived-view-button">Archived</button>
+                    <button id="new-button">New</button>
+                    <button id="toggle-show-archived-button">Archived</button>
                 </div>
                 <div class="notes-sort">
                     <label>Sort by:</label>
@@ -25,15 +25,15 @@ async function render() {
             <div class="third-column">
                 <div class="selected-note">
                     <div class="selected-note-actions">
-                        <button id="save-note-button">Save note</button>
-                        <button id="delete-note-button">Delete note</button>
-                        <button id="pin-note-button">Pin note</button>
+                        <button id="save-button">Save</button>
+                        <button id="delete-button">Delete</button>
+                        <button id="pin-button">Pin</button>
                         <input id="note-pinned" type="checkbox" disabled />
-                        <button id="lock-note-button">Lock note</button>
+                        <button id="lock-button">Lock</button>
                         <input id="note-locked" type="checkbox" disabled />
-                        <button id="archive-note-button">Archive note</button>
+                        <button id="archive-button">Archive</button>
                         <input id="note-archived" type="checkbox" disabled />
-                        <button id="publish-note-button">Publish note</button>
+                        <button id="publish-button">Publish</button>
                         <input id="note-published" type="checkbox" disabled />
                         <button id="import-notes-button">Import notes</button>
                         <input id="import-notes-input" type="file" style="display: none;" />
@@ -55,13 +55,13 @@ async function render() {
 }
 
 async function init() {
-    const saveNoteButton = document.getElementById('save-note-button');
-    const newNoteButton = document.getElementById('new-note-button');
-    const deleteNoteButton = document.getElementById('delete-note-button');
-    const pinNoteButton = document.getElementById('pin-note-button');
-    const lockNoteButton = document.getElementById('lock-note-button');
-    const archiveNoteButton = document.getElementById('archive-note-button');
-    const publishNoteButton = document.getElementById('publish-note-button');
+    const saveButton = document.getElementById('save-button');
+    const newButton = document.getElementById('new-button');
+    const deleteButton = document.getElementById('delete-button');
+    const pinButton = document.getElementById('pin-button');
+    const lockButton = document.getElementById('lock-button');
+    const archiveButton = document.getElementById('archive-button');
+    const publishButton = document.getElementById('publish-button');
     const sortByCreatedButton = document.getElementById('sortby-created-button');
     const sortByUpdatedButton = document.getElementById('sortby-updated-button');
     const sortByTextButton = document.getElementById('sortby-text-button');
@@ -70,7 +70,7 @@ async function init() {
     const exportNotesButton = document.getElementById('export-notes-button');
     const notesListDiv = document.getElementById('notes-list')
     const noteTextElement = document.getElementById('note-text');
-    const archivedViewButton = document.getElementById('archived-view-button');
+    const toggleShowArchivedButton = document.getElementById('toggle-show-archived-button');
 
     // Note history
     const historyDiv = document.getElementsByClassName('note-history')[0];
@@ -82,7 +82,7 @@ async function init() {
     let oldNoteText;
     let snapshots;
 
-    let archivedView = false;
+    let showArchived = false;
 
     addEventListeners();
     await updateNoteList();
@@ -91,42 +91,42 @@ async function init() {
         let notes = await AjaxService.getNotes();
         NoteService.saveLocalNotes(notes);
 
-        addNoteElements(NoteService.getNotesForDisplay(notes, archivedView));
+        addNoteElements(NoteService.getNotesForDisplay(notes, showArchived));
         setCheckboxes(NoteService.getSelectedNote());
     }
 
     function addEventListeners() {
-        saveNoteButton.addEventListener('click', async () => {
+        saveButton.addEventListener('click', async () => {
             await AjaxService.updateNote(NoteService.getSelectedNoteId(), getSelectedNoteText());
             await updateNoteList();
         });
 
-        newNoteButton.addEventListener('click', async () => {
+        newButton.addEventListener('click', async () => {
             await AjaxService.createNote();
             await updateNoteList();
         });
 
-        deleteNoteButton.addEventListener('click', async () => {
+        deleteButton.addEventListener('click', async () => {
             await AjaxService.deleteNote(NoteService.getSelectedNoteId());
             await updateNoteList();
         });
 
-        pinNoteButton.addEventListener('click', async () => {
+        pinButton.addEventListener('click', async () => {
             await AjaxService.togglePinned(NoteService.getSelectedNote());
             await updateNoteList();
         });
 
-        lockNoteButton.addEventListener('click', async () => {
+        lockButton.addEventListener('click', async () => {
             await AjaxService.toggleLocked(NoteService.getSelectedNote());
             await updateNoteList();
         });
 
-        archiveNoteButton.addEventListener('click', async () => {
+        archiveButton.addEventListener('click', async () => {
             await AjaxService.toggleArchived(NoteService.getSelectedNote());
             await updateNoteList();
         });
 
-        publishNoteButton.addEventListener('click', async () => {
+        publishButton.addEventListener('click', async () => {
             await AjaxService.togglePublished(NoteService.getSelectedNote());
             await updateNoteList();
         });
@@ -134,19 +134,19 @@ async function init() {
         sortByCreatedButton.addEventListener('click', () => {
             let notes = NoteService.getLocalNotes();
             NoteService.sortByCreated(notes);
-            addNoteElements(NoteService.getNotesForDisplay(notes, archivedView));
+            addNoteElements(NoteService.getNotesForDisplay(notes, showArchived));
         });
 
         sortByUpdatedButton.addEventListener('click', () => {
             let notes = NoteService.getLocalNotes();
             NoteService.sortByUpdated(notes);
-            addNoteElements(NoteService.getNotesForDisplay(notes, archivedView));
+            addNoteElements(NoteService.getNotesForDisplay(notes, showArchived));
         });
 
         sortByTextButton.addEventListener('click', () => {
             let notes = NoteService.getLocalNotes();
             NoteService.sortByText(notes);
-            addNoteElements(NoteService.getNotesForDisplay(notes, archivedView));
+            addNoteElements(NoteService.getNotesForDisplay(notes, showArchived));
         });
 
         importNotesButton.addEventListener('click', () => {
@@ -173,8 +173,8 @@ async function init() {
             a.click();
         });
 
-        archivedViewButton.addEventListener('click', async () => {
-            archivedView = !archivedView;
+        toggleShowArchivedButton.addEventListener('click', async () => {
+            showArchived = !showArchived;
             await updateNoteList();
         });
 
@@ -207,7 +207,7 @@ async function init() {
 
         restoreSnapshotButton.addEventListener('click', () => {
             setSelectedNoteText(snapshots[historySlider.value].text);
-            saveNoteButton.click();
+            saveButton.click();
             historyDiv.style.display = 'none';
             oldNoteText = null;
         });
@@ -227,7 +227,7 @@ async function init() {
 
     function makeNoteReadOnly(locked) {
         noteTextElement.readOnly = locked ? true : false;
-        saveNoteButton.disabled = locked ? true : false;
+        saveButton.disabled = locked ? true : false;
     }
 
     function addNoteElements(notes) {

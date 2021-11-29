@@ -19,11 +19,11 @@
 
         <DockPanel Grid.Row="0" Grid.Column="0">
             <Button Content="Archived" Command="{Binding ToggleShowArchivedCommand}" DockPanel.Dock="Left"/>
-            <Button Grid.Row="0" Grid.Column="0" Command="{Binding CreateCommand}" Content="New note" Width="100" DockPanel.Dock="Right"/>
+            <Button Grid.Row="0" Grid.Column="0" Command="{Binding CreateCommand}" Content="New" Width="100" DockPanel.Dock="Right"/>
         </DockPanel>
         
         <DockPanel Grid.Row="0" Grid.Column="1">
-            <Button DockPanel.Dock="Left"  Command="{Binding EditCommand}" Content="Save note" Width="100" />
+            <Button DockPanel.Dock="Left"  Command="{Binding UpdateCommand}" Content="Save" Width="100" />
             <Button DockPanel.Dock="Right" Command="{Binding ExportNotesCommand}" Content="Export notes" Width="160" />
             <Button DockPanel.Dock="Right" Command="{Binding ImportNotesCommand}" Content="Import notes" Width="160" />
             <Button DockPanel.Dock="Right" Command="{Binding ShowHistoryCommand}" Content="History" Width="160" />

@@ -79,7 +79,7 @@ namespace Noteapp.Desktop.ViewModels
         // Commands
         public ICommand ListCommand { get; }
         public ICommand CreateCommand { get; }
-        public ICommand EditCommand { get; }
+        public ICommand UpdateCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand ToggleLockedCommand { get; }
         public ICommand ToggleArchivedCommand { get; }
@@ -101,7 +101,7 @@ namespace Noteapp.Desktop.ViewModels
 
             ListCommand = new RelayCommand(ListCommandExecute);
             CreateCommand = new RelayCommand(CreateCommandExecute);
-            EditCommand = new RelayCommand(EditCommandExecute, EditCommandCanExecute);
+            UpdateCommand = new RelayCommand(UpdateCommandExecute, UpdateCommandCanExecute);
             DeleteCommand = new RelayCommand(DeleteCommandExecute);
             ToggleLockedCommand = new RelayCommand(ToggleLockedCommandExecute);
             ToggleArchivedCommand = new RelayCommand(ToggleArchivedCommandExecute);
@@ -127,20 +127,20 @@ namespace Noteapp.Desktop.ViewModels
             var notes = await _apiCaller.GetNotes(ShowArchived);
 
             // TODO: use DI
-            var userInfo = await SessionManager.GetUserInfo();
+            //var userInfo = await SessionManager.GetUserInfo();
 
-            foreach (var note in notes)
-            {
-                try
-                {
-                    var protector = new Protector(userInfo?.EncryptionKey);
-                    note.Text = protector.Decrypt(note.Text);
-                }
-                catch
-                {
-                    note.Text = $"[not decrypted]{note.Text}";
-                }
-            }
+            //foreach (var note in notes)
+            //{
+            //    try
+            //    {
+            //        var protector = new Protector(userInfo?.EncryptionKey);
+            //        note.Text = protector.Decrypt(note.Text);
+            //    }
+            //    catch
+            //    {
+            //        note.Text = $"[not decrypted]{note.Text}";
+            //    }
+            //}
 
             Notes = new ObservableCollection<Note>(OrderByPinned(notes));
 
@@ -153,27 +153,27 @@ namespace Noteapp.Desktop.ViewModels
             ListCommand.Execute(null);
         }
 
-        private async void EditCommandExecute(object parameter)
+        private async void UpdateCommandExecute(object parameter)
         {
             // TODO: use DI
-            var userInfo = await SessionManager.GetUserInfo();
+            //var userInfo = await SessionManager.GetUserInfo();
 
-            string text;
-            try
-            {
-                var protector = new Protector(userInfo?.EncryptionKey);
-                text = protector.Encrypt(SelectedNote.Text);
-            }
-            catch
-            {
-                text = $"[not encrypted]{SelectedNote.Text}";
-            }
+            //string text;
+            //try
+            //{
+            //    var protector = new Protector(userInfo?.EncryptionKey);
+            //    text = protector.Encrypt(SelectedNote.Text);
+            //}
+            //catch
+            //{
+            //    text = $"[not encrypted]{SelectedNote.Text}";
+            //}
 
-            await _apiCaller.EditNote(SelectedNote.Id, text);
+            await _apiCaller.UpdateNote(SelectedNote.Id, SelectedNote.Text);
             ListCommand.Execute(null);
         }
 
-        private bool EditCommandCanExecute(object parameter)
+        private bool UpdateCommandCanExecute(object parameter)
         {
             return SelectedNote != null && !SelectedNote.Locked && HistoryVisibility == Visibility.Collapsed;
         }
@@ -274,7 +274,7 @@ namespace Noteapp.Desktop.ViewModels
 
             SelectedNote.Text = CurrentSnapshotText;
             Snapshots = null;
-            EditCommand.Execute(null);
+            UpdateCommand.Execute(null);
         }
 
         private async void ShowHistoryCommandExecute(object parameter)

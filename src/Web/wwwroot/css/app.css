@@ -94,7 +94,7 @@ body {
     height: 100%;
 }
 
-#new-note-button, #archived-view-button {
+#new-button, #toggle-show-archived-button {
     width: 35%;
     height: 60%;
 }
