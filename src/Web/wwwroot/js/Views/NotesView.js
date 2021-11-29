@@ -87,54 +87,51 @@ async function init() {
     let showArchived = false;
 
     addEventListeners();
-    await updateNoteList();
-
-    async function updateNoteList() {
-        let notes = await AjaxService.getNotes();
-        NoteService.saveLocalNotes(notes);
-
-        addNoteElements(NoteService.getNotesForDisplay(notes, showArchived));
-        setCheckboxes(NoteService.getSelectedNote());
-    }
+    listButton.click();
 
     function addEventListeners() {
         saveButton.addEventListener('click', async () => {
-            await AjaxService.updateNote(NoteService.getSelectedNoteId(), getSelectedNoteText());
-            await updateNoteList();
+            let updatedNote = await AjaxService.updateNote(NoteService.getSelectedNoteId(), getSelectedNoteText());
+            updateNoteElement(updatedNote);
         });
 
         listButton.addEventListener('click', async () => {
-            await updateNoteList();
+            let notes = await AjaxService.getNotes();
+            createNoteElements(notes);
         });
 
         newButton.addEventListener('click', async () => {
-            await AjaxService.createNote();
-            await updateNoteList();
+            let newNote = await AjaxService.createNote();
+            addNoteElement(newNote);
         });
 
         deleteButton.addEventListener('click', async () => {
-            await AjaxService.deleteNote(NoteService.getSelectedNoteId());
-            await updateNoteList();
+            let noteId = NoteService.getSelectedNoteId();
+            await AjaxService.deleteNote(noteId);
+            removeNoteElement(noteId);
         });
 
         pinButton.addEventListener('click', async () => {
-            await AjaxService.togglePinned(NoteService.getSelectedNote());
-            await updateNoteList();
+            let updatedNote = await AjaxService.togglePinned(NoteService.getSelectedNote());
+            updateNoteElement(updatedNote);
+            createNoteElements(NoteService.getLocalNotes());
         });
 
         lockButton.addEventListener('click', async () => {
-            await AjaxService.toggleLocked(NoteService.getSelectedNote());
-            await updateNoteList();
+            let updatedNote = await AjaxService.toggleLocked(NoteService.getSelectedNote());
+            updateNoteElement(updatedNote);
+            createNoteElements(NoteService.getLocalNotes());
         });
 
         archiveButton.addEventListener('click', async () => {
-            await AjaxService.toggleArchived(NoteService.getSelectedNote());
-            await updateNoteList();
+            let updatedNote = await AjaxService.toggleArchived(NoteService.getSelectedNote());
+            updateNoteElement(updatedNote);
+            createNoteElements(NoteService.getLocalNotes());
         });
 
         publishButton.addEventListener('click', async () => {
-            await AjaxService.togglePublished(NoteService.getSelectedNote());
-            await updateNoteList();
+            let updatedNote = await AjaxService.togglePublished(NoteService.getSelectedNote());
+            updateNoteElement(updatedNote);
         });
 
         sortByCreatedButton.addEventListener('click', () => {
@@ -181,7 +178,7 @@ async function init() {
 
         toggleShowArchivedButton.addEventListener('click', async () => {
             showArchived = !showArchived;
-            await updateNoteList();
+            createNoteElements(NoteService.getLocalNotes());
         });
 
         // Note history
@@ -219,6 +216,45 @@ async function init() {
         });
     }
 
+    function createNoteElements(notes) {
+        NoteService.saveLocalNotes(notes);
+        addNoteElements(NoteService.getNotesForDisplay(notes, showArchived));
+        setCheckboxes(NoteService.getSelectedNote());
+        setSelectedNoteText(NoteService.getSelectedNote().text);
+    }
+
+    function updateNoteElement(updatedNote) {
+        NoteService.updateLocalNote(updatedNote);
+        modifyNoteElement(updatedNote);
+        setCheckboxes(NoteService.getSelectedNote());
+        setSelectedNoteText(NoteService.getSelectedNote().text);
+    }
+
+    function addNoteElement(newNote) {
+        NoteService.addLocalNote(newNote);
+        createNoteElement(newNote);
+    }
+
+    function createNoteElement(note) {
+        notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
+    }
+
+    function removeNoteElement(noteId) {
+        NoteService.deleteLocalNote(noteId);
+        deleteNoteElement(noteId);
+    }
+
+    // I'm going to refactor all of this I swear
+    function deleteNoteElement(noteId) {
+        let noteDiv = document.getElementById(`note-${noteId}`);
+        noteDiv.remove();
+    }
+
+    function modifyNoteElement(note) {
+        let noteDiv = document.getElementById(`note-${note.id}`);
+        noteDiv.outerHTML = createNoteHtml(note);
+    }
+
     function getNoteId(noteElement) {
         return noteElement.id.split('-')[1];
     }
@@ -240,16 +276,7 @@ async function init() {
         notesListDiv.innerHTML = '';
 
         for (let note of notes) {
-            let noteDiv = document.createElement('div');
-            noteDiv.classList.add('note');
-            noteDiv.id = `note-${note.id}`;
-            noteDiv.innerHTML = `
-                <div>Id: ${note.id}</div>
-                <div>AuthorId: ${note.authorId}</div>
-                <div>Created: ${new Date(note.created).toISOString()}</div>
-                <div>Updated: ${new Date(note.updated).toISOString()}</div>
-                <div>PublicURL: ${note.publicUrl}</div>`;
-            notesListDiv.append(noteDiv);
+            notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
         }
 
         addNoteClickHandlers();
@@ -277,5 +304,20 @@ async function init() {
         document.getElementById("note-locked").checked = note.locked;
         document.getElementById("note-archived").checked = note.archived;
         document.getElementById("note-published").checked = note.published;
+    }
+
+    function createNoteHtml(note) {
+        return /*html*/ `
+            <div id="note-${note.id}" class="note">
+                <div>Id: ${note.id}</div>
+                <div>AuthorId: ${note.authorId}</div>
+                <div>Created: ${dateToString(note.created)}</div>
+                <div>Updated: ${dateToString(note.updated)}</div>
+                <div>PublicURL: ${note.publicUrl}</div>
+            </div>`
+    }
+
+    function dateToString(date) {
+        return new Date(date).toISOString();
     }
 }

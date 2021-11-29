@@ -8,7 +8,10 @@
     sortByText,
     setSelectedNoteId,
     getSelectedNoteId,
-    saveLocalNotes
+    saveLocalNotes,
+    updateLocalNote,
+    addLocalNote,
+    deleteLocalNote
 }
 
 function getNotesForDisplay(notes, archived) {
@@ -26,6 +29,27 @@ function getLocalNote(noteId) {
 
 function saveLocalNotes(notes) {
     localStorage.setItem('notes', JSON.stringify(notes));
+}
+
+function updateLocalNote(note) {
+    let notes = getLocalNotes();
+    let oldNote = notes.filter(n => n.id === note.id)[0];
+    let noteIndex = notes.indexOf(oldNote);
+    notes[noteIndex] = note;
+    saveLocalNotes(notes);
+}
+
+function addLocalNote(note) {
+    let notes = getLocalNotes();
+    notes.push(note);
+    saveLocalNotes(notes);
+}
+
+function deleteLocalNote(noteId) {
+    let notes = getLocalNotes();
+    let note = getLocalNote(noteId);
+    notes.pop(note);
+    saveLocalNotes(notes);
 }
 
 function getSelectedNote() {

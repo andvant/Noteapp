@@ -65,7 +65,7 @@ namespace Noteapp.Core.Services
 
         public Note Update(int userId, int noteId, string text)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNote(userId, noteId, false);
 
             if (note.Locked)
             {

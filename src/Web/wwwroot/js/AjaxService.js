@@ -29,13 +29,19 @@ async function getNotes() {
 async function updateNote(noteId, noteText) {
     let headers = { "Content-Type": "application/json" };
     let body = JSON.stringify({ text: noteText });
-    await sendRequest(`notes/${noteId}`, "PUT", headers, body);
+    let response = await sendRequest(`notes/${noteId}`, "PUT", headers, body);
+    if (response?.ok) {
+        return await response.json();
+    }
 }
 
 async function createNote() {
     let headers = { "Content-Type": "application/json" };
     let body = JSON.stringify({ text: "" });
-    await sendRequest("notes", "POST", headers, body);
+    let response = await sendRequest("notes", "POST", headers, body);
+    if (response?.ok) {
+        return await response.json();
+    }
 }
 
 async function bulkCreateNotes(notesJson) {
@@ -45,27 +51,42 @@ async function bulkCreateNotes(notesJson) {
 }
 
 async function deleteNote(noteId) {
-    await sendRequest(`notes/${noteId}`, "DELETE");
+    let response = await sendRequest(`notes/${noteId}`, "DELETE");
+    if (!response.ok) {
+        throw new Error("Failed to delete a note.");
+    }
 }
 
 async function togglePinned(note) {
     let method = note.pinned ? "DELETE" : "PUT";
-    await sendRequest(`notes/${note.id}/pin`, method);
+    let response = await sendRequest(`notes/${note.id}/pin`, method);
+    if (response?.ok) {
+        return await response.json();
+    }
 }
 
 async function toggleLocked(note) {
     let method = note.locked ? "DELETE" : "PUT";
-    await sendRequest(`notes/${note.id}/lock`, method);
+    let response = await sendRequest(`notes/${note.id}/lock`, method);
+    if (response?.ok) {
+        return await response.json();
+    }
 }
 
 async function toggleArchived(note) {
     let method = note.archived ? "DELETE" : "PUT";
-    await sendRequest(`notes/${note.id}/archive`, method);
+    let response = await sendRequest(`notes/${note.id}/archive`, method);
+    if (response?.ok) {
+        return await response.json();
+    }
 }
 
 async function togglePublished(note) {
     let method = note.published ? "DELETE" : "PUT";
-    await sendRequest(`notes/${note.id}/publish`, method);
+    let response = await sendRequest(`notes/${note.id}/publish`, method);
+    if (response?.ok) {
+        return await response.json();
+    }
 }
 
 async function getAllSnapshots(noteId) {
