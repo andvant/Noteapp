@@ -11,8 +11,9 @@ async function render() {
         <div class="notes-view">
             <div class="notes">
                 <div class="notes-new">
-                    <button id="new-button">New</button>
                     <button id="toggle-show-archived-button">Archived</button>
+                    <button id="new-button">New</button>
+                    <button id="list-button">List</button>
                 </div>
                 <div class="notes-sort">
                     <label>Sort by:</label>
@@ -57,6 +58,7 @@ async function render() {
 async function init() {
     const saveButton = document.getElementById('save-button');
     const newButton = document.getElementById('new-button');
+    const listButton = document.getElementById('list-button');
     const deleteButton = document.getElementById('delete-button');
     const pinButton = document.getElementById('pin-button');
     const lockButton = document.getElementById('lock-button');
@@ -98,6 +100,10 @@ async function init() {
     function addEventListeners() {
         saveButton.addEventListener('click', async () => {
             await AjaxService.updateNote(NoteService.getSelectedNoteId(), getSelectedNoteText());
+            await updateNoteList();
+        });
+
+        listButton.addEventListener('click', async () => {
             await updateNoteList();
         });
 

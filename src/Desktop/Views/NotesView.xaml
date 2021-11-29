@@ -19,7 +19,8 @@
 
         <DockPanel Grid.Row="0" Grid.Column="0">
             <Button Content="Archived" Command="{Binding ToggleShowArchivedCommand}" DockPanel.Dock="Left"/>
-            <Button Grid.Row="0" Grid.Column="0" Command="{Binding CreateCommand}" Content="New" Width="100" DockPanel.Dock="Right"/>
+            <Button Command="{Binding CreateCommand}" Content="New" Width="100" DockPanel.Dock="Right"/>
+            <Button Command="{Binding ListCommand}" Content="List" Width="100" DockPanel.Dock="Right"/>
         </DockPanel>
         
         <DockPanel Grid.Row="0" Grid.Column="1">
@@ -28,7 +29,6 @@
             <Button DockPanel.Dock="Right" Command="{Binding ImportNotesCommand}" Content="Import notes" Width="160" />
             <Button DockPanel.Dock="Right" Command="{Binding ShowHistoryCommand}" Content="History" Width="160" />
         </DockPanel>
-        
 
         <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
             <Label Content="Sort by:" />
