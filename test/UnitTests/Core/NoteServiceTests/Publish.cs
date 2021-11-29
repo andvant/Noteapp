@@ -26,11 +26,10 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            var url = noteService.Publish(userId: 1, noteId: 1);
+            noteService.Publish(userId: 1, noteId: 1);
 
             // Assert
-            Assert.True(!string.IsNullOrWhiteSpace(url));
-            Assert.Equal(url, note.PublicUrl);
+            Assert.True(!string.IsNullOrWhiteSpace(note.PublicUrl));
             _mock.Verify(repo => repo.Update(note), Times.Once);
         }
 

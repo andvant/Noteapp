@@ -27,7 +27,6 @@ namespace Noteapp.Desktop.ViewModels
         private bool _descendingCreated;
         private bool _descendingText;
 
-
         public ObservableCollection<Note> Notes
         {
             get => _notes;
@@ -149,8 +148,9 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void CreateCommandExecute(object parameter)
         {
-            await _apiCaller.CreateNote();
-            ListCommand.Execute(null);
+            var newNote = await _apiCaller.CreateNote();
+            Notes.Add(newNote);
+            SelectedNote = newNote;
         }
 
         private async void UpdateCommandExecute(object parameter)
@@ -169,8 +169,10 @@ namespace Noteapp.Desktop.ViewModels
             //    text = $"[not encrypted]{SelectedNote.Text}";
             //}
 
-            await _apiCaller.UpdateNote(SelectedNote.Id, SelectedNote.Text);
-            ListCommand.Execute(null);
+            var updatedNote = await _apiCaller.UpdateNote(SelectedNote.Id, SelectedNote.Text);
+            int noteIndex = Notes.IndexOf(SelectedNote);
+            Notes[noteIndex] = updatedNote;
+            SelectedNote = updatedNote;
         }
 
         private bool UpdateCommandCanExecute(object parameter)
@@ -178,38 +180,54 @@ namespace Noteapp.Desktop.ViewModels
             return SelectedNote != null && !SelectedNote.Locked && HistoryVisibility == Visibility.Collapsed;
         }
 
-        private async void DeleteCommandExecute(object parameter)
+        private async void DeleteCommandExecute(object noteId)
         {
-            await _apiCaller.DeleteNote((int)parameter);
-            ListCommand.Execute(null);
+            await _apiCaller.DeleteNote((int)noteId);
+            var note = Notes.Single(note => note.Id == (int)noteId);
+            Notes.Remove(note);
         }
 
         private async void ToggleLockedCommandExecute(object parameter)
         {
             var note = (Note)parameter;
-            await _apiCaller.ToggleLocked(note.Id, note.Locked);
-            ListCommand.Execute(null);
+            var updatedNote = await _apiCaller.ToggleLocked(note.Id, note.Locked);
+            int noteIndex = Notes.IndexOf(note);
+            Notes[noteIndex] = updatedNote;
+            SelectedNote = updatedNote;
         }
 
         private async void ToggleArchivedCommandExecute(object parameter)
         {
             var note = (Note)parameter;
-            await _apiCaller.ToggleArchived(note.Id, note.Archived);
-            ListCommand.Execute(null);
+            var updatedNote = await _apiCaller.ToggleArchived(note.Id, note.Archived);
+            int noteIndex = Notes.IndexOf(note);
+            Notes[noteIndex] = updatedNote;
+            SelectedNote = updatedNote;
+
+            if (updatedNote.Archived != ShowArchived)
+            {
+                Notes.Remove(updatedNote);
+            }
         }
 
         private async void TogglePinnedCommandExecute(object parameter)
         {
             var note = (Note)parameter;
-            await _apiCaller.TogglePinned(note.Id, note.Pinned);
-            ListCommand.Execute(null);
+            var updatedNote = await _apiCaller.TogglePinned(note.Id, note.Pinned);
+            int noteIndex = Notes.IndexOf(note);
+            Notes[noteIndex] = updatedNote;
+            SelectedNote = updatedNote;
+
+            Notes = new ObservableCollection<Note>(OrderByPinned(Notes));
         }
 
         private async void TogglePublishedCommandExecute(object parameter)
         {
             var note = (Note)parameter;
-            await _apiCaller.TogglePublished(note.Id, note.Published);
-            ListCommand.Execute(null);
+            var updatedNote = await _apiCaller.TogglePublished(note.Id, note.Published);
+            int noteIndex = Notes.IndexOf(note);
+            Notes[noteIndex] = updatedNote;
+            SelectedNote = updatedNote;
         }
 
         private void SortByCreatedCommandExecute(object parameter)

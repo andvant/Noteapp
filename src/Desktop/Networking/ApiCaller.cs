@@ -28,11 +28,12 @@ namespace Noteapp.Desktop.Networking
             return await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
         }
 
-        public async Task CreateNote()
+        public async Task<Note> CreateNote()
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "api/notes");
             request.Content = JsonContent.Create(new { text = string.Empty });
-            await SendRequestAsync(request);
+            var response = await SendRequestAsync(request);
+            return await response.Content.ReadFromJsonAsync<Note>();
         }
 
         public async Task BulkCreateNotes(IEnumerable<Note> notes)
@@ -42,11 +43,12 @@ namespace Noteapp.Desktop.Networking
             await SendRequestAsync(request);
         }
 
-        public async Task UpdateNote(int noteId, string text)
+        public async Task<Note> UpdateNote(int noteId, string text)
         {
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/notes/{noteId}");
             request.Content = JsonContent.Create(new { text });
-            await SendRequestAsync(request);
+            var response = await SendRequestAsync(request);
+            return await response.Content.ReadFromJsonAsync<Note>();
         }
 
         public async Task DeleteNote(int noteId)
@@ -55,32 +57,36 @@ namespace Noteapp.Desktop.Networking
             await SendRequestAsync(request);
         }
 
-        public async Task ToggleLocked(int noteId, bool locked)
+        public async Task<Note> ToggleLocked(int noteId, bool locked)
         {
             var method = locked ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"api/notes/{noteId}/lock");
-            await SendRequestAsync(request);
+            var response = await SendRequestAsync(request);
+            return await response.Content.ReadFromJsonAsync<Note>();
         }
 
-        public async Task ToggleArchived(int noteId, bool archived)
+        public async Task<Note> ToggleArchived(int noteId, bool archived)
         {
             var method = archived ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"api/notes/{noteId}/archive");
-            await SendRequestAsync(request);
+            var response = await SendRequestAsync(request);
+            return await response.Content.ReadFromJsonAsync<Note>();
         }
 
-        public async Task TogglePinned(int noteId, bool pinned)
+        public async Task<Note> TogglePinned(int noteId, bool pinned)
         {
             var method = pinned ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"api/notes/{noteId}/pin");
-            await SendRequestAsync(request);
+            var response = await SendRequestAsync(request);
+            return await response.Content.ReadFromJsonAsync<Note>();
         }
 
-        public async Task TogglePublished(int noteId, bool published)
+        public async Task<Note> TogglePublished(int noteId, bool published)
         {
             var method = published ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"api/notes/{noteId}/publish");
-            await SendRequestAsync(request);
+            var response = await SendRequestAsync(request);
+            return await response.Content.ReadFromJsonAsync<Note>();
         }
 
         public async Task<IEnumerable<NoteSnapshot>> GetAllSnapshots(int noteId)
