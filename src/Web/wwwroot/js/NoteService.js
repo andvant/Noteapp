@@ -95,7 +95,7 @@ function getSelectedNoteId() {
 }
 
 function orderByPinned(notes) {
-    return notes.sort((note1, note2) => note1.pinned === note2.pinned ? 0 : note1.pinned ? 1 : -1);
+    return notes.sort((note1, note2) => note1.pinned === note2.pinned ? 0 : note1.pinned ? -1 : 1);
 }
 
 //function getNonArchivedNotes(notes) {

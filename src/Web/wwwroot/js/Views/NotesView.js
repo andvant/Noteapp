@@ -8,14 +8,14 @@ export {
 
 async function render() {
     return /*html*/ `
-        <div class="notes-view">
-            <div class="notes">
-                <div class="notes-new">
+        <div id="notes-view">
+            <div id="notes">
+                <div id="notes-new">
                     <button id="toggle-show-archived-button">Archived</button>
                     <button id="new-button">New</button>
                     <button id="list-button">List</button>
                 </div>
-                <div class="notes-sort">
+                <div id="notes-sort">
                     <label>Sort by:</label>
                     <button id="sortby-created-button">Created</button>
                     <button id="sortby-updated-button">Updated</button>
@@ -23,9 +23,9 @@ async function render() {
                 </div>
                 <div id="notes-list"></div>
             </div>
-            <div class="third-column">
-                <div class="selected-note">
-                    <div class="selected-note-actions">
+            <div id="third-column">
+                <div id="selected-note">
+                    <div id="selected-note-actions">
                         <button id="save-button">Save</button>
                         <button id="delete-button">Delete</button>
                         <button id="pin-button">Pin</button>
@@ -41,11 +41,11 @@ async function render() {
                         <button id="export-notes-button">Export notes</button>
                         <button id="history-button">History</button>
                     </div>
-                    <div class="selected-note-text">
+                    <div id="selected-note-text">
                         <textarea id="note-text" placeholder="Note text here..."></textarea>
                     </div>
                 </div>
-                <div class="note-history">
+                <div id="note-history">
                     <input type="range" id="history-slider" min="0" max="9" step="1" />
                     <div id="snapshot-date"></div>
                     <button id="cancel-history-button">Cancel</button>
@@ -75,7 +75,7 @@ async function init() {
     const toggleShowArchivedButton = document.getElementById('toggle-show-archived-button');
 
     // Note history
-    const historyDiv = document.getElementsByClassName('note-history')[0];
+    const historyDiv = document.getElementById('note-history');
     const snapshotDateDiv = document.getElementById('snapshot-date');
     const historySlider = document.getElementById('history-slider');
     const historyButton = document.getElementById('history-button');
