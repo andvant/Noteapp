@@ -22,32 +22,44 @@ namespace Noteapp.Core.Services
 
         public Note Get(int userId, int noteId)
         {
-            return GetNote(userId, noteId, true);
+            return GetNoteWithCurrentSnapshot(userId, noteId);
         }
 
         public IEnumerable<Note> GetAll(int userId, bool? archived)
         {
-            var notes = _repository.FindByAuthorId(userId);
-
-            if (archived.HasValue)
-            {
-                // TODO: filter in the query to the database
-                notes = notes.Where(note => note.Archived == archived.Value);
-            }
+            var notes = _repository.GetAllForAuthor(userId, archived);
 
             return notes;
         }
 
-        // just for testing
+        // TODO: just for testing, remove later
         public IEnumerable<Note> GetAllForAll()
         {
-            return _repository.GetAll(true);
+            return _repository.GetAll();
         }
 
         public Note Create(int userId, string text)
         {
-            var note = CreateNote(userId, text);
-            _repository.Add(note);
+            var note = CreateNote(userId);
+            var snapshot = CreateSnapshot(note, text);
+
+            _repository.Add(note, snapshot);
+
+            return note;
+        }
+
+        public Note Update(int userId, int noteId, string text)
+        {
+            var note = GetNoteWithoutSnapshots(userId, noteId);
+
+            if (note.Locked)
+            {
+                throw new NoteLockedException(noteId);
+            }
+
+            var snapshot = CreateSnapshot(note, text);
+
+            _repository.AddSnapshot(note, snapshot);
             return note;
         }
 
@@ -56,35 +68,29 @@ namespace Noteapp.Core.Services
             TooManyNotesException.ThrowIfTooManyNotes(texts.Count(), MAX_BULK_NOTES);
 
             var notes = new List<Note>();
+            var snapshots = new List<NoteSnapshot>();
+
             foreach (var text in texts)
             {
-                notes.Add(CreateNote(userId, text));
-            }
-            _repository.AddRange(notes);
-        }
+                var note = CreateNote(userId);
+                var snapshot = CreateSnapshot(note, text);
 
-        public Note Update(int userId, int noteId, string text)
-        {
-            var note = GetNote(userId, noteId, false);
-
-            if (note.Locked)
-            {
-                throw new NoteLockedException(noteId);
+                notes.Add(note);
+                snapshots.Add(snapshot);
             }
 
-            AddNoteSnapshot(note, text);
-            _repository.Update(note);
-            return note;
+            _repository.AddRange(notes, snapshots);
         }
 
         public void Delete(int userId, int noteId)
         {
-            _repository.Delete(GetNote(userId, noteId));
+            var note = GetNoteWithoutSnapshots(userId, noteId);
+            _repository.Delete(note);
         }
 
         public Note Archive(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNoteWithCurrentSnapshot(userId, noteId);
             note.Archived = true;
             _repository.Update(note);
             return note;
@@ -92,7 +98,7 @@ namespace Noteapp.Core.Services
 
         public Note Unarchive(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNoteWithCurrentSnapshot(userId, noteId);
             note.Archived = false;
             _repository.Update(note);
             return note;
@@ -100,7 +106,7 @@ namespace Noteapp.Core.Services
 
         public Note Pin(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNoteWithCurrentSnapshot(userId, noteId);
             note.Pinned = true;
             _repository.Update(note);
             return note;
@@ -108,7 +114,7 @@ namespace Noteapp.Core.Services
 
         public Note Unpin(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNoteWithCurrentSnapshot(userId, noteId);
             note.Pinned = false;
             _repository.Update(note);
             return note;
@@ -116,7 +122,7 @@ namespace Noteapp.Core.Services
 
         public Note Lock(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNoteWithCurrentSnapshot(userId, noteId);
             note.Locked = true;
             _repository.Update(note);
             return note;
@@ -124,7 +130,7 @@ namespace Noteapp.Core.Services
 
         public Note Unlock(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNoteWithCurrentSnapshot(userId, noteId);
             note.Locked = false;
             _repository.Update(note);
             return note;
@@ -132,7 +138,7 @@ namespace Noteapp.Core.Services
 
         public Note Publish(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNoteWithCurrentSnapshot(userId, noteId);
             note.PublicUrl = GenerateUrl();
             _repository.Update(note);
             return note;
@@ -140,7 +146,7 @@ namespace Noteapp.Core.Services
 
         public Note Unpublish(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId);
+            var note = GetNoteWithCurrentSnapshot(userId, noteId);
             note.PublicUrl = null;
             _repository.Update(note);
             return note;
@@ -152,9 +158,10 @@ namespace Noteapp.Core.Services
             return note?.Text ?? throw new NoteNotFoundException(url);
         }
 
+        // TODO: consider removal of this method (no one needs it really)
         public NoteSnapshot GetSnapshot(int userId, int noteId, int snapshotId)
         {
-            var note = GetNote(userId, noteId, true);
+            var note = GetNoteWithSnapshots(userId, noteId);
 
             var snapshot = note.Snapshots.Where(snapshot => snapshot.Id == snapshotId).SingleOrDefault();
 
@@ -168,44 +175,57 @@ namespace Noteapp.Core.Services
 
         public IEnumerable<NoteSnapshot> GetAllSnapshots(int userId, int noteId)
         {
-            var note = GetNote(userId, noteId, true);
+            var note = GetNoteWithSnapshots(userId, noteId);
 
-            return note.Snapshots;
+            return note.Snapshots.OrderBy(snapshot => snapshot.Created);
         }
 
-        private Note GetNote(int userId, int noteId, bool includeSnapshots = true)
+        private Note GetNoteWithSnapshots(int userId, int noteId)
         {
-            var note = _repository.Find(noteId, includeSnapshots);
-            if (note is null || note.AuthorId != userId)
-            {
-                throw new NoteNotFoundException(userId, noteId);
-            }
+            var note = _repository.FindWithAllSnapshots(noteId);
+            ValidateFound(note, userId);
             return note;
         }
 
-        private Note CreateNote(int userId, string text)
+        private Note GetNoteWithoutSnapshots(int userId, int noteId)
         {
-            var note = new Note()
+            var note = _repository.FindWithoutSnapshots(noteId);
+            ValidateFound(note, userId);
+            return note;
+        }
+
+        private Note GetNoteWithCurrentSnapshot(int userId, int noteId)
+        {
+            var note = _repository.FindWithCurrentSnapshot(noteId);
+            ValidateFound(note, userId);
+            return note;
+        }
+
+        private void ValidateFound(Note note, int userId)
+        {
+            if (note is null || note.AuthorId != userId)
+            {
+                throw new NoteNotFoundException(userId, note.Id);
+            }
+        }
+
+        private Note CreateNote(int userId)
+        {
+            return new Note()
             {
                 AuthorId = userId,
                 Created = _dateTimeProvider.Now,
             };
-            AddNoteSnapshot(note, text);
-
-            return note;
         }
 
-        private void AddNoteSnapshot(Note note, string text)
+        private NoteSnapshot CreateSnapshot(Note note, string text)
         {
-            var noteSnapshot = new NoteSnapshot()
+            return new NoteSnapshot()
             {
-                Note = note,
-                NoteId = note.Id,
                 Created = _dateTimeProvider.Now,
-                Text = text
+                Text = text,
+                Note = note
             };
-            note.Snapshots = new List<NoteSnapshot>();
-            note.Snapshots.Add(noteSnapshot);
         }
 
         private string GenerateUrl()

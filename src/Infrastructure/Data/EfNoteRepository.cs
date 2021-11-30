@@ -15,16 +15,43 @@ namespace Noteapp.Infrastructure.Data
             _context = context;
         }
 
-        public void Add(Note entity)
+        public void Add(Note note, NoteSnapshot snapshot)
         {
-            _context.Notes.Add(entity);
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                _context.Notes.Add(note);
+                _context.SaveChanges();
+
+                note.CurrentSnapshot = snapshot;
+                _context.SaveChanges();
+
+                transaction.Commit();
+            }
+        }
+
+        public void AddSnapshot(Note note, NoteSnapshot snapshot)
+        {
+            note.CurrentSnapshot = snapshot;
             _context.SaveChanges();
         }
 
-        public void AddRange(IEnumerable<Note> notes)
+        public void AddRange(IEnumerable<Note> notes, IEnumerable<NoteSnapshot> snapshots)
         {
-            _context.Notes.AddRange(notes);
-            _context.SaveChanges();
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                _context.Notes.AddRange(notes);
+                _context.SaveChanges();
+
+                var snapshotsEnumerator = snapshots.GetEnumerator();
+                foreach (var note in notes)
+                {
+                    snapshotsEnumerator.MoveNext();
+                    note.CurrentSnapshot = snapshotsEnumerator.Current;
+                }
+                _context.SaveChanges();
+
+                transaction.Commit();
+            }
         }
 
         public void Update(Note entity)
@@ -39,40 +66,40 @@ namespace Noteapp.Infrastructure.Data
             _context.SaveChanges();
         }
 
-        public Note Find(int id, bool includeSnapshots = false)
+        // TODO: just for testing, remove later
+        public IEnumerable<Note> GetAll()
         {
-            var note = _context.Notes.Where(note => note.Id == id);
-
-            return IncludeSnapshots(note, includeSnapshots).SingleOrDefault();
+            return _context.Notes.Include(note => note.CurrentSnapshot).AsEnumerable();
         }
 
-        public IEnumerable<Note> FindByAuthorId(int authorId)
+        public IEnumerable<Note> GetAllForAuthor(int authorId, bool? archived)
         {
-            return _context.Notes.Where(note => note.AuthorId == authorId)
-                .Include(note => note.Snapshots).AsEnumerable();
+            var notes = _context.Notes.Where(note => note.AuthorId == authorId);
+            if (archived.HasValue)
+            {
+                notes = notes.Where(note => note.Archived == archived.Value);
+            }
+            return notes.Include(note => note.CurrentSnapshot).AsEnumerable();
         }
 
         public Note FindByPublicUrl(string url)
         {
-            return _context.Notes.Where(note => note.PublicUrl == url).Include(note => note.Snapshots).SingleOrDefault();
+            return _context.Notes.Where(note => note.PublicUrl == url).Include(note => note.CurrentSnapshot).SingleOrDefault();
         }
 
-        public IEnumerable<Note> GetAll(bool includeSnapshots = false)
+        public Note FindWithoutSnapshots(int id)
         {
-            var entities = _context.Notes;
-
-            return IncludeSnapshots(entities, includeSnapshots).AsEnumerable();
+            return _context.Notes.Find(id);
         }
 
-        private IQueryable<Note> IncludeSnapshots(IQueryable<Note> entities, bool includeSnapshots)
+        public Note FindWithCurrentSnapshot(int id)
         {
-            if (includeSnapshots)
-            {
-                entities = entities.Include(note => note.Snapshots);
-            }
-
-            return entities;
+            return _context.Notes.Where(note => note.Id == id).Include(note => note.CurrentSnapshot).SingleOrDefault();
         }
 
+        public Note FindWithAllSnapshots(int id)
+        {
+            return _context.Notes.Where(note => note.Id == id).Include(note => note.Snapshots).SingleOrDefault();
+        }
     }
 }

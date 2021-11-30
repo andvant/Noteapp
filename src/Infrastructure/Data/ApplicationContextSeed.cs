@@ -12,9 +12,18 @@ namespace Noteapp.Infrastructure.Data
         {
             if (!context.Notes.Any())
             {
-                context.Notes.AddRange(GetNotes());
-                context.NoteSnapshots.AddRange(GetNoteSnapshots());
                 context.AppUsers.AddRange(GetAppUsers());
+
+                var notes = GetNotes();
+                var snapshots = GetNoteSnapshots();
+                context.Notes.AddRange(notes);
+                context.NoteSnapshots.AddRange(snapshots);
+                context.SaveChanges();
+
+                notes[0].CurrentSnapshot = snapshots[0];
+                notes[1].CurrentSnapshot = snapshots[1];
+                notes[2].CurrentSnapshot = snapshots[2];
+
                 context.SaveChanges();
             }
         }
@@ -29,21 +38,18 @@ namespace Noteapp.Infrastructure.Data
                 {
                     Id = 1,
                     Email = "default@mail.com",
-                    Notes = new List<Note>(),
                     EncryptionSalt = GenerateEncryptionSalt()
                 },
                 new()
                 {
                     Id = 2,
                     Email = "user1@mail.com",
-                    Notes = new List<Note>(),
                     EncryptionSalt = GenerateEncryptionSalt()
                 },
                 new()
                 {
                     Id = 3,
                     Email = "user2@mail.com",
-                    Notes = new List<Note>(),
                     EncryptionSalt = GenerateEncryptionSalt()
                 }
             };
@@ -66,19 +72,19 @@ namespace Noteapp.Infrastructure.Data
                 {
                     Id = 1,
                     Created = DateTime.Now,
-                    AuthorId = userId,
+                    AuthorId = userId
                 },
                 new()
                 {
                     Id = 2,
                     Created = DateTime.Now,
-                    AuthorId = userId,
+                    AuthorId = userId
                 },
                 new()
                 {
                     Id = 3,
                     Created = DateTime.Now,
-                    AuthorId = userId,
+                    AuthorId = userId
                 }
             };
 

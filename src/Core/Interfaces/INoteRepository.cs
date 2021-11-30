@@ -5,13 +5,17 @@ namespace Noteapp.Core.Interfaces
 {
     public interface INoteRepository
     {
-        public void Add(Note note);
-        public void AddRange(IEnumerable<Note> notes);
+        public void Add(Note note, NoteSnapshot snapshot);
+        public void AddSnapshot(Note note, NoteSnapshot snapshot);
+        public void AddRange(IEnumerable<Note> notes, IEnumerable<NoteSnapshot> snapshots);
         public void Update(Note note);
         public void Delete(Note note);
-        public Note Find(int id, bool includeSnapshots = false);
-        public IEnumerable<Note> FindByAuthorId(int authorId);
+        public IEnumerable<Note> GetAll();
+
+        public IEnumerable<Note> GetAllForAuthor(int authorId, bool? archived);
         public Note FindByPublicUrl(string url);
-        public IEnumerable<Note> GetAll(bool includeSnapshots = false);
+        public Note FindWithAllSnapshots(int id);
+        public Note FindWithoutSnapshots(int id);
+        public Note FindWithCurrentSnapshot(int id);
     }
 }
