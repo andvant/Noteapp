@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -71,9 +72,9 @@ namespace Noteapp.Desktop.ViewModels
             }
         }
 
-        public int MaximumSnapshotIndex => Snapshots.Count - 1;
-        public string CurrentSnapshotText => Snapshots[CurrentSnapshotIndex].Text;
-        public string CurrentSnapshotDate => Snapshots[CurrentSnapshotIndex].Created.ToString();
+        public int MaximumSnapshotIndex => (Snapshots?.Count - 1) ?? 0;
+        public string CurrentSnapshotText => Snapshots?[CurrentSnapshotIndex]?.Text;
+        public string CurrentSnapshotDate => Snapshots?[CurrentSnapshotIndex]?.Created.ToString();
 
         // Commands
         public ICommand ListCommand { get; }
@@ -125,21 +126,10 @@ namespace Noteapp.Desktop.ViewModels
 
             var notes = await _apiCaller.GetNotes(ShowArchived);
 
-            // TODO: use DI
-            //var userInfo = await SessionManager.GetUserInfo();
-
-            //foreach (var note in notes)
-            //{
-            //    try
-            //    {
-            //        var protector = new Protector(userInfo?.EncryptionKey);
-            //        note.Text = protector.Decrypt(note.Text);
-            //    }
-            //    catch
-            //    {
-            //        note.Text = $"[not decrypted]{note.Text}";
-            //    }
-            //}
+            foreach (var note in notes)
+            {
+                note.Text = await TryDecryptText(note.Text);
+            }
 
             Notes = new ObservableCollection<Note>(OrderByPinned(notes));
 
@@ -155,21 +145,12 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void UpdateCommandExecute(object parameter)
         {
-            // TODO: use DI
-            //var userInfo = await SessionManager.GetUserInfo();
+            string encryptedText = await TryEncryptText(SelectedNote.Text);
 
-            //string text;
-            //try
-            //{
-            //    var protector = new Protector(userInfo?.EncryptionKey);
-            //    text = protector.Encrypt(SelectedNote.Text);
-            //}
-            //catch
-            //{
-            //    text = $"[not encrypted]{SelectedNote.Text}";
-            //}
+            var updatedNote = await _apiCaller.UpdateNote(SelectedNote.Id, encryptedText);
 
-            var updatedNote = await _apiCaller.UpdateNote(SelectedNote.Id, SelectedNote.Text);
+            updatedNote.Text = await TryDecryptText(updatedNote.Text);
+
             int noteIndex = Notes.IndexOf(SelectedNote);
             Notes[noteIndex] = updatedNote;
             SelectedNote = updatedNote;
@@ -191,6 +172,9 @@ namespace Noteapp.Desktop.ViewModels
         {
             var note = (Note)parameter;
             var updatedNote = await _apiCaller.ToggleLocked(note.Id, note.Locked);
+
+            updatedNote.Text = await TryDecryptText(updatedNote.Text);
+
             int noteIndex = Notes.IndexOf(note);
             Notes[noteIndex] = updatedNote;
             SelectedNote = updatedNote;
@@ -200,6 +184,9 @@ namespace Noteapp.Desktop.ViewModels
         {
             var note = (Note)parameter;
             var updatedNote = await _apiCaller.ToggleArchived(note.Id, note.Archived);
+
+            updatedNote.Text = await TryDecryptText(updatedNote.Text);
+
             int noteIndex = Notes.IndexOf(note);
             Notes[noteIndex] = updatedNote;
             SelectedNote = updatedNote;
@@ -214,6 +201,9 @@ namespace Noteapp.Desktop.ViewModels
         {
             var note = (Note)parameter;
             var updatedNote = await _apiCaller.TogglePinned(note.Id, note.Pinned);
+
+            updatedNote.Text = await TryDecryptText(updatedNote.Text);
+
             int noteIndex = Notes.IndexOf(note);
             Notes[noteIndex] = updatedNote;
             SelectedNote = updatedNote;
@@ -225,6 +215,9 @@ namespace Noteapp.Desktop.ViewModels
         {
             var note = (Note)parameter;
             var updatedNote = await _apiCaller.TogglePublished(note.Id, note.Published);
+
+            updatedNote.Text = await TryDecryptText(updatedNote.Text);
+
             int noteIndex = Notes.IndexOf(note);
             Notes[noteIndex] = updatedNote;
             SelectedNote = updatedNote;
@@ -253,10 +246,8 @@ namespace Noteapp.Desktop.ViewModels
             return Notes?.Count > 0;
         }
 
-        private async void ExportNotesCommandExecute(object parameter)
+        private void ExportNotesCommandExecute(object parameter)
         {
-            var notes = await _apiCaller.GetNotes();
-
             var dialog = new SaveFileDialog()
             {
                 FileName = "NotesBackup-[date]",
@@ -266,7 +257,7 @@ namespace Noteapp.Desktop.ViewModels
             if (result == true)
             {
                 File.WriteAllText(dialog.FileName,
-                    JsonSerializer.Serialize(notes, new JsonSerializerOptions() { WriteIndented = true }));
+                    JsonSerializer.Serialize(Notes, new JsonSerializerOptions() { WriteIndented = true }));
             }
         }
 
@@ -282,6 +273,12 @@ namespace Noteapp.Desktop.ViewModels
             {
                 string json = File.ReadAllText(dialog.FileName);
                 var notes = JsonSerializer.Deserialize<IEnumerable<Note>>(json);
+
+                foreach (var note in notes)
+                {
+                    note.Text = await TryEncryptText(note.Text);
+                }
+
                 await _apiCaller.BulkCreateNotes(notes);
                 ListCommand.Execute(null);
             }
@@ -301,6 +298,12 @@ namespace Noteapp.Desktop.ViewModels
             _oldNoteText = SelectedNote.Text;
 
             var snapshots = await _apiCaller.GetAllSnapshots(SelectedNote.Id);
+
+            foreach (var snapshot in snapshots)
+            {
+                snapshot.Text = await TryDecryptText(snapshot.Text);
+            }
+
             Snapshots = new ObservableCollection<NoteSnapshot>(snapshots);
             CurrentSnapshotIndex = MaximumSnapshotIndex;
         }
@@ -338,6 +341,41 @@ namespace Noteapp.Desktop.ViewModels
         private IOrderedEnumerable<Note> OrderByPinned(IEnumerable<Note> notes)
         {
             return notes.OrderBy(note => !note.Pinned);
+        }
+
+        private async Task<string> TryDecryptText(string text)
+        {
+            // TODO: use DI
+            var userInfo = await SessionManager.GetUserInfo();
+            var protector = new Protector(userInfo?.EncryptionKey);
+
+            string result;
+            try
+            {
+                result = protector.Decrypt(text);
+            }
+            catch
+            {
+                result = $"[not decrypted]{text}";
+            }
+            return result;
+        }
+
+        private async Task<string> TryEncryptText(string text)
+        {
+            var userInfo = await SessionManager.GetUserInfo();
+            var protector = new Protector(userInfo?.EncryptionKey);
+
+            string result;
+            try
+            {
+                result = protector.Encrypt(text);
+            }
+            catch
+            {
+                result = $"[not encrypted]{text}";
+            }
+            return result;
         }
     }
 }

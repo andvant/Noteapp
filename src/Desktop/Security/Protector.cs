@@ -10,16 +10,16 @@ namespace Noteapp.Desktop.Security
 {
     public class Protector
     {
-        private byte[] _encryptionKey;
+        private string _encryptionKey;
         public Protector(string encryptionKey)
         {
-            _encryptionKey = Convert.FromBase64String(encryptionKey);
+            _encryptionKey = encryptionKey;
         }
 
         public string Encrypt(string text)
         {
             var aes = Aes.Create();
-            aes.Key = _encryptionKey;
+            aes.Key = Convert.FromBase64String(_encryptionKey);
 
             byte[] encryptedBytes;
             using (var memoryStream = new MemoryStream())
@@ -41,7 +41,7 @@ namespace Noteapp.Desktop.Security
         public string Decrypt(string cipher)
         {
             var aes = Aes.Create();
-            aes.Key = _encryptionKey;
+            aes.Key = Convert.FromBase64String(_encryptionKey);
 
             byte[] encryptedBytes = Convert.FromBase64String(cipher);
 
