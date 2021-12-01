@@ -1,8 +1,6 @@
 ﻿using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
-using Noteapp.Desktop.Security;
 using Noteapp.Desktop.Session;
-using System;
 using System.Windows;
 using System.Windows.Input;
 

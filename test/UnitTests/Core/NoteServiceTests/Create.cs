@@ -1,5 +1,4 @@
 ﻿using Moq;
-using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;

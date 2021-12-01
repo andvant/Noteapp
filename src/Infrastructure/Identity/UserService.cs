@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Noteapp.Infrastructure.Identity
 {
-    // ASSUMED: that email is unique for all users
     public class UserService : IUserService
     {
         private readonly AppUserService _appUserService;
@@ -21,7 +18,6 @@ namespace Noteapp.Infrastructure.Identity
             _userManager = userManager;
         }
 
-        // TODO: check for a valid email and password
         // Creates both AppUserIdentity (only identity-related functionality) and AppUser (domain entity) with the same email
         public async Task Register(string email, string password)
         {
@@ -57,12 +53,6 @@ namespace Noteapp.Infrastructure.Identity
         public string GetEncryptionSalt(string email)
         {
             return _appUserService.Get(email).EncryptionSalt;
-        }
-
-        // just for testing, remove later
-        public IEnumerable<AppUser> GetAllAppUsers()
-        {
-            return _appUserService.GetAll();
         }
     }
 }

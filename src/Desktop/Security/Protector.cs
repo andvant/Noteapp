@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Noteapp.Desktop.Security
 {
@@ -62,8 +59,6 @@ namespace Noteapp.Desktop.Security
 
         public static string GenerateEncryptionKey(string password, string salt)
         {
-            // TODO: fix
-            if (string.IsNullOrEmpty(salt)) return string.Empty;
             var pbkdf2 = new Rfc2898DeriveBytes(password, Encoding.UTF8.GetBytes(salt));
             var encryptionKey = pbkdf2.GetBytes(32);
             return Convert.ToBase64String(encryptionKey);

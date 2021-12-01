@@ -51,12 +51,5 @@ namespace Noteapp.Api.Controllers
 
             return NoContent();
         }
-
-        // just for testing, remove later
-        [HttpGet("users")]
-        public IActionResult GetAll()
-        {
-            return Ok(_userService.GetAllAppUsers());
-        }
     }
 }

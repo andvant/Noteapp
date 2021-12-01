@@ -1,12 +1,10 @@
 ﻿using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 
 namespace Noteapp.Core.Services
 {
-    // ASSUMED: that email is unique for all users
     public class AppUserService
     {
         private readonly IAppUserRepository _repository;
@@ -16,7 +14,6 @@ namespace Noteapp.Core.Services
             _repository = repository;
         }
 
-        // TODO: check for a valid email
         public AppUser Create(string email)
         {
             var user = new AppUser()
@@ -43,12 +40,6 @@ namespace Noteapp.Core.Services
         {
             var user = _repository.FindById(id);
             _repository.Delete(user);
-        }
-
-        // just for testing, remove later
-        public IEnumerable<AppUser> GetAll()
-        {
-            return _repository.GetAll();
         }
 
         private string GenerateEncryptionSalt()

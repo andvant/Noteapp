@@ -32,12 +32,6 @@ namespace Noteapp.Core.Services
             return notes;
         }
 
-        // TODO: just for testing, remove later
-        public IEnumerable<Note> GetAllForAll()
-        {
-            return _repository.GetAll();
-        }
-
         public Note Create(int userId, string text)
         {
             var note = CreateNote(userId);
@@ -156,21 +150,6 @@ namespace Noteapp.Core.Services
         {
             var note = _repository.FindByPublicUrl(url);
             return note?.Text ?? throw new NoteNotFoundException(url);
-        }
-
-        // TODO: consider removal of this method (no one needs it really)
-        public NoteSnapshot GetSnapshot(int userId, int noteId, int snapshotId)
-        {
-            var note = GetNoteWithSnapshots(userId, noteId);
-
-            var snapshot = note.Snapshots.Where(snapshot => snapshot.Id == snapshotId).SingleOrDefault();
-
-            if (snapshot is null)
-            {
-                throw new SnapshotNotFoundException(noteId, snapshotId);
-            }
-
-            return snapshot;
         }
 
         public IEnumerable<NoteSnapshot> GetAllSnapshots(int userId, int noteId)

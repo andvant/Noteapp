@@ -66,12 +66,6 @@ namespace Noteapp.Infrastructure.Data
             _context.SaveChanges();
         }
 
-        // TODO: just for testing, remove later
-        public IEnumerable<Note> GetAll()
-        {
-            return _context.Notes.Include(note => note.CurrentSnapshot).AsEnumerable();
-        }
-
         public IEnumerable<Note> GetAllForAuthor(int authorId, bool? archived)
         {
             var notes = _context.Notes.Where(note => note.AuthorId == authorId);

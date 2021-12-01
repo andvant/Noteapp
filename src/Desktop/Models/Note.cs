@@ -9,8 +9,8 @@ namespace Noteapp.Desktop.Models
 
         public int Id { get; set; }
         public int AuthorId { get; set; }
-        public string Text 
-        { 
+        public string Text
+        {
             get => _text;
             set => Set(ref _text, value);
         }

@@ -6,7 +6,6 @@ using System.Windows;
 
 namespace Noteapp.Desktop.Session
 {
-    // TODO: use configuration
     public static class SessionManager
     {
         private static readonly string _userInfoPath = Path.Combine(

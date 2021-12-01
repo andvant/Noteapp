@@ -39,9 +39,9 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 It.Is<List<Note>>(notes =>
                     notes.Count == noteTexts.Count &&
                     notes.Any(note =>
-                        note.AuthorId == 1 && note.Created == dateTime)), 
-                It.Is<List<NoteSnapshot>>(snapshots => 
-                    snapshots.Count == noteTexts.Count && 
+                        note.AuthorId == 1 && note.Created == dateTime)),
+                It.Is<List<NoteSnapshot>>(snapshots =>
+                    snapshots.Count == noteTexts.Count &&
                     snapshots.Any(snapshot =>
                         noteTexts.Contains(snapshot.Text) && snapshot.Created == dateTime)
                 )), Times.Once);

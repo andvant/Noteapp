@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
@@ -345,7 +344,6 @@ namespace Noteapp.Desktop.ViewModels
 
         private async Task<string> TryDecryptText(string text)
         {
-            // TODO: use DI
             var userInfo = await SessionManager.GetUserInfo();
             var protector = new Protector(userInfo?.EncryptionKey);
 

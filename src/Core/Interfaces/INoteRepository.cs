@@ -10,7 +10,6 @@ namespace Noteapp.Core.Interfaces
         public void AddRange(IEnumerable<Note> notes, IEnumerable<NoteSnapshot> snapshots);
         public void Update(Note note);
         public void Delete(Note note);
-        public IEnumerable<Note> GetAll();
 
         public IEnumerable<Note> GetAllForAuthor(int authorId, bool? archived);
         public Note FindByPublicUrl(string url);

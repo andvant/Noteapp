@@ -29,15 +29,6 @@ namespace Noteapp.Api.Controllers
             return Ok(noteDtos);
         }
 
-        // just for testing
-        [HttpGet("forall")]
-        public IActionResult GetAllForAll()
-        {
-            var notes = _noteService.GetAllForAll();
-            var noteDtos = notes.Select(note => new NoteDto(note));
-            return Ok(noteDtos);
-        }
-
         [HttpPost]
         public IActionResult Create(CreateNoteDto dto)
         {
@@ -45,7 +36,6 @@ namespace Noteapp.Api.Controllers
             return CreatedAtAction(nameof(Get), new { id = note.Id }, new NoteDto(note));
         }
 
-        // TODO: return created notes instead of NoContent
         [HttpPost("bulk")]
         public IActionResult BulkCreate(IEnumerable<CreateNoteDto> dtos)
         {
@@ -142,13 +132,6 @@ namespace Noteapp.Api.Controllers
         {
             var snapshots = _noteService.GetAllSnapshots(GetUserId(), id);
             return Ok(snapshots);
-        }
-
-        [HttpGet("{noteId:int}/snapshots/{snapshotId:int}")]
-        public IActionResult GetSnapshot(int snapshotId, int noteId)
-        {
-            var snapshot = _noteService.GetSnapshot(GetUserId(), noteId, snapshotId);
-            return Ok(snapshot);
         }
 
         private int GetUserId()

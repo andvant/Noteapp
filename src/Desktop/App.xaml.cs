@@ -1,9 +1,6 @@
 ﻿using Noteapp.Desktop.Exceptions;
-using Noteapp.Desktop.Security;
 using Noteapp.Desktop.ViewModels;
 using Noteapp.Desktop.Views;
-using System;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Threading;
