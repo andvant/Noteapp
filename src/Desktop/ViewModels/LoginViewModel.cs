@@ -21,14 +21,13 @@ namespace Noteapp.Desktop.ViewModels
         public LoginViewModel(ApiService apiService)
         {
             _apiService = apiService;
-            LoginCommand = new RelayCommand(LoginCommandExecute);
+            LoginCommand = new RelayCommand(Login);
         }
 
-        private async void LoginCommandExecute()
+        private async void Login()
         {
             var userInfoDto = await _apiService.Login(Email, Password);
 
-            _apiService.AccessToken = userInfoDto.access_token;
             var encryptionkey = Protector.GenerateEncryptionKey(Password, userInfoDto.encryption_salt);
             await SessionManager.SaveUserInfo(userInfoDto, encryptionkey);
             MessageBox.Show("Successfully logged in.");

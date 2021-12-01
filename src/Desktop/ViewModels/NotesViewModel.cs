@@ -70,12 +70,10 @@ namespace Noteapp.Desktop.ViewModels
                 OnPropertyChanged(nameof(CurrentSnapshotDate));
             }
         }
-
         public int MaximumSnapshotIndex => (Snapshots?.Count - 1) ?? 0;
         public string CurrentSnapshotText => Snapshots?[CurrentSnapshotIndex]?.Text;
         public string CurrentSnapshotDate => Snapshots?[CurrentSnapshotIndex]?.Created.ToString();
 
-        // Commands
         public ICommand ListCommand { get; }
         public ICommand CreateCommand { get; }
         public ICommand UpdateCommand { get; }
@@ -98,28 +96,28 @@ namespace Noteapp.Desktop.ViewModels
         {
             _apiService = apiService;
 
-            ListCommand = new RelayCommand(ListCommandExecute);
-            CreateCommand = new RelayCommand(CreateCommandExecute);
-            UpdateCommand = new RelayCommand(UpdateCommandExecute, UpdateCommandCanExecute);
-            DeleteCommand = new RelayCommand(DeleteCommandExecute);
-            ToggleLockedCommand = new RelayCommand(ToggleLockedCommandExecute);
-            ToggleArchivedCommand = new RelayCommand(ToggleArchivedCommandExecute);
-            TogglePinnedCommand = new RelayCommand(TogglePinnedCommandExecute);
-            TogglePublishedCommand = new RelayCommand(TogglePublishedCommandExecute);
-            SortyByCreatedCommand = new RelayCommand(SortByCreatedCommandExecute, SortByCanExecute);
-            SortyByUpdatedCommand = new RelayCommand(SortByUpdatedCommandExecute, SortByCanExecute);
-            SortyByTextCommand = new RelayCommand(SortByTextCommandExecute, SortByCanExecute);
-            ExportNotesCommand = new RelayCommand(ExportNotesCommandExecute);
-            ImportNotesCommand = new RelayCommand(ImportNotesCommandExecute);
-            ShowHistoryCommand = new RelayCommand(ShowHistoryCommandExecute, ShowHistoryCommandCanExecute);
-            RestoreSnapshotCommand = new RelayCommand(RestoreSnapshotCommandExecute, RestoreSnapshotCommandCanExecute);
-            CancelHistoryCommand = new RelayCommand(CancelHistoryCommandExecute);
-            ToggleShowArchivedCommand = new RelayCommand(ToggleArchivedViewCommandExecute);
+            ListCommand = new RelayCommand(List);
+            CreateCommand = new RelayCommand(Create);
+            UpdateCommand = new RelayCommand(Update, CanUpdate);
+            DeleteCommand = new RelayCommand(Delete);
+            ToggleLockedCommand = new RelayCommand(ToggleLocked);
+            ToggleArchivedCommand = new RelayCommand(ToggleArchived);
+            TogglePinnedCommand = new RelayCommand(TogglePinned);
+            TogglePublishedCommand = new RelayCommand(TogglePublished);
+            SortyByCreatedCommand = new RelayCommand(SortByCreated, CanSort);
+            SortyByUpdatedCommand = new RelayCommand(SortByUpdated, CanSort);
+            SortyByTextCommand = new RelayCommand(SortByText, CanSort);
+            ExportNotesCommand = new RelayCommand(ExportNotes);
+            ImportNotesCommand = new RelayCommand(ImportNotes);
+            ShowHistoryCommand = new RelayCommand(ShowHistory, CanShowHistory);
+            RestoreSnapshotCommand = new RelayCommand(RestoreSnapshot, CanRestoreSnapshot);
+            CancelHistoryCommand = new RelayCommand(CancelHistory);
+            ToggleShowArchivedCommand = new RelayCommand(ToggleArchivedView);
 
             ListCommand.Execute(null);
         }
 
-        private async void ListCommandExecute()
+        private async void List()
         {
             var selectedNoteId = SelectedNote?.Id;
 
@@ -127,72 +125,59 @@ namespace Noteapp.Desktop.ViewModels
 
             foreach (var note in notes)
             {
-                await TryDecryptNote(note);
+                note.Text = await TryDecrypt(note.Text);
             }
 
-            Notes = new ObservableCollection<Note>(OrderByPinned(notes));
-
+            Notes = CreateNoteCollection(notes);
             SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId);
         }
 
-        private async void CreateCommandExecute()
+        private async void Create()
         {
             var newNote = await _apiService.CreateNote();
             Notes.Add(newNote);
             SelectedNote = newNote;
         }
 
-        private async void UpdateCommandExecute()
+        private async void Update()
         {
-            string text = SelectedNote.Text;
-            if (!SelectedNote.Published)
-            {
-                text = await TryEncryptText(SelectedNote.Text);
-            }
+            string text = await TryEncrypt(SelectedNote.Text);
 
             var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, text);
 
-            await TryDecryptNote(updatedNote);
-
-            int noteIndex = Notes.IndexOf(SelectedNote);
-            Notes[noteIndex] = updatedNote;
-            SelectedNote = updatedNote;
+            updatedNote.Text = await TryDecrypt(updatedNote.Text);
+            ChangeNote(SelectedNote, updatedNote);
         }
 
-        private bool UpdateCommandCanExecute()
+        private bool CanUpdate()
         {
             return SelectedNote != null && !SelectedNote.Locked && HistoryVisibility == Visibility.Collapsed;
         }
 
-        private async void DeleteCommandExecute(object noteId)
+        private async void Delete(object noteId)
         {
             await _apiService.DeleteNote((int)noteId);
             var note = Notes.Single(note => note.Id == (int)noteId);
             Notes.Remove(note);
         }
 
-        private async void ToggleLockedCommandExecute(object parameter)
+        private async void ToggleLocked(object parameter)
         {
             var note = (Note)parameter;
             var updatedNote = await _apiService.ToggleLocked(note.Id, note.Locked);
 
-            await TryDecryptNote(updatedNote);
-
-            int noteIndex = Notes.IndexOf(note);
-            Notes[noteIndex] = updatedNote;
-            SelectedNote = updatedNote;
+            updatedNote.Text = await TryDecrypt(updatedNote.Text);
+            ChangeNote(note, updatedNote);
         }
 
-        private async void ToggleArchivedCommandExecute(object parameter)
+        private async void ToggleArchived(object parameter)
         {
             var note = (Note)parameter;
             var updatedNote = await _apiService.ToggleArchived(note.Id, note.Archived);
 
-            await TryDecryptNote(updatedNote);
+            updatedNote.Text = await TryDecrypt(updatedNote.Text);
 
-            int noteIndex = Notes.IndexOf(note);
-            Notes[noteIndex] = updatedNote;
-            SelectedNote = updatedNote;
+            ChangeNote(note, updatedNote);
 
             if (updatedNote.Archived != ShowArchived)
             {
@@ -200,56 +185,49 @@ namespace Noteapp.Desktop.ViewModels
             }
         }
 
-        private async void TogglePinnedCommandExecute(object parameter)
+        private async void TogglePinned(object parameter)
         {
             var note = (Note)parameter;
             var updatedNote = await _apiService.TogglePinned(note.Id, note.Pinned);
 
-            await TryDecryptNote(updatedNote);
-
-            int noteIndex = Notes.IndexOf(note);
-            Notes[noteIndex] = updatedNote;
-            SelectedNote = updatedNote;
-
-            Notes = new ObservableCollection<Note>(OrderByPinned(Notes));
+            updatedNote.Text = await TryDecrypt(updatedNote.Text);
+            ChangeNote(note, updatedNote);
+            Notes = CreateNoteCollection(Notes);
         }
 
-        private async void TogglePublishedCommandExecute(object parameter)
+        private async void TogglePublished(object parameter)
         {
             var note = (Note)parameter;
             var updatedNote = await _apiService.TogglePublished(note.Id, note.Published);
 
-            await TryDecryptNote(updatedNote);
-
-            int noteIndex = Notes.IndexOf(note);
-            Notes[noteIndex] = updatedNote;
-            SelectedNote = updatedNote;
+            updatedNote.Text = await TryDecrypt(updatedNote.Text);
+            ChangeNote(note, updatedNote);
         }
 
-        private void SortByCreatedCommandExecute()
+        private void SortByCreated()
         {
             Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note1.Created, note2.Created);
             SortNotes(comparison, ref _descendingCreated);
         }
 
-        private void SortByUpdatedCommandExecute()
+        private void SortByUpdated()
         {
             Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note1.Updated, note2.Updated);
             SortNotes(comparison, ref _descendingUpdated);
         }
 
-        private void SortByTextCommandExecute()
+        private void SortByText()
         {
             Comparison<Note> comparison = (note1, note2) => string.Compare(note1.Text, note2.Text);
             SortNotes(comparison, ref _descendingText);
         }
 
-        private bool SortByCanExecute()
+        private bool CanSort()
         {
             return Notes?.Count > 0;
         }
 
-        private void ExportNotesCommandExecute()
+        private void ExportNotes()
         {
             var dialog = new SaveFileDialog()
             {
@@ -263,7 +241,7 @@ namespace Noteapp.Desktop.ViewModels
             }
         }
 
-        private async void ImportNotesCommandExecute()
+        private async void ImportNotes()
         {
             var dialog = new OpenFileDialog()
             {
@@ -278,14 +256,15 @@ namespace Noteapp.Desktop.ViewModels
 
                 foreach (var note in notes)
                 {
-                    note.Text = await TryEncryptText(note.Text);
+                    note.Text = await TryEncrypt(note.Text);
                 }
 
                 await _apiService.BulkCreateNotes(notes);
                 ListCommand.Execute(null);
             }
         }
-        private void RestoreSnapshotCommandExecute()
+
+        private void RestoreSnapshot()
         {
             HistoryVisibility = Visibility.Collapsed;
 
@@ -294,12 +273,12 @@ namespace Noteapp.Desktop.ViewModels
             UpdateCommand.Execute(null);
         }
 
-        private bool RestoreSnapshotCommandCanExecute()
+        private bool CanRestoreSnapshot()
         {
             return CurrentSnapshotIndex < MaximumSnapshotIndex;
         }
 
-        private async void ShowHistoryCommandExecute()
+        private async void ShowHistory()
         {
             HistoryVisibility = Visibility.Visible;
             _oldNoteText = SelectedNote.Text;
@@ -308,19 +287,19 @@ namespace Noteapp.Desktop.ViewModels
 
             foreach (var snapshot in snapshots)
             {
-                snapshot.Text = await TryDecryptText(snapshot.Text);
+                snapshot.Text = await TryDecrypt(snapshot.Text);
             }
 
             Snapshots = new ObservableCollection<NoteSnapshot>(snapshots);
             CurrentSnapshotIndex = MaximumSnapshotIndex;
         }
 
-        private bool ShowHistoryCommandCanExecute()
+        private bool CanShowHistory()
         {
             return HistoryVisibility == Visibility.Collapsed && SelectedNote != null;
         }
 
-        private void CancelHistoryCommandExecute()
+        private void CancelHistory()
         {
             HistoryVisibility = Visibility.Collapsed;
 
@@ -328,7 +307,7 @@ namespace Noteapp.Desktop.ViewModels
             Snapshots = null;
         }
 
-        private void ToggleArchivedViewCommandExecute()
+        private void ToggleArchivedView()
         {
             ShowArchived = !ShowArchived;
             ListCommand.Execute(null);
@@ -342,7 +321,7 @@ namespace Noteapp.Desktop.ViewModels
             if (descending) notes.Reverse();
             descending = !descending;
 
-            Notes = new ObservableCollection<Note>(OrderByPinned(notes));
+            Notes = CreateNoteCollection(notes);
         }
 
         private IOrderedEnumerable<Note> OrderByPinned(IEnumerable<Note> notes)
@@ -350,56 +329,49 @@ namespace Noteapp.Desktop.ViewModels
             return notes.OrderBy(note => !note.Pinned);
         }
 
-        private async Task<string> TryDecryptText(string text)
+        private async Task<string> TryDecrypt(string text)
         {
-            var userInfo = await SessionManager.GetUserInfo();
-            var protector = new Protector(userInfo?.EncryptionKey);
+            var userInfo = SessionManager.GetUserInfo();
 
-            string result;
+            if (userInfo is null || !userInfo.EncryptionEnabled)
+            {
+                return text;
+            }
+
+            var protector = new Protector(userInfo.EncryptionKey);
             try
             {
-                result = protector.Decrypt(text);
+                return await protector.Decrypt(text);
             }
             catch
             {
-
-                result = text;
+                return text;
             }
-            return result;
         }
 
-        private async Task TryDecryptNote(Note note)
+        private async Task<string> TryEncrypt(string text)
         {
-            var userInfo = await SessionManager.GetUserInfo();
-            var protector = new Protector(userInfo?.EncryptionKey);
+            var userInfo = SessionManager.GetUserInfo();
 
-            try
+            if (userInfo is null || !userInfo.EncryptionEnabled)
             {
-                note.Text = protector.Decrypt(note.Text);
-                note.Encrypted = true;
-            }
-            catch
-            {
-                note.Encrypted = false;
+                return text;
             }
 
+            var protector = new Protector(userInfo.EncryptionKey);
+            return await protector.Encrypt(text);
         }
 
-        private async Task<string> TryEncryptText(string text)
+        private void ChangeNote(Note oldNote, Note newNote)
         {
-            var userInfo = await SessionManager.GetUserInfo();
-            var protector = new Protector(userInfo?.EncryptionKey);
+            int noteIndex = Notes.IndexOf(oldNote);
+            Notes[noteIndex] = newNote;
+            SelectedNote = newNote;
+        }
 
-            string result;
-            try
-            {
-                result = protector.Encrypt(text);
-            }
-            catch
-            {
-                result = text;
-            }
-            return result;
+        private ObservableCollection<Note> CreateNoteCollection(IEnumerable<Note> notes)
+        {
+            return new ObservableCollection<Note>(OrderByPinned(notes));
         }
     }
 }

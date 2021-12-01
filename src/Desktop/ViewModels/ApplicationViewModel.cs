@@ -4,7 +4,6 @@ using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Windows;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -24,14 +23,13 @@ namespace Noteapp.Desktop.ViewModels
 
         public ApplicationViewModel()
         {
+            SessionManager.LoadUserInfo();
+
             var httpClient = new HttpClient()
             {
                 BaseAddress = new Uri("http://localhost:5000/")
             };
-            // has to be the same instance of ApiService in LoginViewModel and NotesViewModel
             var apiService = new ApiService(httpClient);
-
-            LoadAccessToken(apiService);
 
             Pages.Add(new RegisterViewModel(apiService));
             Pages.Add(new LoginViewModel(apiService));
@@ -41,11 +39,6 @@ namespace Noteapp.Desktop.ViewModels
             CurrentPage = Pages.Find(vm => vm.Name == PageNames.Notes);
 
             ChangePageCommand = new RelayCommand(ChangePage);
-        }
-
-        private void LoadAccessToken(ApiService apiService)
-        {
-            apiService.AccessToken = SessionManager.GetUserInfo()?.Result?.AccessToken;
         }
 
         private void ChangePage(object page)

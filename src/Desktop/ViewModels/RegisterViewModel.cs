@@ -19,10 +19,10 @@ namespace Noteapp.Desktop.ViewModels
         public RegisterViewModel(ApiService apiService)
         {
             _apiService = apiService;
-            RegisterCommand = new RelayCommand(RegisterCommandExecute);
+            RegisterCommand = new RelayCommand(Register);
         }
 
-        private async void RegisterCommandExecute()
+        private async void Register()
         {
             await _apiService.Register(Email, Password);
             MessageBox.Show("Successfully registered.");

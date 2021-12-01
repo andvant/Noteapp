@@ -21,6 +21,5 @@ namespace Noteapp.Desktop.Models
         public bool Pinned { get; set; }
         public string PublicUrl { get; set; }
         public bool Published => PublicUrl != null;
-        public bool Encrypted { get; set; }
     }
 }

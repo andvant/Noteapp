@@ -2,6 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Noteapp.Desktop.Security
 {
@@ -13,7 +14,7 @@ namespace Noteapp.Desktop.Security
             _encryptionKey = encryptionKey;
         }
 
-        public string Encrypt(string text)
+        public async Task<string> Encrypt(string text)
         {
             var aes = Aes.Create();
             aes.Key = Convert.FromBase64String(_encryptionKey);
@@ -21,12 +22,12 @@ namespace Noteapp.Desktop.Security
             byte[] encryptedBytes;
             using (var memoryStream = new MemoryStream())
             {
-                memoryStream.Write(aes.IV);
+                await memoryStream.WriteAsync(aes.IV);
                 using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
                 {
                     using (var streamWriter = new StreamWriter(cryptoStream))
                     {
-                        streamWriter.Write(text);
+                        await streamWriter.WriteAsync(text);
                     }
                 }
                 encryptedBytes = memoryStream.ToArray();
@@ -35,7 +36,7 @@ namespace Noteapp.Desktop.Security
             return Convert.ToBase64String(encryptedBytes);
         }
 
-        public string Decrypt(string cipher)
+        public async Task<string> Decrypt(string cipher)
         {
             var aes = Aes.Create();
             aes.Key = Convert.FromBase64String(_encryptionKey);
@@ -45,13 +46,13 @@ namespace Noteapp.Desktop.Security
             using (var memoryStream = new MemoryStream(encryptedBytes))
             {
                 var buffer = new byte[aes.IV.Length];
-                memoryStream.Read(buffer);
+                await memoryStream.ReadAsync(buffer);
                 aes.IV = buffer;
                 using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
                 {
                     using (var streamReader = new StreamReader(cryptoStream))
                     {
-                        return streamReader.ReadToEnd();
+                        return await streamReader.ReadToEndAsync();
                     }
                 }
             }

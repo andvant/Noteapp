@@ -21,20 +21,37 @@ namespace Noteapp.Desktop.Session
                 EncryptionKey = encryptionKey
             };
 
-            Application.Current.Properties["userInfo"] = userInfo;
-
-            var userInfoJson = userInfo.ToJson();
-            await File.WriteAllTextAsync(_userInfoPath, userInfoJson);
+            await SaveUserInfo(userInfo);
         }
 
-        public static async Task<UserInfo> GetUserInfo()
+        public static async Task SaveUserInfo(UserInfo userInfo)
         {
-            var userInfo = Application.Current.Properties["userInfo"] as UserInfo;
-            if (userInfo != null) return userInfo;
-            if (!File.Exists(_userInfoPath)) return null;
+            Application.Current.Properties["userInfo"] = userInfo;
+            await File.WriteAllTextAsync(_userInfoPath, userInfo.ToJson());
+        }
 
-            var userInfoJson = await File.ReadAllTextAsync(_userInfoPath);
-            return userInfoJson.FromJson<UserInfo>();
+        public static UserInfo GetUserInfo()
+        {
+            return Application.Current.Properties["userInfo"] as UserInfo;
+        }
+
+        public static UserInfo GetUserInfoFromFile()
+        {
+            try
+            {
+                var userInfoJson = File.ReadAllText(_userInfoPath);
+                return userInfoJson.FromJson<UserInfo>();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static void LoadUserInfo()
+        {
+            var userInfo = GetUserInfoFromFile();
+            Application.Current.Properties["userInfo"] = userInfo;
         }
 
         public static void DeleteUserInfo()

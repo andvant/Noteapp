@@ -13,8 +13,6 @@ namespace Noteapp.Desktop.Networking
     {
         private readonly HttpClient _httpClient;
 
-        public string AccessToken { get; set; }
-
         public ApiService(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -144,9 +142,10 @@ namespace Noteapp.Desktop.Networking
 
         private void AddAuthorizationHeader(HttpRequestMessage request)
         {
-            if (!string.IsNullOrWhiteSpace(AccessToken))
+            var userInfo = SessionManager.GetUserInfo();
+            if (!string.IsNullOrWhiteSpace(userInfo?.AccessToken))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", userInfo.AccessToken);
             }
         }
     }
