@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Noteapp.Desktop.Extensions;
+using System;
 using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -24,7 +24,7 @@ namespace Noteapp.Desktop.Session
 
             Application.Current.Properties["userInfo"] = userInfo;
 
-            var userInfoJson = JsonSerializer.Serialize(userInfo, new JsonSerializerOptions { WriteIndented = true });
+            var userInfoJson = userInfo.ToJson();
             await File.WriteAllTextAsync(_userInfoPath, userInfoJson);
         }
 
@@ -35,7 +35,7 @@ namespace Noteapp.Desktop.Session
             if (!File.Exists(_userInfoPath)) return null;
 
             var userInfoJson = await File.ReadAllTextAsync(_userInfoPath);
-            return JsonSerializer.Deserialize<UserInfo>(userInfoJson);
+            return userInfoJson.FromJson<UserInfo>();
         }
 
         public static void DeleteUserInfo()

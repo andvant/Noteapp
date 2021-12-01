@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
@@ -9,7 +10,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -255,8 +255,7 @@ namespace Noteapp.Desktop.ViewModels
             var result = dialog.ShowDialog();
             if (result == true)
             {
-                File.WriteAllText(dialog.FileName,
-                    JsonSerializer.Serialize(Notes, new JsonSerializerOptions() { WriteIndented = true }));
+                File.WriteAllText(dialog.FileName, Notes.ToJson());
             }
         }
 
@@ -271,7 +270,7 @@ namespace Noteapp.Desktop.ViewModels
             if (result == true)
             {
                 string json = File.ReadAllText(dialog.FileName);
-                var notes = JsonSerializer.Deserialize<IEnumerable<Note>>(json);
+                var notes = json.FromJson<IEnumerable<Note>>();
 
                 foreach (var note in notes)
                 {
