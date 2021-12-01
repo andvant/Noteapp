@@ -16,7 +16,7 @@ using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
 {
-    public class NotesViewModel : NotifyPropertyChanged, IPageViewModel
+    public class NotesViewModel : NotifyPropertyChanged, IPage
     {
         public string Name => PageNames.Notes;
 

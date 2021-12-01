@@ -1,6 +1,6 @@
 ﻿namespace Noteapp.Desktop.MVVM
 {
-    public interface IPageViewModel
+    public interface IPage
     {
         string Name { get; }
     }

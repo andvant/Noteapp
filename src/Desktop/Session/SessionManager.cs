@@ -18,8 +18,7 @@ namespace Noteapp.Desktop.Session
             {
                 AccessToken = userInfoDto.access_token,
                 Email = userInfoDto.email,
-                EncryptionKey = encryptionKey,
-                EncryptionSalt = userInfoDto.encryption_salt
+                EncryptionKey = encryptionKey
             };
 
             Application.Current.Properties["userInfo"] = userInfo;

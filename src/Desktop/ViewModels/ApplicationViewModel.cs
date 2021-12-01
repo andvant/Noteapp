@@ -4,15 +4,22 @@ using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
 {
     public class ApplicationViewModel : NotifyPropertyChanged
     {
-        private IPageViewModel _currentPageViewModel;
+        public List<IPage> Pages { get; } = new();
+        private IPage _currentPage;
 
-        public List<IPageViewModel> PageViewModels { get; } = new();
+        public IPage CurrentPage
+        {
+            get => _currentPage;
+            set => Set(ref _currentPage, value);
+        }
+
         public ICommand ChangePageCommand { get; }
 
         public ApplicationViewModel()
@@ -26,16 +33,14 @@ namespace Noteapp.Desktop.ViewModels
 
             LoadAccessToken(apiService);
 
-            PageViewModels.Add(new RegisterViewModel(apiService));
-            PageViewModels.Add(new LoginViewModel(apiService));
-            PageViewModels.Add(new NotesViewModel(apiService));
-            PageViewModels.Add(new SettingsViewModel(apiService));
+            Pages.Add(new RegisterViewModel(apiService));
+            Pages.Add(new LoginViewModel(apiService));
+            Pages.Add(new NotesViewModel(apiService));
+            Pages.Add(new SettingsViewModel(apiService));
 
-            CurrentPageViewModel = PageViewModels.Find(vm => vm.Name == PageNames.Notes);
+            CurrentPage = Pages.Find(vm => vm.Name == PageNames.Notes);
 
-            ChangePageCommand = new RelayCommand(
-                vm => ChangeViewModel((IPageViewModel)vm),
-                vm => vm is IPageViewModel);
+            ChangePageCommand = new RelayCommand(ChangePage);
         }
 
         private void LoadAccessToken(ApiService apiService)
@@ -43,20 +48,14 @@ namespace Noteapp.Desktop.ViewModels
             apiService.AccessToken = SessionManager.GetUserInfo()?.Result?.AccessToken;
         }
 
-        public IPageViewModel CurrentPageViewModel
+        private void ChangePage(object page)
         {
-            get => _currentPageViewModel;
-            set => Set(ref _currentPageViewModel, value);
-        }
+            CurrentPage = (IPage)page;
 
-        private void ChangeViewModel(IPageViewModel viewModel)
-        {
-            if (!PageViewModels.Contains(viewModel))
+            if (page is NotesViewModel notesVM)
             {
-                PageViewModels.Add(viewModel);
+                notesVM.ListCommand.Execute(null);
             }
-
-            CurrentPageViewModel = viewModel;
         }
     }
 }

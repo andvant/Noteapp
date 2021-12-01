@@ -25,11 +25,12 @@
 
     <DockPanel>
         <Border DockPanel.Dock="Left" BorderBrush="Black" BorderThickness="0,0,1,0">
-            <ItemsControl ItemsSource="{Binding PageViewModels}">
+            <ItemsControl ItemsSource="{Binding Pages}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Content="{Binding Name}"
-                                Command="{Binding DataContext.ChangePageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                Command="{Binding DataContext.ChangePageCommand, 
+                                    RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}"
                                 Width="120"
                                 Margin="5, 10" />
@@ -38,6 +39,6 @@
             </ItemsControl>
         </Border>
 
-        <ContentControl Content="{Binding CurrentPageViewModel}" />
+        <ContentControl Content="{Binding CurrentPage}" />
     </DockPanel>
 </Window>

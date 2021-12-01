@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
 {
-    public class LoginViewModel : NotifyPropertyChanged, IPageViewModel
+    public class LoginViewModel : NotifyPropertyChanged, IPage
     {
         public string Name => PageNames.Login;
 

@@ -5,7 +5,7 @@ using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
 {
-    public class RegisterViewModel : NotifyPropertyChanged, IPageViewModel
+    public class RegisterViewModel : NotifyPropertyChanged, IPage
     {
         public string Name => PageNames.Register;
 

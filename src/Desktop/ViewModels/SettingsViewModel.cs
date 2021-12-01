@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
 {
-    public class SettingsViewModel : NotifyPropertyChanged, IPageViewModel
+    public class SettingsViewModel : NotifyPropertyChanged, IPage
     {
         public string Name => PageNames.Settings;
 
