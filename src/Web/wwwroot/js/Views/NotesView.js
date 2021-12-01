@@ -1,4 +1,4 @@
-﻿import * as AjaxService from "../AjaxService.js";
+﻿import * as ApiService from "../ApiService.js";
 import * as NoteService from "../NoteService.js";
 
 export {
@@ -91,46 +91,46 @@ async function init() {
 
     function addEventListeners() {
         saveButton.addEventListener('click', async () => {
-            let updatedNote = await AjaxService.updateNote(NoteService.getSelectedNoteId(), getSelectedNoteText());
+            let updatedNote = await ApiService.updateNote(NoteService.getSelectedNoteId(), getSelectedNoteText());
             updateNoteElement(updatedNote);
         });
 
         listButton.addEventListener('click', async () => {
-            let notes = await AjaxService.getNotes();
+            let notes = await ApiService.getNotes();
             createNoteElements(notes);
         });
 
         newButton.addEventListener('click', async () => {
-            let newNote = await AjaxService.createNote();
+            let newNote = await ApiService.createNote();
             addNoteElement(newNote);
         });
 
         deleteButton.addEventListener('click', async () => {
             let noteId = NoteService.getSelectedNoteId();
-            await AjaxService.deleteNote(noteId);
+            await ApiService.deleteNote(noteId);
             removeNoteElement(noteId);
         });
 
         pinButton.addEventListener('click', async () => {
-            let updatedNote = await AjaxService.togglePinned(NoteService.getSelectedNote());
+            let updatedNote = await ApiService.togglePinned(NoteService.getSelectedNote());
             updateNoteElement(updatedNote);
             createNoteElements(NoteService.getLocalNotes());
         });
 
         lockButton.addEventListener('click', async () => {
-            let updatedNote = await AjaxService.toggleLocked(NoteService.getSelectedNote());
+            let updatedNote = await ApiService.toggleLocked(NoteService.getSelectedNote());
             updateNoteElement(updatedNote);
             createNoteElements(NoteService.getLocalNotes());
         });
 
         archiveButton.addEventListener('click', async () => {
-            let updatedNote = await AjaxService.toggleArchived(NoteService.getSelectedNote());
+            let updatedNote = await ApiService.toggleArchived(NoteService.getSelectedNote());
             updateNoteElement(updatedNote);
             createNoteElements(NoteService.getLocalNotes());
         });
 
         publishButton.addEventListener('click', async () => {
-            let updatedNote = await AjaxService.togglePublished(NoteService.getSelectedNote());
+            let updatedNote = await ApiService.togglePublished(NoteService.getSelectedNote());
             updateNoteElement(updatedNote);
         });
 
@@ -161,7 +161,7 @@ async function init() {
             reader.readAsText(importNotesInput.files[0]);
             reader.onload = async () => {
                 let notesJson = reader.result;
-                await AjaxService.bulkCreateNotes(notesJson);
+                await ApiService.bulkCreateNotes(notesJson);
             }
         });
 
@@ -185,7 +185,7 @@ async function init() {
         historyButton.addEventListener('click', async () => {
             if (historyDiv.style.display == 'block') return;
 
-            snapshots = await AjaxService.getAllSnapshots(NoteService.getSelectedNoteId());
+            snapshots = await ApiService.getAllSnapshots(NoteService.getSelectedNoteId());
 
             oldNoteText = getSelectedNoteText();
             historySlider.setAttribute('min', '0');

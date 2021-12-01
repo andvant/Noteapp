@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Noteapp.Desktop.Networking
 {
-    public class ApiCaller
+    public class ApiService
     {
         private readonly HttpClient _httpClient;
 
         public string AccessToken { get; set; }
 
-        public ApiCaller(HttpClient httpClient)
+        public ApiService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }

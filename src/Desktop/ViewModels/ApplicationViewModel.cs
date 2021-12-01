@@ -21,15 +21,15 @@ namespace Noteapp.Desktop.ViewModels
             {
                 BaseAddress = new Uri("http://localhost:5000/")
             };
-            // has to be the same instance of ApiCaller in LoginViewModel and NotesViewModel
-            var apiCaller = new ApiCaller(httpClient);
+            // has to be the same instance of ApiService in LoginViewModel and NotesViewModel
+            var apiService = new ApiService(httpClient);
 
-            LoadAccessToken(apiCaller);
+            LoadAccessToken(apiService);
 
-            PageViewModels.Add(new RegisterViewModel(apiCaller));
-            PageViewModels.Add(new LoginViewModel(apiCaller));
-            PageViewModels.Add(new NotesViewModel(apiCaller));
-            PageViewModels.Add(new SettingsViewModel(apiCaller));
+            PageViewModels.Add(new RegisterViewModel(apiService));
+            PageViewModels.Add(new LoginViewModel(apiService));
+            PageViewModels.Add(new NotesViewModel(apiService));
+            PageViewModels.Add(new SettingsViewModel(apiService));
 
             CurrentPageViewModel = PageViewModels.Find(vm => vm.Name == PageNames.Notes);
 
@@ -38,9 +38,9 @@ namespace Noteapp.Desktop.ViewModels
                 vm => vm is IPageViewModel);
         }
 
-        private void LoadAccessToken(ApiCaller apiCaller)
+        private void LoadAccessToken(ApiService apiService)
         {
-            apiCaller.AccessToken = SessionManager.GetUserInfo()?.Result?.AccessToken;
+            apiService.AccessToken = SessionManager.GetUserInfo()?.Result?.AccessToken;
         }
 
         public IPageViewModel CurrentPageViewModel

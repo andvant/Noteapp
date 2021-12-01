@@ -1,4 +1,4 @@
-﻿import * as AjaxService from "../AjaxService.js"
+﻿import * as ApiService from "../ApiService.js"
 
 export {
     render,
@@ -22,10 +22,10 @@ async function init() {
     const deleteAccountButton = document.getElementById('delete-account-button');
 
     logoutButton.addEventListener('click', () => {
-        AjaxService.logout();
+        ApiService.logout();
     });
 
     deleteAccountButton.addEventListener('click', async () => {
-        await AjaxService.deleteAccount();
+        await ApiService.deleteAccount();
     });
 }

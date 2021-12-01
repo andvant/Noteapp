@@ -22,7 +22,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private ObservableCollection<Note> _notes;
         private Note _selectedNote;
-        private readonly ApiCaller _apiCaller;
+        private readonly ApiService _apiService;
         private bool _descendingUpdated;
         private bool _descendingCreated;
         private bool _descendingText;
@@ -94,9 +94,9 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand CancelHistoryCommand { get; }
         public ICommand ToggleShowArchivedCommand { get; }
 
-        public NotesViewModel(ApiCaller apiCaller)
+        public NotesViewModel(ApiService apiService)
         {
-            _apiCaller = apiCaller;
+            _apiService = apiService;
 
             ListCommand = new RelayCommand(ListCommandExecute);
             CreateCommand = new RelayCommand(CreateCommandExecute);
@@ -123,7 +123,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             var selectedNoteId = SelectedNote?.Id;
 
-            var notes = await _apiCaller.GetNotes(ShowArchived);
+            var notes = await _apiService.GetNotes(ShowArchived);
 
             foreach (var note in notes)
             {
@@ -137,7 +137,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void CreateCommandExecute(object parameter)
         {
-            var newNote = await _apiCaller.CreateNote();
+            var newNote = await _apiService.CreateNote();
             Notes.Add(newNote);
             SelectedNote = newNote;
         }
@@ -146,7 +146,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             string encryptedText = await TryEncryptText(SelectedNote.Text);
 
-            var updatedNote = await _apiCaller.UpdateNote(SelectedNote.Id, encryptedText);
+            var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, encryptedText);
 
             updatedNote.Text = await TryDecryptText(updatedNote.Text);
 
@@ -162,7 +162,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void DeleteCommandExecute(object noteId)
         {
-            await _apiCaller.DeleteNote((int)noteId);
+            await _apiService.DeleteNote((int)noteId);
             var note = Notes.Single(note => note.Id == (int)noteId);
             Notes.Remove(note);
         }
@@ -170,7 +170,7 @@ namespace Noteapp.Desktop.ViewModels
         private async void ToggleLockedCommandExecute(object parameter)
         {
             var note = (Note)parameter;
-            var updatedNote = await _apiCaller.ToggleLocked(note.Id, note.Locked);
+            var updatedNote = await _apiService.ToggleLocked(note.Id, note.Locked);
 
             updatedNote.Text = await TryDecryptText(updatedNote.Text);
 
@@ -182,7 +182,7 @@ namespace Noteapp.Desktop.ViewModels
         private async void ToggleArchivedCommandExecute(object parameter)
         {
             var note = (Note)parameter;
-            var updatedNote = await _apiCaller.ToggleArchived(note.Id, note.Archived);
+            var updatedNote = await _apiService.ToggleArchived(note.Id, note.Archived);
 
             updatedNote.Text = await TryDecryptText(updatedNote.Text);
 
@@ -199,7 +199,7 @@ namespace Noteapp.Desktop.ViewModels
         private async void TogglePinnedCommandExecute(object parameter)
         {
             var note = (Note)parameter;
-            var updatedNote = await _apiCaller.TogglePinned(note.Id, note.Pinned);
+            var updatedNote = await _apiService.TogglePinned(note.Id, note.Pinned);
 
             updatedNote.Text = await TryDecryptText(updatedNote.Text);
 
@@ -213,7 +213,7 @@ namespace Noteapp.Desktop.ViewModels
         private async void TogglePublishedCommandExecute(object parameter)
         {
             var note = (Note)parameter;
-            var updatedNote = await _apiCaller.TogglePublished(note.Id, note.Published);
+            var updatedNote = await _apiService.TogglePublished(note.Id, note.Published);
 
             updatedNote.Text = await TryDecryptText(updatedNote.Text);
 
@@ -277,7 +277,7 @@ namespace Noteapp.Desktop.ViewModels
                     note.Text = await TryEncryptText(note.Text);
                 }
 
-                await _apiCaller.BulkCreateNotes(notes);
+                await _apiService.BulkCreateNotes(notes);
                 ListCommand.Execute(null);
             }
         }
@@ -295,7 +295,7 @@ namespace Noteapp.Desktop.ViewModels
             HistoryVisibility = Visibility.Visible;
             _oldNoteText = SelectedNote.Text;
 
-            var snapshots = await _apiCaller.GetAllSnapshots(SelectedNote.Id);
+            var snapshots = await _apiService.GetAllSnapshots(SelectedNote.Id);
 
             foreach (var snapshot in snapshots)
             {

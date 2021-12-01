@@ -1,4 +1,4 @@
-﻿import * as AjaxService from "../AjaxService.js";
+﻿import * as ApiService from "../ApiService.js";
 
 export {
     render,
@@ -22,6 +22,6 @@ async function init() {
     loginButton.addEventListener('click', async () => {
         let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
-        await AjaxService.login(email, password);
+        await ApiService.login(email, password);
     });
 }

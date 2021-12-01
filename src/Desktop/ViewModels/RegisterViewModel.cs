@@ -9,22 +9,22 @@ namespace Noteapp.Desktop.ViewModels
     {
         public string Name => PageNames.Register;
 
-        private readonly ApiCaller _apiCaller;
+        private readonly ApiService _apiService;
 
         public string Email { get; set; }
         public string Password { get; set; }
 
         public ICommand RegisterCommand { get; }
 
-        public RegisterViewModel(ApiCaller apiCaller)
+        public RegisterViewModel(ApiService apiService)
         {
-            _apiCaller = apiCaller;
+            _apiService = apiService;
             RegisterCommand = new RelayCommand(RegisterCommandExecute);
         }
 
         private async void RegisterCommandExecute(object parameter)
         {
-            await _apiCaller.Register(Email, Password);
+            await _apiService.Register(Email, Password);
             MessageBox.Show("Successfully registered.");
         }
     }

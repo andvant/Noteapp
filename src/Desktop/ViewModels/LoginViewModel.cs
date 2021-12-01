@@ -11,24 +11,24 @@ namespace Noteapp.Desktop.ViewModels
     {
         public string Name => PageNames.Login;
 
-        private readonly ApiCaller _apiCaller;
+        private readonly ApiService _apiService;
 
         public string Email { get; set; }
         public string Password { get; set; }
 
         public ICommand LoginCommand { get; }
 
-        public LoginViewModel(ApiCaller apiCaller)
+        public LoginViewModel(ApiService apiService)
         {
-            _apiCaller = apiCaller;
+            _apiService = apiService;
             LoginCommand = new RelayCommand(LoginCommandExecute);
         }
 
         private async void LoginCommandExecute(object parameter)
         {
-            var userInfoDto = await _apiCaller.Login(Email, Password);
+            var userInfoDto = await _apiService.Login(Email, Password);
 
-            _apiCaller.AccessToken = userInfoDto.access_token;
+            _apiService.AccessToken = userInfoDto.access_token;
             var encryptionkey = Protector.GenerateEncryptionKey(Password, userInfoDto.encryption_salt);
             await SessionManager.SaveUserInfo(userInfoDto, encryptionkey);
             MessageBox.Show("Successfully logged in.");
