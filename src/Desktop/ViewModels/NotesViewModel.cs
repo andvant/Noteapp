@@ -112,7 +112,7 @@ namespace Noteapp.Desktop.ViewModels
             ExportNotesCommand = new RelayCommand(ExportNotesCommandExecute);
             ImportNotesCommand = new RelayCommand(ImportNotesCommandExecute);
             ShowHistoryCommand = new RelayCommand(ShowHistoryCommandExecute, ShowHistoryCommandCanExecute);
-            RestoreSnapshotCommand = new RelayCommand(RestoreSnapshotCommandExecute);
+            RestoreSnapshotCommand = new RelayCommand(RestoreSnapshotCommandExecute, RestoreSnapshotCommandCanExecute);
             CancelHistoryCommand = new RelayCommand(CancelHistoryCommandExecute);
             ToggleShowArchivedCommand = new RelayCommand(ToggleArchivedViewCommandExecute);
 
@@ -144,9 +144,13 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void UpdateCommandExecute(object parameter)
         {
-            string encryptedText = await TryEncryptText(SelectedNote.Text);
+            string text = SelectedNote.Text;
+            if (!SelectedNote.Published)
+            {
+                text = await TryEncryptText(SelectedNote.Text);
+            }
 
-            var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, encryptedText);
+            var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, text);
 
             updatedNote.Text = await TryDecryptText(updatedNote.Text);
 
@@ -288,6 +292,11 @@ namespace Noteapp.Desktop.ViewModels
             SelectedNote.Text = CurrentSnapshotText;
             Snapshots = null;
             UpdateCommand.Execute(null);
+        }
+
+        private bool RestoreSnapshotCommandCanExecute(object parameter)
+        {
+            return CurrentSnapshotIndex < MaximumSnapshotIndex;
         }
 
         private async void ShowHistoryCommandExecute(object parameter)

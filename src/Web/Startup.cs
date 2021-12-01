@@ -28,6 +28,7 @@ namespace Noteapp.Web
             }
 
             app.UseStaticFiles();
+            app.UseStatusCodePages();
 
             app.UseRouting();
 

@@ -1,0 +1,11 @@
+﻿@model IEnumerable<string>
+
+<h1>Published note text:</h1>
+
+@foreach (var line in Model)
+{
+    <pre>@line</pre>
+}
+
+<hr />
+<p>Published with Noteapp</p>

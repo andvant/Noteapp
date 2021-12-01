@@ -124,7 +124,7 @@ namespace Noteapp.Api.Controllers
         public IActionResult GetPublishedNoteText(string url)
         {
             var text = _noteService.GetPublishedNoteText(url);
-            return Ok(new { text });
+            return Ok(text);
         }
 
         [HttpGet("{id:int}/snapshots")]
