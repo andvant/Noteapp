@@ -24,7 +24,7 @@ namespace Noteapp.Desktop.ViewModels
             LoginCommand = new RelayCommand(LoginCommandExecute);
         }
 
-        private async void LoginCommandExecute(object parameter)
+        private async void LoginCommandExecute()
         {
             var userInfoDto = await _apiService.Login(Email, Password);
 

@@ -23,7 +23,7 @@ namespace Noteapp.Desktop.ViewModels
             DeleteAccountCommand = new RelayCommand(DeleteAccountCommandExecute);
         }
 
-        private void LogoutCommandExecute(object parameter)
+        private void LogoutCommandExecute()
         {
             _apiService.AccessToken = null;
             SessionManager.DeleteUserInfo();
@@ -31,7 +31,7 @@ namespace Noteapp.Desktop.ViewModels
             OnPropertyChanged(nameof(Email));
         }
 
-        private async void DeleteAccountCommandExecute(object parameter)
+        private async void DeleteAccountCommandExecute()
         {
             await _apiService.DeleteAccount();
             MessageBox.Show("Account successfully deleted.");

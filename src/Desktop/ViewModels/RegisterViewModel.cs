@@ -22,7 +22,7 @@ namespace Noteapp.Desktop.ViewModels
             RegisterCommand = new RelayCommand(RegisterCommandExecute);
         }
 
-        private async void RegisterCommandExecute(object parameter)
+        private async void RegisterCommandExecute()
         {
             await _apiService.Register(Email, Password);
             MessageBox.Show("Successfully registered.");

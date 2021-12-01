@@ -30,12 +30,14 @@
             <Button DockPanel.Dock="Right" Command="{Binding ShowHistoryCommand}" Content="History" Width="160" />
         </DockPanel>
 
-        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+        <DockPanel Grid.Row="1" Grid.ColumnSpan="2" >
             <Label Content="Sort by:" />
-            <Button Content="Created" Margin="5" Command="{Binding SortyByCreatedCommand}" />
-            <Button Content="Updated" Margin="5" Command="{Binding SortyByUpdatedCommand}" />
-            <Button Content="Text" Margin="5" Command="{Binding SortyByTextCommand}" />
-        </StackPanel>
+            <Button Content="Created" Margin="5" Command="{Binding SortyByCreatedCommand}" DockPanel.Dock="Left"/>
+            <Button Content="Updated" Margin="5" Command="{Binding SortyByUpdatedCommand}" DockPanel.Dock="Left"/>
+            <Button Content="Text" Margin="5" Command="{Binding SortyByTextCommand}" DockPanel.Dock="Left"/>
+            <Label Content="{Binding SelectedNote.Encrypted}" ContentStringFormat="Note encrypted: {0}"
+                   DockPanel.Dock="Right" />
+        </DockPanel>
         
         <ListBox Grid.Row="2" Grid.Column="0" ItemsSource="{Binding Notes}" SelectedItem="{Binding SelectedNote}">
             <ListBox.ItemTemplate>
