@@ -35,12 +35,16 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             noteService.BulkCreate(1, noteTexts);
 
             // Assert
-            _mock.Verify(repo => repo.AddRange(It.Is<List<Note>>(notes =>
-                notes.Count == noteTexts.Count &&
-                notes.Any(note =>
-                    note.AuthorId == 1 && note.Created == dateTime && note.Updated == dateTime &&
-                    noteTexts.Contains(note.Text))
-            )), Times.Once);
+            _mock.Verify(repo => repo.AddRange(
+                It.Is<List<Note>>(notes =>
+                    notes.Count == noteTexts.Count &&
+                    notes.Any(note =>
+                        note.AuthorId == 1 && note.Created == dateTime)), 
+                It.Is<List<NoteSnapshot>>(snapshots => 
+                    snapshots.Count == noteTexts.Count && 
+                    snapshots.Any(snapshot =>
+                        noteTexts.Contains(snapshot.Text) && snapshot.Created == dateTime)
+                )), Times.Once);
         }
 
         [Fact]

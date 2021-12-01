@@ -23,7 +23,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Archived = false
             };
-            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
+            _mock.Setup(repo => repo.FindWithCurrentSnapshot(1)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -44,7 +44,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Archived = false
             };
-            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
+            _mock.Setup(repo => repo.FindWithCurrentSnapshot(1)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
@@ -65,7 +65,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Archived = false
             };
-            _mock.Setup(repo => repo.Find(1, false)).Returns(note);
+            _mock.Setup(repo => repo.FindWithCurrentSnapshot(1)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act

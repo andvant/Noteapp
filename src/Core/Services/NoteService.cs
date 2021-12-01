@@ -205,7 +205,7 @@ namespace Noteapp.Core.Services
         {
             if (note is null || note.AuthorId != userId)
             {
-                throw new NoteNotFoundException(userId, note.Id);
+                throw new NoteNotFoundException();
             }
         }
 

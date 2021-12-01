@@ -28,7 +28,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 NoteId = 1,
                 Text = "note 1"
             };
-            note.Snapshots = new List<NoteSnapshot>() { noteSnapshot };
+            note.CurrentSnapshot = noteSnapshot;
 
             _mock.Setup(repo => repo.FindByPublicUrl("testtest")).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
@@ -54,7 +54,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 NoteId = 1,
                 Text = "note 1"
             };
-            note.Snapshots = new List<NoteSnapshot>() { noteSnapshot };
+            note.CurrentSnapshot = noteSnapshot;
 
             _mock.Setup(repo => repo.FindByPublicUrl("testtest")).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
