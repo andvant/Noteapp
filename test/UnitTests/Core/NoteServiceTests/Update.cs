@@ -21,7 +21,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 dateTimeProvider.Now == _updated);
         }
 
-        [Fact(Skip = "too much mocking required")]
+        [Fact]
         public void UpdatesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
@@ -31,19 +31,12 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Created = _created,
             };
-            var noteSnapshot = new NoteSnapshot()
-            {
-                NoteId = 1,
-                Text = "original text",
-                Created = _created
-            };
             var newSnapshot = new NoteSnapshot()
             {
                 NoteId = 1,
                 Text = "updated text",
                 Created = _updated
             };
-            note.CurrentSnapshot = noteSnapshot;
 
             _mock.Setup(repo => repo.FindWithoutSnapshots(1)).Returns(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
@@ -53,8 +46,8 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 
             // Assert
             Assert.Equal("updated text", note.Text);
-            Assert.Equal(_updated, note.Updated, TimeSpan.Zero);
             Assert.Equal(_created, note.Created, TimeSpan.Zero);
+            Assert.Equal(_updated, note.Updated, TimeSpan.Zero);
         }
 
         [Fact]

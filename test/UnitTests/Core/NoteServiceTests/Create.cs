@@ -23,8 +23,10 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             var createdNote = noteService.Create(userId: 1, text: "new note");
 
             // Assert
-            Assert.Equal(dateTime, createdNote.Created);
             Assert.Equal(1, createdNote.AuthorId);
+            Assert.Equal("new note", createdNote.Text);
+            Assert.Equal(dateTime, createdNote.Created);
+            Assert.Equal(dateTime, createdNote.Updated);
         }
     }
 }

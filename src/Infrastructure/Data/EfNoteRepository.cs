@@ -15,54 +15,59 @@ namespace Noteapp.Infrastructure.Data
             _context = context;
         }
 
-        public void Add(Note note, NoteSnapshot snapshot)
+        // have to make two separate calls to SaveChanges, because inserting a new Note
+        // with CurrentSnapshot property already set will produce a circular dependency
+        public void Add(Note note)
         {
-            using (var transaction = _context.Database.BeginTransaction())
-            {
-                _context.Notes.Add(note);
-                _context.SaveChanges();
+            using var transaction = _context.Database.BeginTransaction();
 
-                note.CurrentSnapshot = snapshot;
-                _context.SaveChanges();
+            var snapshot = note.CurrentSnapshot;
+            note.CurrentSnapshot = null;
 
-                transaction.Commit();
-            }
-        }
+            _context.Notes.Add(note);
+            _context.SaveChanges();
 
-        public void AddSnapshot(Note note, NoteSnapshot snapshot)
-        {
             note.CurrentSnapshot = snapshot;
             _context.SaveChanges();
+
+            transaction.Commit();
         }
 
-        public void AddRange(IEnumerable<Note> notes, IEnumerable<NoteSnapshot> snapshots)
+        // have to make two separate calls to SaveChanges, because inserting a new Note
+        // with CurrentSnapshot property already set will produce a circular dependency
+        public void AddRange(IEnumerable<Note> notes)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            using var transaction = _context.Database.BeginTransaction();
+
+            var snapshots = new List<NoteSnapshot>(notes.Count());
+            foreach (var note in notes)
             {
-                _context.Notes.AddRange(notes);
-                _context.SaveChanges();
-
-                var snapshotsEnumerator = snapshots.GetEnumerator();
-                foreach (var note in notes)
-                {
-                    snapshotsEnumerator.MoveNext();
-                    note.CurrentSnapshot = snapshotsEnumerator.Current;
-                }
-                _context.SaveChanges();
-
-                transaction.Commit();
+                snapshots.Add(note.CurrentSnapshot);
+                note.CurrentSnapshot = null;
             }
+
+            _context.Notes.AddRange(notes);
+            _context.SaveChanges();
+
+            int i = 0;
+            foreach (var note in notes)
+            {
+                note.CurrentSnapshot = snapshots[i++];
+            }
+            _context.SaveChanges();
+
+            transaction.Commit();
         }
 
-        public void Update(Note entity)
+        public void Update(Note note)
         {
-            _context.Entry(entity).State = EntityState.Modified;
+            _context.Entry(note).State = EntityState.Modified;
             _context.SaveChanges();
         }
 
-        public void Delete(Note entity)
+        public void Delete(Note note)
         {
-            _context.Notes.Remove(entity);
+            _context.Notes.Remove(note);
             _context.SaveChanges();
         }
 

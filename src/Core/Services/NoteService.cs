@@ -35,10 +35,9 @@ namespace Noteapp.Core.Services
         public Note Create(int userId, string text)
         {
             var note = CreateNote(userId);
-            var snapshot = CreateSnapshot(note, text);
+            note.CurrentSnapshot = CreateSnapshot(note, text);
 
-            _repository.Add(note, snapshot);
-
+            _repository.Add(note);
             return note;
         }
 
@@ -51,9 +50,9 @@ namespace Noteapp.Core.Services
                 throw new NoteLockedException(noteId);
             }
 
-            var snapshot = CreateSnapshot(note, text);
+            note.CurrentSnapshot = CreateSnapshot(note, text);
 
-            _repository.AddSnapshot(note, snapshot);
+            _repository.Update(note);
             return note;
         }
 
@@ -62,18 +61,16 @@ namespace Noteapp.Core.Services
             TooManyNotesException.ThrowIfTooManyNotes(texts.Count(), MAX_BULK_NOTES);
 
             var notes = new List<Note>();
-            var snapshots = new List<NoteSnapshot>();
 
             foreach (var text in texts)
             {
                 var note = CreateNote(userId);
-                var snapshot = CreateSnapshot(note, text);
+                note.CurrentSnapshot = CreateSnapshot(note, text);
 
                 notes.Add(note);
-                snapshots.Add(snapshot);
             }
 
-            _repository.AddRange(notes, snapshots);
+            _repository.AddRange(notes);
         }
 
         public void Delete(int userId, int noteId)
