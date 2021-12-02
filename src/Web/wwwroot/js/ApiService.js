@@ -18,9 +18,9 @@
 const BASE_URL = "http://localhost:5000/api";
 let _userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
-async function getNotes() {
-    //let filter = archived === true ? "?archived=true" : archived === false ? "?archived=false" : "";
-    let response = await sendRequest("notes", "GET");
+async function getNotes(archived) {
+    let filter = archived === true ? "?archived=true" : archived === false ? "?archived=false" : "";
+    let response = await sendRequest(`notes${filter}`, "GET");
     return await response.json();
 }
 

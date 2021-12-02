@@ -2,6 +2,15 @@
 
 let NotesView = { render, init }
 
+let _notes;
+let _selectedNoteId;
+let _snapshots;
+let _showArchived = false;
+let _oldNoteText;
+let _sortByUpdatedDescending = false;
+let _sortByCreatedDescending = false;
+let _sortByTextDescending = false;
+
 async function render() {
     return /*html*/ `
         <div id="notes-view">
@@ -53,7 +62,6 @@ async function render() {
 
 async function init() {
 
-    // DOM elements
     const saveButton = document.getElementById('save-button');
     const newButton = document.getElementById('new-button');
     const listButton = document.getElementById('list-button');
@@ -79,24 +87,12 @@ async function init() {
     const cancelHistoryButton = document.getElementById('cancel-history-button');
     const restoreSnapshotButton = document.getElementById('restore-snapshot-button');
 
-    // module variables
-    let _notes;
-    let _selectedNoteId;
-    let _snapshots;
-    let _showArchived = false;
-    let _oldNoteText;
-    let _sortByUpdatedDescending = false;
-    let _sortByCreatedDescending = false;
-    let _sortByTextDescending = false;
-
-
-    addEventListeners();
+    addListeners();
     listButton.click();
 
-
-    function addEventListeners() {
+    function addListeners() {
         listButton.addEventListener('click', async () => {
-            let notes = await ApiService.getNotes();
+            let notes = await ApiService.getNotes(_showArchived);
             _notes = notes;
             addNotes();
         });
@@ -120,19 +116,19 @@ async function init() {
         lockButton.addEventListener('click', async () => {
             let updatedNote = await ApiService.toggleLocked(getSelectedNote());
             updateNote(updatedNote);
-            addNotes();
+            makeNoteReadOnly(updatedNote.locked);
         });
 
         archiveButton.addEventListener('click', async () => {
             let updatedNote = await ApiService.toggleArchived(getSelectedNote());
             updateNote(updatedNote);
-            addNotes();
+            removeNoteElement(updatedNote.id);
         });
 
         pinButton.addEventListener('click', async () => {
             let updatedNote = await ApiService.togglePinned(getSelectedNote());
             updateNote(updatedNote);
-            addNotes();
+            addNoteElements();
         });
 
         publishButton.addEventListener('click', async () => {
@@ -141,17 +137,17 @@ async function init() {
         });
 
         sortByCreatedButton.addEventListener('click', () => {
-            sortByCreated(_notes);
+            sortByCreated();
             addNoteElements();
         });
 
         sortByUpdatedButton.addEventListener('click', () => {
-            sortByUpdated(_notes);
+            sortByUpdated();
             addNoteElements();
         });
 
         sortByTextButton.addEventListener('click', () => {
-            sortByText(_notes);
+            sortByText();
             addNoteElements();
         });
 
@@ -164,7 +160,7 @@ async function init() {
 
         toggleShowArchivedButton.addEventListener('click', async () => {
             _showArchived = !_showArchived;
-            addNotes();
+            listButton.click();
         });
 
         historyButton.addEventListener('click', showHistory);
@@ -187,17 +183,6 @@ async function init() {
         });
     }
 
-    function addNotes() {
-        addNoteElements();
-        setCheckboxesAndTextForSelectedNote()
-    }
-
-    function updateNote(updatedNote) {
-        changeNote(updatedNote);
-        modifyNoteElement(updatedNote);
-        setCheckboxesAndTextForSelectedNote()
-    }
-
     function addNote(newNote) {
         _notes.push(newNote);
         addNoteElement(newNote);
@@ -217,9 +202,30 @@ async function init() {
         noteDiv.remove();
     }
 
-    function modifyNoteElement(note) {
+    function updateNote(updatedNote) {
+        changeNote(updatedNote);
+        updateNoteElement(updatedNote);
+        setCheckboxesAndTextForSelectedNote()
+    }
+
+    function updateNoteElement(note) {
         let noteDiv = document.getElementById(`note-${note.id}`);
         noteDiv.outerHTML = createNoteHtml(note);
+    }
+
+    function addNotes() {
+        addNoteElements();
+        setCheckboxesAndTextForSelectedNote()
+    }
+
+    function addNoteElements() {
+        sortByPinned();
+        notesListDiv.innerHTML = '';
+        for (let note of _notes) {
+            notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
+        }
+
+        notesListDiv.addEventListener('click', noteSelectedHandler);
     }
 
     function getNoteId(noteElement) {
@@ -238,17 +244,6 @@ async function init() {
     function makeNoteReadOnly(locked) {
         noteTextElement.readOnly = locked ? true : false;
         saveButton.disabled = locked ? true : false;
-    }
-
-    function addNoteElements() {
-        let notes = getNotesForDisplay();
-        notesListDiv.innerHTML = '';
-
-        for (let note of notes) {
-            notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
-        }
-
-        notesListDiv.addEventListener('click', noteSelectedHandler);
     }
 
     function noteSelectedHandler(event) {
@@ -303,6 +298,7 @@ async function init() {
         a.href = URL.createObjectURL(blob);
         a.download = "exportedNotes-[date].json";
         a.click();
+        a.remove();
     }
 
     function setCheckboxesAndTextForSelectedNote() {
@@ -324,31 +320,26 @@ async function init() {
         _notes[noteIndex] = note;
     }
 
-    function sortByCreated(notes) {
-        notes.sort((note1, note2) => new Date(note1.created) - new Date(note2.created));
-        if (_sortByCreatedDescending) notes.reverse();
+    function sortByCreated() {
+        _notes.sort((note1, note2) => new Date(note1.created) - new Date(note2.created));
+        if (_sortByCreatedDescending) _notes.reverse();
         _sortByCreatedDescending = !_sortByCreatedDescending;
     }
     
-    function sortByUpdated(notes) {
-        notes.sort((note1, note2) => new Date(note1.updated) - new Date(note2.updated));
-        if (_sortByUpdatedDescending) notes.reverse();
+    function sortByUpdated() {
+        _notes.sort((note1, note2) => new Date(note1.updated) - new Date(note2.updated));
+        if (_sortByUpdatedDescending) _notes.reverse();
         _sortByUpdatedDescending = !_sortByUpdatedDescending;
     }
     
-    function sortByText(notes) {
-        notes.sort((note1, note2) => note1.text > note2.text ? 1 : -1);
-        if (_sortByTextDescending) notes.reverse();
+    function sortByText() {
+        _notes.sort((note1, note2) => note1.text > note2.text ? 1 : -1);
+        if (_sortByTextDescending) _notes.reverse();
         _sortByTextDescending = !_sortByTextDescending;
     }
     
-    function getNotesForDisplay() {
-        let notes = _notes.filter(note => note.archived === _showArchived);
-        return orderByPinned(notes);
-    }
-    
-    function orderByPinned(notes) {
-        return notes.sort((note1, note2) => note1.pinned === note2.pinned ? 0 : note1.pinned ? -1 : 1);
+    function sortByPinned() {
+        _notes.sort((note1, note2) => note1.pinned === note2.pinned ? 0 : note1.pinned ? -1 : 1);
     }
 
     async function showHistory() {

@@ -112,7 +112,7 @@ namespace Noteapp.Desktop.ViewModels
             ShowHistoryCommand = new RelayCommand(ShowHistory, CanShowHistory);
             RestoreSnapshotCommand = new RelayCommand(RestoreSnapshot, CanRestoreSnapshot);
             CancelHistoryCommand = new RelayCommand(CancelHistory);
-            ToggleShowArchivedCommand = new RelayCommand(ToggleArchivedView);
+            ToggleShowArchivedCommand = new RelayCommand(ToggleShowArchived);
 
             ListCommand.Execute(null);
         }
@@ -179,10 +179,7 @@ namespace Noteapp.Desktop.ViewModels
 
             ChangeNote(note, updatedNote);
 
-            if (updatedNote.Archived != ShowArchived)
-            {
-                Notes.Remove(updatedNote);
-            }
+            Notes.Remove(updatedNote);
         }
 
         private async void TogglePinned(object parameter)
@@ -307,7 +304,7 @@ namespace Noteapp.Desktop.ViewModels
             Snapshots = null;
         }
 
-        private void ToggleArchivedView()
+        private void ToggleShowArchived()
         {
             ShowArchived = !ShowArchived;
             ListCommand.Execute(null);
