@@ -1,9 +1,6 @@
-﻿import * as ApiService from "../ApiService.js"
+﻿import ApiService from "../ApiService.js"
 
-export {
-    render,
-    init
-}
+let SettingsView = { render, init }
 
 async function render() {
     let email = JSON.parse(localStorage.getItem('userInfo'))?.email ?? "Anonymous";
@@ -29,3 +26,5 @@ async function init() {
         await ApiService.deleteAccount();
     });
 }
+
+export default SettingsView;

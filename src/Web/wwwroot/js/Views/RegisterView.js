@@ -1,9 +1,6 @@
-﻿import * as ApiService from "../ApiService.js";
+﻿import ApiService from "../ApiService.js";
 
-export {
-    render,
-    init
-}
+let RegisterView = { render, init }
 
 async function render() {
     return /*html*/ `
@@ -25,3 +22,5 @@ async function init() {
         await ApiService.register(email, password);
     });
 }
+
+export default RegisterView;
