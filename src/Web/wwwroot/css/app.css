@@ -4,8 +4,10 @@ body {
 }
 
 * {
-    border: 1px solid blue;
     box-sizing: border-box;
+    font-size: 17px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    color: #222;
 }
 
 #wrapper {
@@ -20,16 +22,26 @@ body {
     padding-top: 10px;
     gap: 15px;
     flex-basis: 180px;
+    background-color: #eee;
+    border: 1px solid #555;
+    margin-right: -1px;
 }
 
-#views-panel > button {
-    height: 25px;
+#views-panel * {
+    height: 30px;
     width: 100%;
+    text-align: center;
+}
+
+#views-panel > div:hover {
+    background-color: #ccc;
 }
 
 #current-view {
     display: flex;
     flex-grow: 1;
+    border: 1px solid #555;
+    background-color: #eee;
 }
 
 /* Notes view */
@@ -43,6 +55,9 @@ body {
     display: flex;
     flex-direction: column;
     flex-basis: 340px;
+    background-color: white;
+    border: 1px solid #555;
+    margin: -1px;
 }
 
 #notes-actions {
@@ -50,6 +65,10 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 60px;
+    justify-content: space-around;
+    background-color: #eee;
+    border: 1px solid #555;
+    margin: -1px;
 }
 
 #notes-sort {
@@ -57,12 +76,20 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 60px;
+    background-color: #eee;
+    border: 1px solid #555;
+    margin: -1px;
+}
+
+#notes-sort * {
+    margin: 4px;
 }
 
 #notes-list {
     display: flex;
     flex-direction: column;
     overflow-y: hidden;
+    border-top: 1px solid #555;
 }
 
 #notes-list:hover {
@@ -72,14 +99,17 @@ body {
 .note {
     cursor: pointer;
     user-select: none;
+    padding: 6px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid #555;
+    
 }
 
 .note:hover {
     background-color: #eee;
-}
-
-.note div {
-    border: 0;
 }
 
 .note-selected, .note-selected:hover {
@@ -101,25 +131,29 @@ body {
 
 #selected-note-actions {
     display: flex;
-    flex-basis: 100px;
+    min-height: 60px;
+    background-color: #eee;
+    border: 1px solid #555;
+    margin: -1px;
 }
 
 #save-button-div {
     display: flex;
+    flex-grow: 1;
     justify-content: center;
     align-items: center;
     flex-basis: 100px;
 }
 
 #save-button {
-    width: 80px;
-    height: 30px;
+    width: 120px;
+    height: 35px;
 }
 
 #selected-note-menu {
     display: flex;
-    flex-grow: 1;
-    justify-content: right;
+    flex-basis: 60px;
+    justify-content: center;
     align-items: center;
 }
 
@@ -129,9 +163,17 @@ body {
 }
 
 #selected-note-text {
-    padding: 5px;
     flex-grow: 1;
     height: 100%;
+    border: 1px solid #555;
+    margin: -1px;
+}
+
+#selected-note-text textarea {
+    border: none;
+    outline: none;
+    padding: 8px;
+    padding-left: 16px;
 }
 
 #notes-actions > button {
@@ -153,14 +195,16 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    border: 1px solid #555;
 }
 
 #history-slider {
     width: 500px;
 }
 
-#history-slider-buttons {
+#note-history-buttons {
     display: flex;
+    justify-content: right;
 }
 
 /* Login view */
@@ -173,6 +217,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+
+    background-color: #eee;
 }
 
 #login-view * {
@@ -186,7 +232,6 @@ body {
     align-self: center;
 }
 
-
 /* Register view */
 #register-view {
     margin: auto;
@@ -197,6 +242,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+
+    background-color: #eee;
 }
 
 #register-view * {
@@ -221,6 +268,8 @@ body {
     flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
+
+    background-color: #eee;
 }
 
 #settings-view * {
@@ -228,7 +277,105 @@ body {
     padding: 8px;
 }
 
-#settings-view > button {
+#logout-button, #delete-account-button {
     width: 200px;
     height: 50px;
+}
+
+/* Dropdown actions menu */
+.menu-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.menu-icon:hover {
+    filter: brightness(70%) contrast(200%);
+}
+
+#dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+#actions-menu-button {
+    border: none;
+    cursor: pointer;
+}
+
+#actions-menu {
+    display: none;
+    position: absolute;
+    min-width: 200px;
+    top: 55px;
+    right: 0;
+    z-index: 1;
+    border: 1px solid #555;
+}
+
+.show {
+    display: flex !important;
+    flex-direction: column;
+}
+
+.action {
+    padding: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #fff;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    border: 0;
+}
+
+.action:hover {
+    background-color: #eee;
+}
+
+.action input {
+    cursor: pointer;
+}
+
+.btn {
+    width: 80px;
+    height: 30px;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.btn:hover {
+    background-color: #ccc;
+}
+
+.note-flags * {
+    padding: 3px;
+    font-size: 15px;
+    color: white;
+    display: inline-block;
+}
+
+.note-pinned {
+    background-color: #086dd6;
+}
+
+.note-locked {
+    background-color: #f6a200;
+}
+
+.note-archived {
+    background-color: #989898;
+}
+
+.note-published {
+    background-color: #de0231;
+}
+
+.show-archived {
+    background-color: #ccc;
 }

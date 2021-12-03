@@ -8,8 +8,8 @@ async function render() {
     return /*html*/ `
         <div id="settings-view">
             <label>Email: ${email}</label>
-            <button id="logout-button">Log out</button>
-            <button id="delete-account-button">Delete account</button>
+            <div id="logout-button" class="btn">Log out</div>
+            <div id="delete-account-button" class="btn">Delete account</div>
         </div>`
 }
 

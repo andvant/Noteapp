@@ -16,15 +16,15 @@ async function render() {
         <div id="notes-view">
             <div id="notes-all">
                 <div id="notes-actions">
-                    <button id="toggle-show-archived-button">Archived</button>
-                    <button id="new-button">+</button>
-                    <button id="list-button">List</button>
+                    <div id="toggle-show-archived-button" class="btn">Archived</div>
+                    <div id="new-button" class="btn">+</div>
+                    <div id="list-button" class="btn">List</div>
                 </div>
                 <div id="notes-sort">
                     <label>Sort by:</label>
-                    <button id="sortby-created-button">Created</button>
-                    <button id="sortby-updated-button">Updated</button>
-                    <button id="sortby-text-button">Text</button>
+                    <div id="sortby-created-button" class="btn">Created</div>
+                    <div id="sortby-updated-button" class="btn">Updated</div>
+                    <div id="sortby-text-button" class="btn">Text</div>
                 </div>
                 <div id="notes-list"></div>
             </div>
@@ -32,43 +32,44 @@ async function render() {
                 <div id="selected-note">
                     <div id="selected-note-actions">
                         <div id="save-button-div">
-                            <button id="save-button">Save</button>
+                            <div id="save-button" class="btn">Save</div>
                         </div>
                         <div id="selected-note-menu">
-                            <label for="pin-checkbox">Pin
-                            <input id="pin-checkbox" type="checkbox" />
-                            </label>
-
-                            <label for="lock-checkbox">Lock
-                            <input id="lock-checkbox" type="checkbox" />
-                            </label>
-
-                            <label for="archive-checkbox">Archive
-                            <input id="archive-checkbox" type="checkbox" />
-                            </label>
-
-                            <label for="publish-checkbox">Publish
-                            <input id="publish-checkbox" type="checkbox" />
-                            </label>
-
-                            <button id="export-notes-button">Export</button>
-                            <button id="import-notes-button">Import</button>
-                            <input id="import-notes-input" type="file" style="display: none;" />
-                            <button id="history-button">History</button>
-                            <button id="delete-button">Delete</button>
+                            <div id="dropdown">
+                                <img src="../../menu.svg" class="menu-icon" id="actions-menu-button" />
+                                <div id="actions-menu">
+                                    <label for="pin-checkbox" class="action">Pin to top
+                                        <input id="pin-checkbox" type="checkbox" />
+                                    </label>
+                                    <label for="lock-checkbox" class="action">Lock
+                                        <input id="lock-checkbox" type="checkbox" />
+                                    </label>
+                                    <label for="archive-checkbox" class="action">Archive
+                                        <input id="archive-checkbox" type="checkbox" />
+                                    </label>
+                                    <label for="publish-checkbox" class="action">Publish
+                                        <input id="publish-checkbox" type="checkbox" />
+                                    </label>
+                                    <div id="history-button" class="action">Note history</div>
+                                    <div id="export-notes-button" class="action">Export</div>
+                                    <div id="import-notes-button" class="action">Import</div>
+                                    <input id="import-notes-input" type="file" style="display: none;" />
+                                    <div id="delete-button" class="action">Delete</div>
+                                </div>
+                            </div> 
                         </div>
                     </div>
 
                     <div id="selected-note-text">
-                        <textarea id="note-text" placeholder="Note text here..."></textarea>
+                        <textarea id="note-text" placeholder="New note..."></textarea>
                     </div>
                 </div>
                 <div id="note-history">
                     <div id="snapshot-date"></div>
                     <input type="range" id="history-slider" min="0" max="9" step="1" />
                     <div id="note-history-buttons">
-                        <button id="cancel-history-button">Cancel</button>
-                        <button id="restore-snapshot-button">Restore</button>
+                        <div id="cancel-history-button" class="btn">Cancel</div>
+                        <div id="restore-snapshot-button" class="btn">Restore</div>
                     </div>
                 </div>
             </div>
@@ -102,6 +103,9 @@ async function init() {
     const cancelHistoryButton = document.getElementById('cancel-history-button');
     const restoreSnapshotButton = document.getElementById('restore-snapshot-button');
 
+    const actionsMenuButton = document.getElementById('actions-menu-button');
+    const actionsMenu = document.getElementById('actions-menu');
+
     addListeners();
     await listButtonHandler();
 
@@ -116,36 +120,32 @@ async function init() {
         archiveCheckbox.addEventListener('change', archiveCheckboxHandler);
         pinCheckbox.addEventListener('change', pinCheckboxHandler);
         publishCheckbox.addEventListener('change', publishCheckboxHandler);
-        notesListDiv.addEventListener('click', noteSelectedHandler);
-
-        sortByCreatedButton.addEventListener('click', () => {
-            sortByCreated();
-            addNoteElements();
-        });
-
-        sortByUpdatedButton.addEventListener('click', () => {
-            sortByUpdated();
-            addNoteElements();
-        });
-
-        sortByTextButton.addEventListener('click', () => {
-            sortByText();
-            addNoteElements();
-        });
-
+        
+        sortByCreatedButton.addEventListener('click', sortByCreatedButtonHandler);
+        sortByUpdatedButton.addEventListener('click', sortByUpdatedButtonHandler);
+        sortByTextButton.addEventListener('click', sortByTextButtonHandler);
+        
         importNotesButton.addEventListener('click', () => importNotesInput.click());
         importNotesInput.addEventListener('change', importNotesHandler);
         exportNotesButton.addEventListener('click', exportNotesHandler);
-
-        toggleShowArchivedButton.addEventListener('click', async () => {
-            _showArchived = !_showArchived;
-            await listButtonHandler();
-        });
+        
+        notesListDiv.addEventListener('click', noteSelectedHandler);
+        toggleShowArchivedButton.addEventListener('click', toggleShowArchivedButtonHandler);
 
         historyButton.addEventListener('click', historyButtonHandler);
         cancelHistoryButton.addEventListener('click', cancelHistoryButtonHandler);
         historySlider.addEventListener('input', historySliderHandler);
         restoreSnapshotButton.addEventListener('click', restoreSnapshotButtonHandler);
+
+        actionsMenuButton.addEventListener('click', () => {
+            document.getElementById("actions-menu").classList.toggle('show');
+        })
+
+        document.addEventListener('click', (event) => {
+            if (!event.target.matches('#actions-menu-button, #actions-menu *')) {
+                actionsMenu.classList.remove('show');
+            }
+        });
     }
 
     function addNote(newNote) {
@@ -161,6 +161,7 @@ async function init() {
         let noteIndex = _notes.indexOf(getNote(noteId))
         _notes.splice(noteIndex, 1);
         removeNoteElement(noteId);
+        actionsMenu.classList.remove('show');
     }
 
     function removeNoteElement(noteId) {
@@ -230,13 +231,18 @@ async function init() {
     }
 
     function createNoteHtml(note) {
+        let textPreview = note.text == '' ? "New note..." : note.text?.split(/\r?\n/)[0]?.substring(0, 30);
+
         return /*html*/ `
             <div id="note-${note.id}" class="note">
-                <div>Id: ${note.id}</div>
-                <div>AuthorId: ${note.authorId}</div>
-                <div>Created: ${dateToString(note.created)}</div>
+                <div class="note-flags">
+                    <label class="note-pinned" style="display: ${note.pinned ? "inline-block" : "none"};">Pinned</label>
+                    <label class="note-archived" style="display: ${note.archived ? "inline-block" : "none"};">Archived</label>
+                    <label class="note-locked" style="display: ${note.locked ? "inline-block" : "none"};">Locked</label>
+                    <label class="note-published" style="display: ${note.published ? "inline-block" : "none"};">Published</label>
+                </div>
+                <div><strong>${textPreview}</strong></div>
                 <div>Updated: ${dateToString(note.updated)}</div>
-                <div>PublicURL: ${note.publicUrl}</div>
             </div>`
     }
 
@@ -265,24 +271,6 @@ async function init() {
         _notes[noteIndex] = note;
     }
 
-    function sortByCreated() {
-        _notes.sort((note1, note2) => new Date(note1.created) - new Date(note2.created));
-        if (_sortByCreatedDescending) _notes.reverse();
-        _sortByCreatedDescending = !_sortByCreatedDescending;
-    }
-
-    function sortByUpdated() {
-        _notes.sort((note1, note2) => new Date(note1.updated) - new Date(note2.updated));
-        if (_sortByUpdatedDescending) _notes.reverse();
-        _sortByUpdatedDescending = !_sortByUpdatedDescending;
-    }
-
-    function sortByText() {
-        _notes.sort((note1, note2) => note1.text > note2.text ? 1 : -1);
-        if (_sortByTextDescending) _notes.reverse();
-        _sortByTextDescending = !_sortByTextDescending;
-    }
-
     function sortByPinned() {
         _notes.sort((note1, note2) => note1.pinned === note2.pinned ? 0 : note1.pinned ? -1 : 1);
     }
@@ -297,7 +285,7 @@ async function init() {
         }
     }
 
-    // event handlers
+    // Event handlers
     async function listButtonHandler() {
         let notes = await ApiService.getNotes(_showArchived);
         _notes = notes;
@@ -388,6 +376,33 @@ async function init() {
         _oldNoteText = null;
     }
 
+    function sortByCreatedButtonHandler() {
+        _notes.sort((note1, note2) => new Date(note2.created) - new Date(note1.created));
+        if (_sortByCreatedDescending) _notes.reverse();
+        _sortByCreatedDescending = !_sortByCreatedDescending;
+        _sortByUpdatedDescending = false;
+        _sortByTextDescending = false;
+        addNoteElements();
+    }
+
+    function sortByUpdatedButtonHandler() {
+        _notes.sort((note1, note2) => new Date(note2.updated) - new Date(note1.updated));
+        if (_sortByUpdatedDescending) _notes.reverse();
+        _sortByUpdatedDescending = !_sortByUpdatedDescending;
+        _sortByCreatedDescending = false;
+        _sortByTextDescending = false;
+        addNoteElements();
+    }
+
+    function sortByTextButtonHandler() {
+        _notes.sort((note1, note2) => note1.text > note2.text ? 1 : -1);
+        if (_sortByTextDescending) _notes.reverse();
+        _sortByTextDescending = !_sortByTextDescending;
+        _sortByCreatedDescending = false;
+        _sortByUpdatedDescending = false;
+        addNoteElements();
+    }
+
     async function importNotesHandler() {
         const reader = new FileReader();
         reader.readAsText(importNotesInput.files[0]);
@@ -398,8 +413,9 @@ async function init() {
         await listButtonHandler();
     }
 
-    function exportNotesHandler() {
-        let notesJson = JSON.stringify(_notes);
+    async function exportNotesHandler() {
+        let allNotes = await ApiService.getNotes();
+        let notesJson = JSON.stringify(allNotes, null, 2);
         let blob = new Blob([notesJson], {
             type: "application/json"
         });
@@ -407,6 +423,12 @@ async function init() {
         a.href = URL.createObjectURL(blob);
         a.download = "exportedNotes-[date].json";
         a.click();
+    }
+
+    async function toggleShowArchivedButtonHandler() {
+        _showArchived = !_showArchived;
+        await listButtonHandler();
+        toggleShowArchivedButton.classList.toggle('show-archived');
     }
 }
 

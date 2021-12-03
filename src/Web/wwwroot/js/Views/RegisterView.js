@@ -7,7 +7,7 @@ async function render() {
         <div id="register-view">
             <input type="text" placeholder="Email" id="email" />
             <input type="text" placeholder="Password" id="password" />
-            <button id="register-button">Register</button>
+            <div id="register-button" class="btn">Register</div>
         </div>`
 }
 
