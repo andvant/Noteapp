@@ -5,10 +5,8 @@ let LoginView = { render, init }
 async function render() {
     return /*html*/ `
         <div id="login-view">
-            <label>Email</label>
-            <input type="text" placeholder="Email here" id="email" />
-            <label>Password</label>
-            <input type="text" placeholder="Password here" id="password" />
+            <input type="text" placeholder="Email" id="email" />
+            <input type="text" placeholder="Password" id="password" />
             <button id="login-button">Log in</button>
         </div>`
 }

@@ -7,3 +7,4 @@
 /txts/
 *.db
 Migrations/
+*.ps1

@@ -7,8 +7,7 @@ async function render() {
 
     return /*html*/ `
         <div id="settings-view">
-            <label>Email</label>
-            <label>${email}</label>
+            <label>Email: ${email}</label>
             <button id="logout-button">Log out</button>
             <button id="delete-account-button">Delete account</button>
         </div>`

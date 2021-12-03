@@ -49,14 +49,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-basis: 100px;
+    min-height: 60px;
 }
 
 #notes-sort {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-basis: 100px;
+    min-height: 60px;
 }
 
 #notes-list {
@@ -67,6 +67,11 @@ body {
 
 #notes-list:hover {
     overflow-y: auto;
+}
+
+.note {
+    cursor: pointer;
+    user-select: none;
 }
 
 .note:hover {
@@ -96,14 +101,26 @@ body {
 
 #selected-note-actions {
     display: flex;
-    justify-content: left;
-    align-items: center;
+    flex-basis: 100px;
+}
 
-    flex-basis: 140px;
+#save-button-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-basis: 100px;
 }
 
 #save-button {
-    justify-self: left;
+    width: 80px;
+    height: 30px;
+}
+
+#selected-note-menu {
+    display: flex;
+    flex-grow: 1;
+    justify-content: right;
+    align-items: center;
 }
 
 #selected-note-actions > button {
@@ -148,70 +165,70 @@ body {
 
 /* Login view */
 #login-view {
-    display: grid;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
-    grid-template-columns: 1fr 1fr;
-    margin: 10%;
+    margin: auto;
+
+    width: 30%;
+    height: 70%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+#login-view * {
+    font-size: 26px;
+    padding: 8px;
 }
 
 #login-button {
-    grid-row-start: 3;
-    grid-column: span 2;
     width: 200px;
     height: 50px;
+    align-self: center;
 }
 
-#login-view > * {
-    margin: auto;
-    font-size: 22px
-}
 
 /* Register view */
 #register-view {
-    display: grid;
-    grid-template-rows: 1fr 1fr 1fr;
-    grid-template-columns: 1fr 1fr;
-    margin: 10%;
+    margin: auto;
+
+    width: 30%;
+    height: 70%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+#register-view * {
+    font-size: 26px;
+    padding: 8px;
 }
 
 #register-button {
-    grid-row-start: 3;
-    grid-column: span 2;
-}
-
-#register-view > button {
     width: 200px;
     height: 50px;
-}
-
-#register-view > * {
-    margin: auto;
-    font-size: 22px
+    align-self: center;
 }
 
 /* Settings view */
 #settings-view {
-    display: grid;
-    grid-template-rows: 1fr 1fr 1fr;
-    grid-template-columns: 1fr 1fr;
-    margin: 10%;
-}
-
-#logout-button {
-    grid-row-start: 3;
-}
-
-#delete-account-button {
-    grid-row-start: 4;
-}
-
-#settings-view > * {
     margin: auto;
-    font-size: 22px
+
+    width: 30%;
+    height: 70%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#settings-view * {
+    font-size: 26px;
+    padding: 8px;
 }
 
 #settings-view > button {
     width: 200px;
     height: 50px;
-    grid-column: span 2;
 }
