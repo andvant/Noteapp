@@ -9,7 +9,7 @@
         WindowState="Maximized"
         WindowStyle="SingleBorderWindow"
         Title="Noteapp"
-        WindowStartupLocation="CenterScreen">
+        Background="#eee">
     <Window.Resources>
         <DataTemplate DataType="{x:Type vm:NotesViewModel}">
             <views:NotesView />
@@ -26,16 +26,15 @@
     </Window.Resources>
 
     <DockPanel>
-        <Border DockPanel.Dock="Left" BorderBrush="Black" BorderThickness="0,0,1,0">
+        <Border DockPanel.Dock="Left" BorderBrush="Black" BorderThickness="0,0,1,0" Width="180">
             <ItemsControl ItemsSource="{Binding Pages}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Content="{Binding Name}"
                                 Command="{Binding DataContext.ChangePageCommand, 
                                     RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                CommandParameter="{Binding}"
-                                Width="120"
-                                Margin="5, 10" />
+                                CommandParameter="{Binding}" Width="Auto"
+                                HorizontalContentAlignment="Stretch" Margin="0, 10"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

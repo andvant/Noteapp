@@ -7,4 +7,10 @@
 	<RootNamespace>Noteapp.Desktop</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="res\menu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
