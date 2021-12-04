@@ -11,21 +11,43 @@
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
 
         <!--Row 0-->
-        <Label Grid.Row="0" Grid.Column="0" Content="Email" />
-        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Email}" />
+        <TextBox Grid.Row="0" Text="{Binding Email}" x:Name="EmailTextBox" 
+                 VerticalAlignment="Center" HorizontalAlignment="Center" Width="400"/>
+        <TextBlock Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                   IsHitTestVisible="False" Text="Email" Margin="0,0,300,0" Foreground="DarkGray" FontSize="16">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Text, ElementName=EmailTextBox}" Value="">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
 
         <!--Row 1-->
-        <Label Grid.Row="1" Grid.Column="0" Content="Password" />
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Password}" />
+        <TextBox Grid.Row="1" Text="{Binding Password}" x:Name="PasswordTextBox"
+                 VerticalAlignment="Center" HorizontalAlignment="Center" Width="400"/>
+        <TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                   IsHitTestVisible="False" Text="Password" Margin="0,0,300,0" Foreground="DarkGray" FontSize="16">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Text, ElementName=PasswordTextBox}" Value="">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
 
         <!--Row 2-->
-        <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Command="{Binding LoginCommand}" Content="Log in" />
+        <Button Grid.Row="2" Command="{Binding LoginCommand}" Content="Log in" />
 
     </Grid>
 </UserControl>

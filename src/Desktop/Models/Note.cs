@@ -12,7 +12,20 @@ namespace Noteapp.Desktop.Models
         public string Text
         {
             get => _text;
-            set => Set(ref _text, value);
+            set
+            {
+                Set(ref _text, value);
+                OnPropertyChanged(nameof(TextPreview));
+            }
+        }
+        public string TextPreview
+        { 
+            get
+            {
+                var preview = Text?.Split(Environment.NewLine)?[0];
+                preview = preview?.Substring(0, Math.Min(preview.Length, 30));
+                return string.IsNullOrWhiteSpace(preview) ? "New note..." : preview;
+            }
         }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }

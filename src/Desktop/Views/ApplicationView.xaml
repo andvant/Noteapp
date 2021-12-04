@@ -6,7 +6,9 @@
         xmlns:views="clr-namespace:Noteapp.Desktop.Views"
         xmlns:vm="clr-namespace:Noteapp.Desktop.ViewModels"
         mc:Ignorable="d"
-        Title="Noteapp" Height="900" Width="1200"
+        WindowState="Maximized"
+        WindowStyle="SingleBorderWindow"
+        Title="Noteapp"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <DataTemplate DataType="{x:Type vm:NotesViewModel}">

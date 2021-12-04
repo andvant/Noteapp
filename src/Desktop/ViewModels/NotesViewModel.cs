@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -38,6 +39,7 @@ namespace Noteapp.Desktop.ViewModels
             get => _selectedNote;
             set => Set(ref _selectedNote, value);
         }
+
         public bool ShowArchived { get; set; }
 
         // Note history
@@ -72,11 +74,11 @@ namespace Noteapp.Desktop.ViewModels
         }
         public int MaximumSnapshotIndex => (Snapshots?.Count - 1) ?? 0;
         public string CurrentSnapshotText => Snapshots?[CurrentSnapshotIndex]?.Text;
-        public string CurrentSnapshotDate => Snapshots?[CurrentSnapshotIndex]?.Created.ToString();
+        public DateTime? CurrentSnapshotDate => Snapshots?[CurrentSnapshotIndex]?.Created;
 
         public ICommand ListCommand { get; }
         public ICommand CreateCommand { get; }
-        public ICommand UpdateCommand { get; }
+        public ICommand SaveCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand ToggleLockedCommand { get; }
         public ICommand ToggleArchivedCommand { get; }
@@ -85,8 +87,8 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand SortyByCreatedCommand { get; }
         public ICommand SortyByUpdatedCommand { get; }
         public ICommand SortyByTextCommand { get; }
-        public ICommand ExportNotesCommand { get; }
-        public ICommand ImportNotesCommand { get; }
+        public ICommand ExportCommand { get; }
+        public ICommand ImportCommand { get; }
         public ICommand ShowHistoryCommand { get; }
         public ICommand RestoreSnapshotCommand { get; }
         public ICommand CancelHistoryCommand { get; }
@@ -96,9 +98,9 @@ namespace Noteapp.Desktop.ViewModels
         {
             _apiService = apiService;
 
-            ListCommand = new RelayCommand(List);
+            ListCommand = new RelayCommand(async () => await List());
             CreateCommand = new RelayCommand(Create);
-            UpdateCommand = new RelayCommand(Update, CanUpdate);
+            SaveCommand = new RelayCommand(async () => await Save(), CanSave);
             DeleteCommand = new RelayCommand(Delete);
             ToggleLockedCommand = new RelayCommand(ToggleLocked);
             ToggleArchivedCommand = new RelayCommand(ToggleArchived);
@@ -107,8 +109,8 @@ namespace Noteapp.Desktop.ViewModels
             SortyByCreatedCommand = new RelayCommand(SortByCreated, CanSort);
             SortyByUpdatedCommand = new RelayCommand(SortByUpdated, CanSort);
             SortyByTextCommand = new RelayCommand(SortByText, CanSort);
-            ExportNotesCommand = new RelayCommand(ExportNotes);
-            ImportNotesCommand = new RelayCommand(ImportNotes);
+            ExportCommand = new RelayCommand(Export);
+            ImportCommand = new RelayCommand(Import);
             ShowHistoryCommand = new RelayCommand(ShowHistory, CanShowHistory);
             RestoreSnapshotCommand = new RelayCommand(RestoreSnapshot, CanRestoreSnapshot);
             CancelHistoryCommand = new RelayCommand(CancelHistory);
@@ -117,7 +119,7 @@ namespace Noteapp.Desktop.ViewModels
             ListCommand.Execute(null);
         }
 
-        private async void List()
+        private async Task List()
         {
             var selectedNoteId = SelectedNote?.Id;
 
@@ -129,7 +131,7 @@ namespace Noteapp.Desktop.ViewModels
             }
 
             Notes = CreateNoteCollection(notes);
-            SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId);
+            SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId) ?? Notes.FirstOrDefault();
         }
 
         private async void Create()
@@ -139,7 +141,7 @@ namespace Noteapp.Desktop.ViewModels
             SelectedNote = newNote;
         }
 
-        private async void Update()
+        private async Task Save()
         {
             string text = await TryEncrypt(SelectedNote.Text);
 
@@ -149,74 +151,91 @@ namespace Noteapp.Desktop.ViewModels
             ChangeNote(SelectedNote, updatedNote);
         }
 
-        private bool CanUpdate()
+        private bool CanSave()
         {
             return SelectedNote != null && !SelectedNote.Locked && HistoryVisibility == Visibility.Collapsed;
         }
 
-        private async void Delete(object noteId)
+        private async void Delete()
         {
-            await _apiService.DeleteNote((int)noteId);
-            var note = Notes.Single(note => note.Id == (int)noteId);
-            Notes.Remove(note);
+            await _apiService.DeleteNote(SelectedNote.Id);
+            Notes.Remove(SelectedNote);
+
+            SelectedNote = Notes.FirstOrDefault();
         }
 
-        private async void ToggleLocked(object parameter)
+        private async void ToggleLocked()
         {
-            var note = (Note)parameter;
-            var updatedNote = await _apiService.ToggleLocked(note.Id, note.Locked);
+            var updatedNote = await _apiService.ToggleLocked(SelectedNote.Id, SelectedNote.Locked);
 
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeNote(note, updatedNote);
+            ChangeNote(SelectedNote, updatedNote);
         }
 
-        private async void ToggleArchived(object parameter)
+        private async void ToggleArchived()
         {
-            var note = (Note)parameter;
-            var updatedNote = await _apiService.ToggleArchived(note.Id, note.Archived);
+            var updatedNote = await _apiService.ToggleArchived(SelectedNote.Id, SelectedNote.Archived);
 
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
 
-            ChangeNote(note, updatedNote);
+            ChangeNote(SelectedNote, updatedNote);
 
             Notes.Remove(updatedNote);
+
+            SelectedNote = Notes.FirstOrDefault();
         }
 
-        private async void TogglePinned(object parameter)
+        private async void TogglePinned()
         {
-            var note = (Note)parameter;
-            var updatedNote = await _apiService.TogglePinned(note.Id, note.Pinned);
+            var updatedNote = await _apiService.TogglePinned(SelectedNote.Id, SelectedNote.Pinned);
 
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeNote(note, updatedNote);
+            ChangeNote(SelectedNote, updatedNote);
             Notes = CreateNoteCollection(Notes);
         }
 
-        private async void TogglePublished(object parameter)
+        private async void TogglePublished()
         {
-            var note = (Note)parameter;
-            var updatedNote = await _apiService.TogglePublished(note.Id, note.Published);
+            var updatedNote = await _apiService.TogglePublished(SelectedNote.Id, SelectedNote.Published);
 
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeNote(note, updatedNote);
+            ChangeNote(SelectedNote, updatedNote);
         }
 
         private void SortByCreated()
         {
+            var notes = new List<Note>(Notes);
             Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note1.Created, note2.Created);
-            SortNotes(comparison, ref _descendingCreated);
+            notes.Sort(comparison);
+            if (_descendingCreated) notes.Reverse();
+            _descendingCreated = !_descendingCreated;
+            _descendingText = false;
+            _descendingUpdated = false;
+            Notes = CreateNoteCollection(notes);
         }
 
         private void SortByUpdated()
         {
+            var notes = new List<Note>(Notes);
             Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note1.Updated, note2.Updated);
-            SortNotes(comparison, ref _descendingUpdated);
+            notes.Sort(comparison);
+            if (_descendingUpdated) notes.Reverse();
+            _descendingUpdated = !_descendingUpdated;
+            _descendingCreated = false;
+            _descendingText = false;
+            Notes = CreateNoteCollection(notes);
         }
 
         private void SortByText()
         {
+            var notes = new List<Note>(Notes);
             Comparison<Note> comparison = (note1, note2) => string.Compare(note1.Text, note2.Text);
-            SortNotes(comparison, ref _descendingText);
+            notes.Sort(comparison);
+            if (_descendingText) notes.Reverse();
+            _descendingText = !_descendingText;
+            _descendingCreated = false;
+            _descendingUpdated = false;
+            Notes = CreateNoteCollection(notes);
         }
 
         private bool CanSort()
@@ -224,7 +243,7 @@ namespace Noteapp.Desktop.ViewModels
             return Notes?.Count > 0;
         }
 
-        private void ExportNotes()
+        private void Export()
         {
             var dialog = new SaveFileDialog()
             {
@@ -238,7 +257,7 @@ namespace Noteapp.Desktop.ViewModels
             }
         }
 
-        private async void ImportNotes()
+        private async void Import()
         {
             var dialog = new OpenFileDialog()
             {
@@ -257,17 +276,17 @@ namespace Noteapp.Desktop.ViewModels
                 }
 
                 await _apiService.BulkCreateNotes(notes);
-                ListCommand.Execute(null);
+                await List();
             }
         }
 
-        private void RestoreSnapshot()
+        private async void RestoreSnapshot()
         {
             HistoryVisibility = Visibility.Collapsed;
 
             SelectedNote.Text = CurrentSnapshotText;
             Snapshots = null;
-            UpdateCommand.Execute(null);
+            await Save();
         }
 
         private bool CanRestoreSnapshot()
@@ -304,21 +323,11 @@ namespace Noteapp.Desktop.ViewModels
             Snapshots = null;
         }
 
-        private void ToggleShowArchived()
+        private async void ToggleShowArchived()
         {
             ShowArchived = !ShowArchived;
-            ListCommand.Execute(null);
-        }
-
-        private void SortNotes(Comparison<Note> comparison, ref bool descending)
-        {
-            var notes = new List<Note>(Notes);
-            notes.Sort(comparison);
-
-            if (descending) notes.Reverse();
-            descending = !descending;
-
-            Notes = CreateNoteCollection(notes);
+            await List();
+            SelectedNote = Notes.FirstOrDefault();
         }
 
         private IOrderedEnumerable<Note> OrderByPinned(IEnumerable<Note> notes)
