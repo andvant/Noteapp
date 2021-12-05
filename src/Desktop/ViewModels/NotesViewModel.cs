@@ -205,7 +205,7 @@ namespace Noteapp.Desktop.ViewModels
         private void SortByCreated()
         {
             var notes = new List<Note>(Notes);
-            Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note1.Created, note2.Created);
+            Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note2.Created, note1.Created);
             notes.Sort(comparison);
             if (_descendingCreated) notes.Reverse();
             _descendingCreated = !_descendingCreated;
@@ -217,7 +217,7 @@ namespace Noteapp.Desktop.ViewModels
         private void SortByUpdated()
         {
             var notes = new List<Note>(Notes);
-            Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note1.Updated, note2.Updated);
+            Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note2.Updated, note1.Updated);
             notes.Sort(comparison);
             if (_descendingUpdated) notes.Reverse();
             _descendingUpdated = !_descendingUpdated;
@@ -229,7 +229,8 @@ namespace Noteapp.Desktop.ViewModels
         private void SortByText()
         {
             var notes = new List<Note>(Notes);
-            Comparison<Note> comparison = (note1, note2) => string.Compare(note1.Text, note2.Text);
+            Comparison<Note> comparison = (note1, note2) => string.Compare(note1.Text, note2.Text, 
+                StringComparison.CurrentCultureIgnoreCase);
             notes.Sort(comparison);
             if (_descendingText) notes.Reverse();
             _descendingText = !_descendingText;

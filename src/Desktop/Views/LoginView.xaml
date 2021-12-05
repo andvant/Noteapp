@@ -7,15 +7,13 @@
              mc:Ignorable="d">
     <ContentControl>
         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-
             <Grid>
-                <TextBox Text="{Binding Email}" x:Name="EmailTextBox"
-                         Width="510" Height="48" Margin="0,45" Padding="6" VerticalContentAlignment="Center"/>
-                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Cambria"
-                           IsHitTestVisible="False" Text="Email" Foreground="DarkGray" FontSize="22" Margin="-440,0,0,0">
+                <TextBox Text="{Binding Email}" x:Name="EmailTextBox" Style="{StaticResource CredentialsInput}"/>
+
+                <!--Placeholder for email-->
+                <TextBlock Text="Email" Margin="-440,0,0,0">
                     <TextBlock.Style>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource Placeholder}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Text, ElementName=EmailTextBox}" Value="">
                                     <Setter Property="Visibility" Value="Visible"/>
@@ -25,16 +23,13 @@
                     </TextBlock.Style>
                 </TextBlock>
             </Grid>
-
-
             <Grid>
-                <TextBox Text="{Binding Password}" x:Name="PasswordTextBox"
-                         Width="510" Height="48" Margin="0,45" Padding="6" VerticalContentAlignment="Center"/>
-                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Cambria"
-                           IsHitTestVisible="False" Text="Password" Margin="-402,0,0,0" Foreground="DarkGray" FontSize="22">
+                <TextBox Text="{Binding Password}" x:Name="PasswordTextBox" Style="{StaticResource CredentialsInput}"/>
+
+                <!--Placeholder for password-->
+                <TextBlock Text="Password" Margin="-402,0,0,0">
                     <TextBlock.Style>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource Placeholder}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Text, ElementName=PasswordTextBox}" Value="">
                                     <Setter Property="Visibility" Value="Visible"/>
@@ -45,7 +40,7 @@
                 </TextBlock>
             </Grid>
 
-            <Button Command="{Binding LoginCommand}" Content="Log in" Margin="0,45" Height="48" Width="190" FontSize="24"/>
+            <Button Command="{Binding LoginCommand}" Content="Log in" Margin="0,45" Style="{StaticResource BigButton}"/>
         </StackPanel>
     </ContentControl>
 </UserControl>

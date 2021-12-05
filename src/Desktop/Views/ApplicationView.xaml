@@ -9,7 +9,7 @@
         WindowState="Maximized"
         WindowStyle="SingleBorderWindow"
         Title="Noteapp"
-        Background="#eee">
+        Background="{StaticResource AppBackgroundColor}">
     <Window.Resources>
         <DataTemplate DataType="{x:Type vm:NotesViewModel}">
             <views:NotesView />
@@ -25,9 +25,10 @@
         </DataTemplate>
     </Window.Resources>
 
-    <Border BorderBrush="Gray" BorderThickness="1" >
+    <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" >
         <DockPanel>
-            <ItemsControl ItemsSource="{Binding Pages}" Width="180" DockPanel.Dock="Left" BorderThickness="0,0,1,0" BorderBrush="Gray">
+            <ItemsControl ItemsSource="{Binding Pages}" Width="180" DockPanel.Dock="Left" BorderThickness="0,0,1,0"
+                          BorderBrush="{StaticResource BorderColor}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Content="{Binding Name}"
@@ -38,7 +39,6 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        
 
             <ContentControl Content="{Binding CurrentPage}" />
         </DockPanel>
