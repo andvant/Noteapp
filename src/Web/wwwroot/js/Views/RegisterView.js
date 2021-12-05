@@ -4,10 +4,10 @@ let RegisterView = { render, init }
 
 async function render() {
     return /*html*/ `
-        <div id="register-view">
+        <div class="secondary-view">
             <input type="text" placeholder="Email" id="email" />
             <input type="text" placeholder="Password" id="password" />
-            <div id="register-button" class="btn">Register</div>
+            <div id="register-button" class="btn btn-lg">Register</div>
         </div>`
 }
 

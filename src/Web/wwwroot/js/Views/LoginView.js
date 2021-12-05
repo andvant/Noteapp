@@ -4,10 +4,10 @@ let LoginView = { render, init }
 
 async function render() {
     return /*html*/ `
-        <div id="login-view">
+        <div class="secondary-view">
             <input type="text" placeholder="Email" id="email" />
             <input type="text" placeholder="Password" id="password" />
-            <div id="login-button" class="btn">Log in</div>
+            <div id="login-button" class="btn btn-lg">Log in</div>
         </div>`
 }
 

@@ -1,4 +1,15 @@
-﻿/* Global */
+﻿:root {
+    --app-bg-color: #eee;
+    --btn-bg-color: #fff;
+    --btn-bg-color-hover: #ccc;
+    --btn-bg-color-active: #bbb;
+    --action-bg-color: #fff;
+    --action-bg-color-hover: #eee;
+    --action-bg-color-active: #ddd;
+    --border: 1px solid #abadb3;
+}
+
+/* Global */
 body {
     margin: 0;
 }
@@ -13,6 +24,7 @@ body {
 #wrapper {
     display: flex;
     height: 97vh;
+    border: var(--border);
 }
 
 #views-panel {
@@ -22,9 +34,8 @@ body {
     padding-top: 10px;
     gap: 15px;
     flex-basis: 180px;
-    background-color: #eee;
-    border: 1px solid #555;
-    margin-right: -1px;
+    background-color: var(--app-bg-color);
+    border-right: var(--border);
 }
 
 #views-panel * {
@@ -34,14 +45,17 @@ body {
 }
 
 #views-panel > div:hover {
-    background-color: #ccc;
+    background-color: var(--btn-bg-color-hover);
+}
+
+#views-panel > div:active {
+    background-color: var(--btn-bg-color-active);
 }
 
 #current-view {
     display: flex;
     flex-grow: 1;
-    border: 1px solid #555;
-    background-color: #eee;
+    background-color: var(--app-bg-color);
 }
 
 /* Notes view */
@@ -56,8 +70,6 @@ body {
     flex-direction: column;
     flex-basis: 340px;
     background-color: white;
-    border: 1px solid #555;
-    margin: -1px;
 }
 
 #notes-actions {
@@ -66,9 +78,8 @@ body {
     justify-content: center;
     min-height: 60px;
     justify-content: space-around;
-    background-color: #eee;
-    border: 1px solid #555;
-    margin: -1px;
+    background-color: var(--app-bg-color);
+    border-bottom: var(--border);
 }
 
 #notes-sort {
@@ -76,9 +87,8 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 60px;
-    background-color: #eee;
-    border: 1px solid #555;
-    margin: -1px;
+    background-color: var(--app-bg-color);
+    border-bottom: var(--border);
 }
 
 #notes-sort * {
@@ -89,7 +99,6 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: hidden;
-    border-top: 1px solid #555;
 }
 
 #notes-list:hover {
@@ -100,12 +109,12 @@ body {
     cursor: pointer;
     user-select: none;
     padding: 6px;
+    padding-left: 10px;
     min-height: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border: 1px solid #555;
-    
+    border-bottom: var(--border);
 }
 
 .note:hover {
@@ -132,9 +141,9 @@ body {
 #selected-note-actions {
     display: flex;
     min-height: 60px;
-    background-color: #eee;
-    border: 1px solid #555;
-    margin: -1px;
+    background-color: var(--app-bg-color);
+    border-left: var(--border);
+    border-bottom: var(--border);
 }
 
 #save-button-div {
@@ -157,16 +166,10 @@ body {
     align-items: center;
 }
 
-#selected-note-actions > button {
-    width: 60px;
-    height: 30px;
-}
-
 #selected-note-text {
     flex-grow: 1;
     height: 100%;
-    border: 1px solid #555;
-    margin: -1px;
+    border-left: var(--border);
 }
 
 #selected-note-text textarea {
@@ -174,11 +177,6 @@ body {
     outline: none;
     padding: 8px;
     padding-left: 16px;
-}
-
-#notes-actions > button {
-    width: 35%;
-    height: 60%;
 }
 
 #note-text {
@@ -195,11 +193,13 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border: 1px solid #555;
+    border-left: var(--border);
+    border-top: var(--border);
 }
 
 #history-slider {
     width: 500px;
+    margin: 5px 0 5px 0;
 }
 
 #note-history-buttons {
@@ -207,150 +207,27 @@ body {
     justify-content: right;
 }
 
-/* Login view */
-#login-view {
-    margin: auto;
-
-    width: 30%;
-    height: 70%;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-
-    background-color: #eee;
-}
-
-#login-view * {
-    font-size: 26px;
-    padding: 8px;
-}
-
-#login-button {
-    width: 200px;
-    height: 50px;
-    align-self: center;
-}
-
-/* Register view */
-#register-view {
-    margin: auto;
-
-    width: 30%;
-    height: 70%;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-
-    background-color: #eee;
-}
-
-#register-view * {
-    font-size: 26px;
-    padding: 8px;
-}
-
-#register-button {
-    width: 200px;
-    height: 50px;
-    align-self: center;
-}
-
-/* Settings view */
-#settings-view {
-    margin: auto;
-
-    width: 30%;
-    height: 70%;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-
-    background-color: #eee;
-}
-
-#settings-view * {
-    font-size: 26px;
-    padding: 8px;
-}
-
-#logout-button, #delete-account-button {
-    width: 200px;
-    height: 50px;
-}
-
-/* Dropdown actions menu */
-.menu-icon {
-    width: 40px;
-    height: 40px;
-}
-
-.menu-icon:hover {
-    filter: brightness(70%) contrast(200%);
-}
-
-#dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-#actions-menu-button {
-    border: none;
-    cursor: pointer;
-}
-
-#actions-menu {
-    display: none;
-    position: absolute;
-    min-width: 200px;
-    top: 55px;
-    right: 0;
-    z-index: 1;
-    border: 1px solid #555;
-}
-
-.show {
-    display: flex !important;
-    flex-direction: column;
-}
-
-.action {
-    padding: 8px;
-    padding-left: 10px;
-    padding-right: 10px;
-    background-color: #fff;
-    display: flex;
-    justify-content: space-between;
-    cursor: pointer;
-    user-select: none;
-    border: 0;
-}
-
-.action:hover {
-    background-color: #eee;
-}
-
-.action input {
-    cursor: pointer;
+#note-history-buttons * {
+    margin: 0 4px 0 4px;
 }
 
 .btn {
     width: 80px;
     height: 30px;
-    background-color: #fff;
+    background-color: var(--btn-bg-color);
     display: flex;
     justify-content: center;
     align-items: center;
-
     cursor: pointer;
     user-select: none;
 }
 
 .btn:hover {
-    background-color: #ccc;
+    background-color: var(--btn-bg-color-hover);
+}
+
+.btn:active {
+    background-color: var(--btn-bg-color-active);
 }
 
 .note-flags * {
@@ -378,4 +255,84 @@ body {
 
 .show-archived {
     background-color: #ccc;
+}
+
+/* Action menu (dropdown) */
+.menu-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.menu-icon:hover {
+    filter: brightness(70%) contrast(200%);
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+#action-menu-button {
+    border: none;
+    cursor: pointer;
+}
+
+#action-menu {
+    display: none;
+    position: absolute;
+    min-width: 200px;
+    top: 55px;
+    right: 0;
+    z-index: 1;
+    border: var(--border);
+}
+
+.show {
+    display: flex !important;
+    flex-direction: column;
+}
+
+.action {
+    padding: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: var(--action-bg-color);
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+.action:hover {
+    background-color: var(--action-bg-color-hover);
+}
+
+.action:active {
+    background-color: var(--action-bg-color-active);
+}
+
+.action input {
+    cursor: pointer;
+}
+
+/* Login, Register & Settings views */
+.secondary-view {
+    margin: auto;
+    width: 30%;
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: var(--app-bg-color);
+}
+
+.secondary-view * {
+    font-size: 26px;
+    padding: 8px;
+}
+
+.btn-lg {
+    width: 200px;
+    height: 50px;
 }

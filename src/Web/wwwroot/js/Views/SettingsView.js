@@ -6,10 +6,10 @@ async function render() {
     let email = JSON.parse(localStorage.getItem('userInfo'))?.email ?? "Anonymous";
 
     return /*html*/ `
-        <div id="settings-view">
+        <div class="secondary-view">
             <label>Email: ${email}</label>
-            <div id="logout-button" class="btn">Log out</div>
-            <div id="delete-account-button" class="btn">Delete account</div>
+            <div id="logout-button" class="btn btn-lg">Log out</div>
+            <div id="delete-account-button" class="btn btn-lg">Delete account</div>
         </div>`
 }
 
