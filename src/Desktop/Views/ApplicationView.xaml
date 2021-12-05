@@ -25,9 +25,9 @@
         </DataTemplate>
     </Window.Resources>
 
-    <DockPanel>
-        <Border DockPanel.Dock="Left" BorderBrush="Black" BorderThickness="0,0,1,0" Width="180">
-            <ItemsControl ItemsSource="{Binding Pages}">
+    <Border BorderBrush="Gray" BorderThickness="1" >
+        <DockPanel>
+            <ItemsControl ItemsSource="{Binding Pages}" Width="180" DockPanel.Dock="Left" BorderThickness="0,0,1,0" BorderBrush="Gray">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Content="{Binding Name}"
@@ -38,8 +38,9 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </Border>
+        
 
-        <ContentControl Content="{Binding CurrentPage}" />
-    </DockPanel>
+            <ContentControl Content="{Binding CurrentPage}" />
+        </DockPanel>
+    </Border>
 </Window>

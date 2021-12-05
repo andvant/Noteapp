@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="res\menu.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="res\menu.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

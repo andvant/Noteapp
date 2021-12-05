@@ -6,27 +6,27 @@
              xmlns:local="clr-namespace:Noteapp.Desktop.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        
-        <Label Grid.Row="0" Grid.Column="0">Email</Label>
-        <Label Grid.Row="0" Grid.Column="1"  Content="{Binding Email}" />
+    <ContentControl>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical" >
 
-        <Button Grid.Row="1" Grid.ColumnSpan="2" Content="Log out" Command="{Binding LogoutCommand}" />
+            <Grid Margin="0,40" HorizontalAlignment="Center" Width="400">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" FontSize="22" HorizontalAlignment="Left" Margin="0,40">Email:</Label>
+                <Label Grid.Row="0" Grid.Column="1" Content="{Binding Email}" HorizontalAlignment="Right" FontSize="22"/>
 
-        <Button Grid.Row="2" Grid.ColumnSpan="2" Content="Delete account" Command="{Binding DeleteAccountCommand}"/>
+                <Label Grid.Row="1" Grid.Column="0" Content="Enable encryption" FontSize="22" HorizontalAlignment="Left"/>
+                <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding EncryptionEnabled}" />
+            </Grid>
 
-        <Label Grid.Row="3" Grid.Column="0" Content="Enable encryption/decryption" />
-        <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding EncryptionEnabled}" />
-
-    </Grid>
+            <Button Content="Log out" Command="{Binding LogoutCommand}"  Margin="0,40" FontSize="24" Height="48" Width="190"/>
+            <Button Content="Delete account" Command="{Binding DeleteAccountCommand}" Margin="0,40" FontSize="24" Height="48" Width="190"/>
+        </StackPanel>
+    </ContentControl>
 </UserControl>
