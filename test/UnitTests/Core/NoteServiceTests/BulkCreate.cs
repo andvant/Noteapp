@@ -1,4 +1,5 @@
 ﻿using Moq;
+using Noteapp.Core;
 using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
@@ -51,7 +52,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         {
             // Arrange
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
-            var newNotesTexts = Enumerable.Repeat("note", 21);
+            var newNotesTexts = Enumerable.Repeat("note", Constants.MAX_BULK_NOTES + 1);
 
             // Act
             Action act = () => noteService.BulkCreate(userId: 1, texts: newNotesTexts);
