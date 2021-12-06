@@ -10,10 +10,12 @@ namespace Noteapp.Core.Services
     public class AppUserService
     {
         private readonly IAppUserRepository _repository;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public AppUserService(IAppUserRepository repository)
+        public AppUserService(IAppUserRepository repository, IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public AppUser Create(string email)
@@ -23,7 +25,8 @@ namespace Noteapp.Core.Services
             var user = new AppUser()
             {
                 Email = email,
-                EncryptionSalt = GenerateEncryptionSalt()
+                EncryptionSalt = GenerateEncryptionSalt(),
+                RegistrationDate = _dateTimeProvider.Now
             };
 
             _repository.Add(user);
