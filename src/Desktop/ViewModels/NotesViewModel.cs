@@ -344,10 +344,9 @@ namespace Noteapp.Desktop.ViewModels
                 return text;
             }
 
-            var protector = new Protector(userInfo.EncryptionKey);
             try
             {
-                return await protector.Decrypt(text);
+                return await Protector.Decrypt(text, userInfo.EncryptionKey);
             }
             catch
             {
@@ -364,8 +363,7 @@ namespace Noteapp.Desktop.ViewModels
                 return text;
             }
 
-            var protector = new Protector(userInfo.EncryptionKey);
-            return await protector.Encrypt(text);
+            return await Protector.Encrypt(text, userInfo.EncryptionKey);
         }
 
         private void ChangeNote(Note oldNote, Note newNote)

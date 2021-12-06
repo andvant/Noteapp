@@ -6,18 +6,12 @@ using System.Threading.Tasks;
 
 namespace Noteapp.Desktop.Security
 {
-    public class Protector
+    public static class Protector
     {
-        private string _encryptionKey;
-        public Protector(string encryptionKey)
-        {
-            _encryptionKey = encryptionKey;
-        }
-
-        public async Task<string> Encrypt(string text)
+        public static async Task<string> Encrypt(string text, string encryptionKey)
         {
             var aes = Aes.Create();
-            aes.Key = Convert.FromBase64String(_encryptionKey);
+            aes.Key = Convert.FromBase64String(encryptionKey);
 
             byte[] encryptedBytes;
             using (var memoryStream = new MemoryStream())
@@ -36,10 +30,10 @@ namespace Noteapp.Desktop.Security
             return Convert.ToBase64String(encryptedBytes);
         }
 
-        public async Task<string> Decrypt(string cipher)
+        public static async Task<string> Decrypt(string cipher, string encryptionKey)
         {
             var aes = Aes.Create();
-            aes.Key = Convert.FromBase64String(_encryptionKey);
+            aes.Key = Convert.FromBase64String(encryptionKey);
 
             byte[] encryptedBytes = Convert.FromBase64String(cipher);
 
