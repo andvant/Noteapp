@@ -9,7 +9,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class GetAll
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
+        private readonly Mock<INoteRepository> _mock = new();
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]

@@ -9,7 +9,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Create
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
+        private readonly Mock<INoteRepository> _mock = new();
 
         [Fact]
         public void CreatesNewNote()

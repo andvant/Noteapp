@@ -10,7 +10,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
 {
     public class Update
     {
-        private readonly Mock<INoteRepository> _mock = new Mock<INoteRepository>();
+        private readonly Mock<INoteRepository> _mock = new();
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DateTime _created = new DateTime(2021, 1, 1);
         private readonly DateTime _updated = new DateTime(2021, 2, 2);
