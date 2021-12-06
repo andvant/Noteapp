@@ -20,7 +20,7 @@ namespace Noteapp.Api.Filters
                 case NoteLockedException:
                     context.Result = new ConflictObjectResult(error);
                     break;
-                case TooManyNotesException:
+                case TooManyNotesException or TextTooLongException:
                     context.Result = new ObjectResult(error) { StatusCode = (int)HttpStatusCode.RequestEntityTooLarge };
                     break;
                 case SnapshotNotFoundException:

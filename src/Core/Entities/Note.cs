@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace Noteapp.Core.Entities
 {
@@ -12,12 +11,9 @@ namespace Noteapp.Core.Entities
         public string PublicUrl { get; set; }
         public bool Published => PublicUrl != null;
         public DateTime Created { get; set; }
-        [JsonIgnore]
         public AppUser Author { get; set; }
         public int AuthorId { get; set; }
-        [JsonIgnore]
         public ICollection<NoteSnapshot> Snapshots { get; set; }
-        [JsonIgnore]
         public NoteSnapshot CurrentSnapshot { get; set; }
         public int? CurrentSnapshotId { get; set; }
         public string Text => CurrentSnapshot.Text;

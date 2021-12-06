@@ -123,7 +123,7 @@ namespace Noteapp.Api.Controllers
         [HttpGet("/p/{url}")]
         public IActionResult GetPublishedNoteText(string url)
         {
-            var text = _noteService.GetPublishedNoteText(url);
+            string text = _noteService.GetPublishedNoteText(url);
             return Ok(text);
         }
 
@@ -131,7 +131,8 @@ namespace Noteapp.Api.Controllers
         public IActionResult GetAllSnapshots(int id)
         {
             var snapshots = _noteService.GetAllSnapshots(GetUserId(), id);
-            return Ok(snapshots);
+            var snapshotDtos = snapshots.Select(snapshot => new NoteSnapshotDto(snapshot));
+            return Ok(snapshotDtos);
         }
 
         private int GetUserId()

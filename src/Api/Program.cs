@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Noteapp.Infrastructure.Data;
@@ -35,8 +36,8 @@ namespace Noteapp.Api
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUserIdentity>>();
             var appContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
 
-            //identityContext.Database.EnsureDeleted();
-            //appContext.Database.EnsureDeleted();
+            identityContext.Database.EnsureDeleted();
+            appContext.Database.EnsureDeleted();
             identityContext.Database.EnsureCreated();
             appContext.Database.EnsureCreated();
 

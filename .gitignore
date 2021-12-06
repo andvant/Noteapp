@@ -5,6 +5,6 @@
 [Rr]elease/
 *.user
 /txts/
-*.db
+*.db*
 Migrations/
 *.ps1

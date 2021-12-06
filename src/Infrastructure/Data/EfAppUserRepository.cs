@@ -28,7 +28,7 @@ namespace Noteapp.Infrastructure.Data
 
         public AppUser FindByEmail(string email)
         {
-            return _context.AppUsers.Where(user => user.Email == email).Single();
+            return _context.AppUsers.Where(user => user.Email == email).SingleOrDefault();
         }
 
         public AppUser FindById(int id)

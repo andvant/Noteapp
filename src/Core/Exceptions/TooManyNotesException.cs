@@ -3,7 +3,7 @@
     public class TooManyNotesException : NoteappException
     {
         public TooManyNotesException(int actualCount, int maxCount)
-            : base($"Tried to create {actualCount} notes, but the maximum of {maxCount} is allowed")
+            : base($"Tried to create {actualCount} notes, but the allowed limit is {maxCount}")
         {
         }
 

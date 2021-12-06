@@ -1,7 +1,10 @@
 ﻿using Noteapp.Core.Entities;
+using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace Noteapp.Core.Services
 {
@@ -16,6 +19,8 @@ namespace Noteapp.Core.Services
 
         public AppUser Create(string email)
         {
+            ValidateEmail(email);
+
             var user = new AppUser()
             {
                 Email = email,
@@ -40,6 +45,20 @@ namespace Noteapp.Core.Services
         {
             var user = _repository.FindById(id);
             _repository.Delete(user);
+        }
+
+        // will never fail because ASP.NET Core Identity performs its validation first
+        private void ValidateEmail(string email)
+        {
+            if (!new EmailAddressAttribute().IsValid(email))
+            {
+                throw new UserRegistrationException("Provided email is invalid.");
+            }
+
+            if (_repository.FindByEmail(email) != null)
+            {
+                throw new UserRegistrationException("Provided email is already taken.");
+            }
         }
 
         private string GenerateEncryptionSalt()

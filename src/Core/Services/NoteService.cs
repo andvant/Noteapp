@@ -12,7 +12,6 @@ namespace Noteapp.Core.Services
     {
         private readonly INoteRepository _repository;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private const int MAX_BULK_NOTES = 20; // might want to move it somewhere else
 
         public NoteService(INoteRepository repository, IDateTimeProvider dateTimeProvider)
         {
@@ -58,7 +57,7 @@ namespace Noteapp.Core.Services
 
         public void BulkCreate(int userId, IEnumerable<string> texts)
         {
-            TooManyNotesException.ThrowIfTooManyNotes(texts.Count(), MAX_BULK_NOTES);
+            TooManyNotesException.ThrowIfTooManyNotes(texts.Count(), Constants.MAX_BULK_NOTES);
 
             var notes = new List<Note>();
 
@@ -196,6 +195,8 @@ namespace Noteapp.Core.Services
 
         private NoteSnapshot CreateSnapshot(Note note, string text)
         {
+            TextTooLongException.ThrowIfTextTooLong(text.Length, Constants.MAX_TEXT_LENGTH);
+
             return new NoteSnapshot()
             {
                 Created = _dateTimeProvider.Now,
