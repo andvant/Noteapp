@@ -34,7 +34,7 @@ namespace Noteapp.Api.Controllers
         {
             await _userService.ValidatePassword(dto.Email, dto.Password);
 
-            return Ok(new
+            return Ok(new UserInfoDto
             {
                 access_token = _tokenService.GenerateToken(dto.Email),
                 email = dto.Email,
