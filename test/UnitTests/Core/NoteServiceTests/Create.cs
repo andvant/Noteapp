@@ -1,4 +1,5 @@
 ﻿using Moq;
+using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
@@ -27,6 +28,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             Assert.Equal("new note", createdNote.Text);
             Assert.Equal(dateTime, createdNote.Created);
             Assert.Equal(dateTime, createdNote.Updated);
+            _mock.Verify(repo => repo.Add(createdNote), Times.Once);
         }
     }
 }

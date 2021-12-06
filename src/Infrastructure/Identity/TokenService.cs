@@ -11,10 +11,12 @@ namespace Noteapp.Infrastructure.Identity
     public class TokenService : ITokenService
     {
         private readonly AppUserService _appUserService;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public TokenService(AppUserService appUserService)
+        public TokenService(AppUserService appUserService, IDateTimeProvider dateTimeProvider)
         {
             _appUserService = appUserService;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public string GenerateToken(string userEmail)
@@ -34,9 +36,9 @@ namespace Noteapp.Infrastructure.Identity
                 issuer: "NoteappIssuer",
                 audience: "NoteappAudience",
                 subject: identity,
-                notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.Add(TimeSpan.FromDays(1)),
-                issuedAt: DateTime.UtcNow,
+                notBefore: _dateTimeProvider.Now,
+                expires: _dateTimeProvider.Now.Add(TimeSpan.FromDays(1)),
+                issuedAt: _dateTimeProvider.Now,
                 signingCredentials: new SigningCredentials(
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes("supersecretkey123")), SecurityAlgorithms.HmacSha256)
             );
