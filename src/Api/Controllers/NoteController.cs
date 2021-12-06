@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Noteapp.Api.Dtos;
-using Noteapp.Api.Filters;
 using Noteapp.Core.Services;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,6 @@ using System.Security.Claims;
 
 namespace Noteapp.Api.Controllers
 {
-    [NoteExceptionFilter]
     [Route("api/notes")]
     [ApiController]
     public class NoteController : ControllerBase

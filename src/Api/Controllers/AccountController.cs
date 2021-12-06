@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Noteapp.Api.Dtos;
-using Noteapp.Api.Filters;
 using Noteapp.Core.Interfaces;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Noteapp.Api.Controllers
 {
-    [AccountExceptionFilter]
     [Route("api/account")]
     [ApiController]
     public class AccountController : ControllerBase

@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Noteapp.Core.Exceptions;
-using System;
 using System.Net;
 
 namespace Noteapp.Api.Filters
 {
-    public class NoteExceptionFilterAttribute : Attribute, IExceptionFilter
+    public class ServiceExceptionFilter : IExceptionFilter
     {
         public void OnException(ExceptionContext context)
         {
@@ -25,6 +24,12 @@ namespace Noteapp.Api.Filters
                     break;
                 case SnapshotNotFoundException:
                     context.Result = new NotFoundObjectResult(error);
+                    break;
+                case UserRegistrationException:
+                    context.Result = new BadRequestObjectResult(error);
+                    break;
+                case CredentialsNotValidException:
+                    context.Result = new UnauthorizedObjectResult(error);
                     break;
             }
         }
