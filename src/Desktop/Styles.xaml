@@ -62,6 +62,16 @@
         <Setter Property="Visibility" Value="Collapsed"/>
     </Style>
 
+    <Style x:Key="SelectedNoteText" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="AcceptsReturn" Value="True" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Width" Value="Auto" />
+        <Setter Property="Height" Value="Auto" />
+        <Setter Property="Padding" Value="10,7" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
     <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource BaseStyle}">
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -96,6 +106,28 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style x:Key="ArchivedButtonPressed" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="{StaticResource ButtonHoverColor}" x:Name="Border" Padding="4">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource ButtonHoverColor}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource ButtonPressedColor}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ArchivedButtonNormal" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}" />
 
     <Style x:Key="SaveButton" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Width"  Value="130" />
@@ -133,25 +165,6 @@
         <Setter Property="Width" Value="40" />
         <Setter Property="Height" Value="40" />
         <Setter Property="Cursor" Value="Hand" />
-    </Style>
-
-    <Style x:Key="HistorySlider" TargetType="{x:Type Slider}">
-        <Setter Property="Width" Value="500" />
-        <Setter Property="TickPlacement" Value="BottomRight" />
-        <Setter Property="TickFrequency" Value="1" />
-        <Setter Property="IsSnapToTickEnabled" Value="True" />
-        <Setter Property="Minimum" Value="0" />
-        <Setter Property="Margin" Value="0,10" />
-    </Style>
-
-    <Style x:Key="SelectedNoteText" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
-        <Setter Property="TextWrapping" Value="Wrap" />
-        <Setter Property="AcceptsReturn" Value="True" />
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="Width" Value="Auto" />
-        <Setter Property="Height" Value="Auto" />
-        <Setter Property="Padding" Value="10,7" />
-        <Setter Property="BorderThickness" Value="0" />
     </Style>
     
     <Style x:Key="ActionMenuItem" TargetType="{x:Type MenuItem}" BasedOn="{StaticResource BaseStyle}">
@@ -204,6 +217,15 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="HistorySlider" TargetType="{x:Type Slider}">
+        <Setter Property="Width" Value="500" />
+        <Setter Property="TickPlacement" Value="BottomRight" />
+        <Setter Property="TickFrequency" Value="1" />
+        <Setter Property="IsSnapToTickEnabled" Value="True" />
+        <Setter Property="Minimum" Value="0" />
+        <Setter Property="Margin" Value="0,10" />
     </Style>
 
 </ResourceDictionary>

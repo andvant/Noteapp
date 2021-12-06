@@ -296,8 +296,11 @@ async function init() {
 
     async function newButtonHandler() {
         let newNote = await ApiService.createNote();
-        addNote(newNote);
-        selectNote(getNoteElement(newNote.id));
+        if (!_showArchived) {
+            addNote(newNote);
+            selectNote(getNoteElement(newNote.id));
+            noteTextElement.focus();
+        }
     }
 
     async function saveButtonHandler() {
@@ -422,7 +425,7 @@ async function init() {
         });
         let a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = "exportedNotes-[date].json";
+        a.download = `ExportedNotes-${new Date().toLocaleDateString()}.json`;
         a.click();
     }
 

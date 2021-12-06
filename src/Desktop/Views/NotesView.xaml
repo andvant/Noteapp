@@ -10,6 +10,7 @@
     <UserControl.Resources>
         <converters:DateTimeToStringConverter x:Key="DateTimeConverter" />
         <converters:BoolToVisibilityConverter x:Key="VisibilityConverter" />
+        <converters:ArchivedButtonStyleConverter x:Key="ArchivedButtonStyleConverter" />
     </UserControl.Resources>
 
     <DockPanel>
@@ -17,7 +18,8 @@
             <!--Note commands-->
             <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" DockPanel.Dock="Top">
                 <StackPanel Orientation="Horizontal" Height="60" HorizontalAlignment="Center">
-                    <Button Content="Archived" Command="{Binding ToggleShowArchivedCommand}" Margin="12, 0" />
+                    <Button Content="Archived" Command="{Binding ToggleShowArchivedCommand}" Margin="12, 0"
+                            Style="{Binding ShowArchived, Converter={StaticResource ArchivedButtonStyleConverter}}"/>
                     <Button Command="{Binding CreateCommand}" Content="+" Margin="12, 0"/>
                     <Button Command="{Binding ListCommand}" Content="List" Margin="12, 0"/>
                 </StackPanel>
@@ -97,7 +99,8 @@
             
             <!--Note history-->
             <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" 
-                    DockPanel.Dock="Bottom" Height="200" Visibility="{Binding HistoryVisibility}">
+                    DockPanel.Dock="Bottom" Height="200"
+                    Visibility="{Binding HistoryVisible, Converter={StaticResource VisibilityConverter}}">
                 <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                     <Label Content="{Binding CurrentSnapshotDate, Converter={StaticResource DateTimeConverter}}"/>
 

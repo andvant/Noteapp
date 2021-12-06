@@ -11,7 +11,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -36,21 +35,31 @@ namespace Noteapp.Desktop.ViewModels
         public Note SelectedNote
         {
             get => _selectedNote;
-            set => Set(ref _selectedNote, value);
+            set
+            {
+                if (HistoryVisible) CancelHistory();
+                Set(ref _selectedNote, value);
+            }
         }
 
-        public bool ShowArchived { get; set; }
+        private bool _showArchived;
+        public bool ShowArchived
+        {
+            get => _showArchived;
+            set => Set(ref _showArchived, value);
+        }
 
         // Note history
-        private Visibility _historyVisibility = Visibility.Collapsed;
+        private bool _historyVisible = false;
+        public bool HistoryVisible
+        {
+            get => _historyVisible;
+            set => Set(ref _historyVisible, value);
+        }
+
         private ObservableCollection<NoteSnapshot> _snapshots;
         private int _currentSnapshotIndex;
         private string _oldNoteText;
-        public Visibility HistoryVisibility
-        {
-            get => _historyVisibility;
-            set => Set(ref _historyVisibility, value);
-        }
 
         public ObservableCollection<NoteSnapshot> Snapshots
         {
@@ -121,7 +130,6 @@ namespace Noteapp.Desktop.ViewModels
         private async Task List()
         {
             var selectedNoteId = SelectedNote?.Id;
-
             var notes = await _apiService.GetNotes(ShowArchived);
 
             foreach (var note in notes)
@@ -136,37 +144,36 @@ namespace Noteapp.Desktop.ViewModels
         private async void Create()
         {
             var newNote = await _apiService.CreateNote();
-            Notes.Add(newNote);
-            SelectedNote = newNote;
+            if (!ShowArchived)
+            {
+                Notes.Add(newNote);
+                SelectedNote = newNote;
+            }
         }
 
         private async Task Save()
         {
             string text = await TryEncrypt(SelectedNote.Text);
-
             var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, text);
-
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
             ChangeNote(SelectedNote, updatedNote);
         }
 
         private bool CanSave()
         {
-            return SelectedNote != null && !SelectedNote.Locked && HistoryVisibility == Visibility.Collapsed;
+            return SelectedNote != null && !SelectedNote.Locked && !HistoryVisible;
         }
 
         private async void Delete()
         {
             await _apiService.DeleteNote(SelectedNote.Id);
             Notes.Remove(SelectedNote);
-
             SelectedNote = Notes.FirstOrDefault();
         }
 
         private async void ToggleLocked()
         {
             var updatedNote = await _apiService.ToggleLocked(SelectedNote.Id, SelectedNote.Locked);
-
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
             ChangeNote(SelectedNote, updatedNote);
         }
@@ -174,20 +181,15 @@ namespace Noteapp.Desktop.ViewModels
         private async void ToggleArchived()
         {
             var updatedNote = await _apiService.ToggleArchived(SelectedNote.Id, SelectedNote.Archived);
-
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
-
             ChangeNote(SelectedNote, updatedNote);
-
             Notes.Remove(updatedNote);
-
             SelectedNote = Notes.FirstOrDefault();
         }
 
         private async void TogglePinned()
         {
             var updatedNote = await _apiService.TogglePinned(SelectedNote.Id, SelectedNote.Pinned);
-
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
             ChangeNote(SelectedNote, updatedNote);
             Notes = CreateNoteCollection(Notes);
@@ -196,7 +198,6 @@ namespace Noteapp.Desktop.ViewModels
         private async void TogglePublished()
         {
             var updatedNote = await _apiService.TogglePublished(SelectedNote.Id, SelectedNote.Published);
-
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
             ChangeNote(SelectedNote, updatedNote);
         }
@@ -206,10 +207,12 @@ namespace Noteapp.Desktop.ViewModels
             var notes = new List<Note>(Notes);
             Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note2.Created, note1.Created);
             notes.Sort(comparison);
+
             if (_descendingCreated) notes.Reverse();
             _descendingCreated = !_descendingCreated;
             _descendingText = false;
             _descendingUpdated = false;
+
             Notes = CreateNoteCollection(notes);
         }
 
@@ -218,10 +221,12 @@ namespace Noteapp.Desktop.ViewModels
             var notes = new List<Note>(Notes);
             Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note2.Updated, note1.Updated);
             notes.Sort(comparison);
+
             if (_descendingUpdated) notes.Reverse();
             _descendingUpdated = !_descendingUpdated;
             _descendingCreated = false;
             _descendingText = false;
+
             Notes = CreateNoteCollection(notes);
         }
 
@@ -231,10 +236,12 @@ namespace Noteapp.Desktop.ViewModels
             Comparison<Note> comparison = (note1, note2) => string.Compare(note1.Text, note2.Text,
                 StringComparison.CurrentCultureIgnoreCase);
             notes.Sort(comparison);
+
             if (_descendingText) notes.Reverse();
             _descendingText = !_descendingText;
             _descendingCreated = false;
             _descendingUpdated = false;
+
             Notes = CreateNoteCollection(notes);
         }
 
@@ -247,7 +254,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             var dialog = new SaveFileDialog()
             {
-                FileName = "NotesBackup-[date]",
+                FileName = $"ExportedNotes-{DateTime.Now.ToShortDateString()}",
                 Filter = "JSON file|*.json"
             };
             var result = dialog.ShowDialog();
@@ -282,8 +289,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void RestoreSnapshot()
         {
-            HistoryVisibility = Visibility.Collapsed;
-
+            HistoryVisible = false;
             SelectedNote.Text = CurrentSnapshotText;
             Snapshots = null;
             await Save();
@@ -296,7 +302,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void ShowHistory()
         {
-            HistoryVisibility = Visibility.Visible;
+            HistoryVisible = true;
             _oldNoteText = SelectedNote.Text;
 
             var snapshots = await _apiService.GetAllSnapshots(SelectedNote.Id);
@@ -312,13 +318,12 @@ namespace Noteapp.Desktop.ViewModels
 
         private bool CanShowHistory()
         {
-            return HistoryVisibility == Visibility.Collapsed && SelectedNote != null;
+            return !HistoryVisible && SelectedNote != null;
         }
 
         private void CancelHistory()
         {
-            HistoryVisibility = Visibility.Collapsed;
-
+            HistoryVisible = false;
             SelectedNote.Text = _oldNoteText;
             Snapshots = null;
         }
