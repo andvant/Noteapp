@@ -25,7 +25,8 @@
 
                 <Label Grid.Row="1" Grid.Column="0" Content="Enable encryption" Style="{StaticResource SettingsLabel}"
                        HorizontalAlignment="Left" />
-                <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding EncryptionEnabled}" HorizontalAlignment="Right"/>
+                <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding EncryptionEnabled, Mode=OneWay}" 
+                          Command="{Binding ToggleEncryptionCommand}" HorizontalAlignment="Right"/>
             </Grid>
 
             <Button Content="Log out" Command="{Binding LogoutCommand}" Style="{StaticResource BigButton}" Margin="0,40"/>

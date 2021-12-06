@@ -8,8 +8,8 @@
         xmlns:vm="clr-namespace:Noteapp.Desktop.ViewModels"
         mc:Ignorable="d">
     <UserControl.Resources>
-        <converters:DateTimeToStringConverter x:Key="dateTimeConverter" />
-        <converters:BoolToVisibilityConverter x:Key="visibilityConverter" />
+        <converters:DateTimeToStringConverter x:Key="DateTimeConverter" />
+        <converters:BoolToVisibilityConverter x:Key="VisibilityConverter" />
     </UserControl.Resources>
 
     <DockPanel>
@@ -26,7 +26,7 @@
             <!--Sortings-->
             <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" DockPanel.Dock="Top">
                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Height="60" DockPanel.Dock="Top">
-                    <Label Content="Sort by:" FontSize="14"/>
+                    <Label Content="Sort by:" FontSize="16"/>
                     <Button Content="Created" Margin="4" Command="{Binding SortyByCreatedCommand}"/>
                     <Button Content="Updated" Margin="4" Command="{Binding SortyByUpdatedCommand}"/>
                     <Button Content="Text" Margin="4" Command="{Binding SortyByTextCommand}"/>
@@ -34,7 +34,8 @@
             </Border>
 
             <!--Notes-->
-            <ListBox ItemsSource="{Binding Notes}" SelectedItem="{Binding SelectedNote}" BorderThickness="0,0,1,0"
+            <ListBox ItemsSource="{Binding Notes}" SelectedItem="{Binding SelectedNote}"
+                     BorderThickness="0,0,1,0" BorderBrush="{StaticResource BorderColor}"
                      ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
@@ -43,23 +44,23 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Label Content="Pinned" Background="{StaticResource NotePinnedFlagColor}"
                                            Style="{StaticResource NoteFlag}"
-                                           Visibility="{Binding Pinned, Converter={StaticResource visibilityConverter}}"/>
+                                           Visibility="{Binding Pinned, Converter={StaticResource VisibilityConverter}}"/>
 
                                     <Label Content="Locked" Background="{StaticResource NoteLockedFlagColor}" 
                                            Style="{StaticResource NoteFlag}"
-                                           Visibility="{Binding Locked, Converter={StaticResource visibilityConverter}}"/>
+                                           Visibility="{Binding Locked, Converter={StaticResource VisibilityConverter}}"/>
 
                                     <Label Content="Archived" Background="{StaticResource NoteArchivedFlagColor}"
                                            Style="{StaticResource NoteFlag}"
-                                           Visibility="{Binding Archived, Converter={StaticResource visibilityConverter}}"/>
+                                           Visibility="{Binding Archived, Converter={StaticResource VisibilityConverter}}"/>
 
                                     <Label Content="Published" Background="{StaticResource NotePublishedFlagColor}"
                                            Style="{StaticResource NoteFlag}"
-                                           Visibility="{Binding Published, Converter={StaticResource visibilityConverter}}"/>
+                                           Visibility="{Binding Published, Converter={StaticResource VisibilityConverter}}"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding TextPreview}" FontSize="17" FontWeight="Bold"/>
-                                <TextBlock Text="{Binding Updated, StringFormat=Updated: {0}, Converter={StaticResource dateTimeConverter}}"
-                                FontSize="17"/>
+                                <TextBlock Text="{Binding Updated, StringFormat=Updated: {0}, 
+                                    Converter={StaticResource DateTimeConverter}}" FontSize="17"/>
                             </StackPanel>
                         </ContentControl>
 
@@ -95,10 +96,10 @@
             </Grid>
             
             <!--Note history-->
-            <ContentControl DockPanel.Dock="Bottom" Height="250" Visibility="{Binding HistoryVisibility}" Margin="10">
+            <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" 
+                    DockPanel.Dock="Bottom" Height="200" Visibility="{Binding HistoryVisibility}">
                 <StackPanel VerticalAlignment="Center" Orientation="Vertical">
-
-                    <Label Content="{Binding CurrentSnapshotDate, Converter={StaticResource dateTimeConverter}}"/>
+                    <Label Content="{Binding CurrentSnapshotDate, Converter={StaticResource DateTimeConverter}}"/>
 
                     <Slider Maximum="{Binding MaximumSnapshotIndex}" Value="{Binding CurrentSnapshotIndex}" 
                             Style="{StaticResource HistorySlider}"/>
@@ -108,7 +109,8 @@
                         <Button Content="Restore" Command="{Binding RestoreSnapshotCommand}" Margin="5,0"/>
                     </StackPanel>
                 </StackPanel>
-            </ContentControl>
+            </Border>
+            
 
             <!--Note text-->
             <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}">

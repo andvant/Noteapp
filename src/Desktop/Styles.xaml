@@ -5,7 +5,7 @@
     <SolidColorBrush x:Key="ButtonColor" Color="#fff" />
     <SolidColorBrush x:Key="ButtonHoverColor" Color="#ccc" />
     <SolidColorBrush x:Key="ButtonPressedColor" Color="#bbb" />
-    <SolidColorBrush x:Key="BorderColor" Color="Gray" />
+    <SolidColorBrush x:Key="BorderColor" Color="#abadb3" />
     <SolidColorBrush x:Key="NoteHoverColor" Color="#eee" />
     <SolidColorBrush x:Key="NoteSelectedColor" Color="#1c77d4" />
     <SolidColorBrush x:Key="ActionMenuItemHoverColor" Color="#eee" />
@@ -45,8 +45,8 @@
     </Style>
 
     <Style x:Key="CredentialsInput" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
-        <Setter Property="Width" Value="510" />
-        <Setter Property="Height" Value="48" />
+        <Setter Property="Width" Value="420" />
+        <Setter Property="Height" Value="50" />
         <Setter Property="Margin" Value="0,45" />
         <Setter Property="Padding" Value="6" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -57,7 +57,7 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="FontFamily" Value="Cambria" />
         <Setter Property="FontSize" Value="22" />
-        <Setter Property="Foreground" Value="DarkGray" />
+        <Setter Property="Foreground" Value="Gray" />
         <Setter Property="IsHitTestVisible" Value="False" />
         <Setter Property="Visibility" Value="Collapsed"/>
     </Style>
@@ -74,10 +74,9 @@
     </Style>
 
     <Style TargetType="{x:Type Button}" BasedOn="{StaticResource BaseStyle}">
-        <Setter Property="Width"  Value="82" />
+        <Setter Property="Width"  Value="80" />
         <Setter Property="Height" Value="30" />
         <Setter Property="FontSize" Value="17" />
-        <Setter Property="Padding" Value="5" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
             <Setter.Value>
