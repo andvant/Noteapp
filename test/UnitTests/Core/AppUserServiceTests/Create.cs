@@ -16,7 +16,7 @@ namespace Noteapp.UnitTests.Core.AppUserServiceTests
 
         public Create()
         {
-            _dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider => 
+            _dateTimeProvider = Mock.Of<IDateTimeProvider>(dateTimeProvider =>
                 dateTimeProvider.Now == _registrationDate);
         }
 
