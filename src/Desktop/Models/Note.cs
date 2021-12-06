@@ -19,7 +19,7 @@ namespace Noteapp.Desktop.Models
             }
         }
         public string TextPreview
-        { 
+        {
             get
             {
                 var preview = Text?.Split(Environment.NewLine)?[0];

@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -229,7 +228,7 @@ namespace Noteapp.Desktop.ViewModels
         private void SortByText()
         {
             var notes = new List<Note>(Notes);
-            Comparison<Note> comparison = (note1, note2) => string.Compare(note1.Text, note2.Text, 
+            Comparison<Note> comparison = (note1, note2) => string.Compare(note1.Text, note2.Text,
                 StringComparison.CurrentCultureIgnoreCase);
             notes.Sort(comparison);
             if (_descendingText) notes.Reverse();

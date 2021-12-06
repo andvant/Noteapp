@@ -4,7 +4,6 @@ using Noteapp.Core.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 
 namespace Noteapp.Core.Services
 {

@@ -39,7 +39,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 It.Is<List<Note>>(notes =>
                     notes.Count == noteTexts.Count &&
                     notes.Any(note =>
-                        note.AuthorId == 1 && 
+                        note.AuthorId == 1 &&
                         note.Created == dateTime &&
                         note.Updated == dateTime &&
                         noteTexts.Contains(note.Text)))
