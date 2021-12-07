@@ -7,12 +7,36 @@
     font-family: Cambria, Georgia, 'Times New Roman', serif;
 }
 
-.appname {
+body {
+    background-color: #eee;
+}
+
+.logo-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 150px;
+    margin-bottom: 50px;
+}
+
+.app-logo {
+    width: 64px;
+    height: 64px;
+    margin-top: 15px;
+}
+
+.app-logo-small {
+    width: 18px;
+    height: 18px;
+    margin-right: 4px;
+}
+
+.app-name {
     font-size: 82px;
     font-weight: lighter;
     text-align: center;
-    margin-top: 170px;
-    margin-bottom: 90px;
+    margin-left: 15px;
     color: var(--text-color);
 }
 
