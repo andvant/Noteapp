@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Noteapp.Web.Controllers;
+using System;
 
 namespace Noteapp.Web
 {
@@ -18,6 +20,10 @@ namespace Noteapp.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddHttpClient("apiClient", options =>
+            {
+                options.BaseAddress = new Uri(Configuration["ApiBaseUrl"]);
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

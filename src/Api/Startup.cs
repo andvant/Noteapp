@@ -43,14 +43,14 @@ namespace Noteapp.Api
             services.AddDbContext<ApplicationContext>(options =>
             {
                 options.EnableSensitiveDataLogging(true);
-                options.UseSqlite("Data Source=app.db");
-                //options.UseInMemoryDatabase("ApplicationDb");
+                options.UseSqlite(Configuration.GetConnectionString("App"));
+                //options.UseInMemoryDatabase("App");
             });
 
             services.AddDbContext<IdentityContext>(options =>
             {
-                options.UseSqlite("Data Source=identity.db");
-                //options.UseInMemoryDatabase("IdentityDb");
+                options.UseSqlite(Configuration.GetConnectionString("Identity"));
+                //options.UseInMemoryDatabase("Identity");
             });
 
             services.AddIdentity<AppUserIdentity, IdentityRole>(options =>
@@ -72,6 +72,8 @@ namespace Noteapp.Api
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ITokenService, TokenService>();
 
+            services.Configure<JwtSettings>(Configuration.GetSection(nameof(JwtSettings)));
+
             services.AddCors(setup =>
             {
                 setup.AddDefaultPolicy(policy =>
@@ -91,14 +93,15 @@ namespace Noteapp.Api
                 {
                     options.TokenValidationParameters = new()
                     {
-                        ValidIssuer = "NoteappIssuer",
                         ValidateIssuer = true,
-                        ValidAudience = "NoteappAudience",
                         ValidateAudience = true,
                         ValidateLifetime = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("supersecretkey123")),
                         ValidateIssuerSigningKey = true,
-                        ClockSkew = TimeSpan.FromSeconds(5)
+
+                        ValidIssuer = Configuration["JwtSettings:Issuer"],
+                        ValidAudience = Configuration["JwtSettings:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                            Configuration["JwtSettings:Key"])),
                     };
                 });
         }

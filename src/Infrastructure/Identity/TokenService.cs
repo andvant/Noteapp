@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
@@ -11,11 +12,14 @@ namespace Noteapp.Infrastructure.Identity
     public class TokenService : ITokenService
     {
         private readonly AppUserService _appUserService;
+        private readonly JwtSettings _jwtSettings;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public TokenService(AppUserService appUserService, IDateTimeProvider dateTimeProvider)
+        public TokenService(AppUserService appUserService, IOptions<JwtSettings> jwtSettings, 
+            IDateTimeProvider dateTimeProvider)
         {
             _appUserService = appUserService;
+            _jwtSettings = jwtSettings.Value;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -33,14 +37,14 @@ namespace Noteapp.Infrastructure.Identity
 
             var jwt = new JwtSecurityTokenHandler().CreateEncodedJwt
             (
-                issuer: "NoteappIssuer",
-                audience: "NoteappAudience",
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 subject: identity,
                 notBefore: _dateTimeProvider.Now,
-                expires: _dateTimeProvider.Now.Add(TimeSpan.FromDays(1)),
+                expires: _dateTimeProvider.Now.Add(TimeSpan.FromMinutes(_jwtSettings.LifetimeMinutes)),
                 issuedAt: _dateTimeProvider.Now,
                 signingCredentials: new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes("supersecretkey123")), SecurityAlgorithms.HmacSha256)
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key)), SecurityAlgorithms.HmacSha256)
             );
 
             return jwt;

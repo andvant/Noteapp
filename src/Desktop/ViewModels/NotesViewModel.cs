@@ -25,6 +25,7 @@ namespace Noteapp.Desktop.ViewModels
         private bool _descendingUpdated;
         private bool _descendingCreated;
         private bool _descendingText;
+        private string _publishedNotesUrl;
 
         public ObservableCollection<Note> Notes
         {
@@ -103,9 +104,10 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand CancelHistoryCommand { get; }
         public ICommand ToggleShowArchivedCommand { get; }
 
-        public NotesViewModel(ApiService apiService)
+        public NotesViewModel(ApiService apiService, string publishedNotesUrl)
         {
             _apiService = apiService;
+            _publishedNotesUrl = publishedNotesUrl;
 
             ListCommand = new RelayCommand(async () => await List());
             CreateCommand = new RelayCommand(Create);
@@ -208,7 +210,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             if (SelectedNote != null && SelectedNote.Published)
             {
-                System.Windows.Clipboard.SetText(GetFullNoteUrl(SelectedNote.PublicUrl));
+                System.Windows.Clipboard.SetText($"{_publishedNotesUrl}{SelectedNote.PublicUrl}");
             }
             else
             {
@@ -395,11 +397,6 @@ namespace Noteapp.Desktop.ViewModels
         private ObservableCollection<Note> CreateNoteCollection(IEnumerable<Note> notes)
         {
             return new ObservableCollection<Note>(OrderByPinned(notes));
-        }
-
-        private string GetFullNoteUrl(string publicUrl)
-        {
-            return $"http://localhost:5010/p/{publicUrl}";
         }
     }
 }

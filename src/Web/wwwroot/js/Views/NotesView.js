@@ -460,7 +460,7 @@ async function init() {
     }
 
     function getFullNoteUrl(publicUrl) {
-        return `http://localhost:5010/p/${publicUrl}`;
+        return `${window.location.protocol}//${window.location.host}/p/${publicUrl}`;
     }
 }
 

@@ -6,6 +6,12 @@ namespace Noteapp.Web.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly HttpClient _httpClient;
+        public HomeController(IHttpClientFactory factory)
+        {
+            _httpClient = factory.CreateClient("apiClient");
+        }
+
         [HttpGet("/")]
         public IActionResult Home()
         {
@@ -15,8 +21,7 @@ namespace Noteapp.Web.Controllers
         [HttpGet("p/{url}")]
         public async Task<IActionResult> ReadPublishedNote(string url)
         {
-            var client = new HttpClient();
-            var response = await client.GetAsync($"http://localhost:5000/p/{url}");
+            var response = await _httpClient.GetAsync($"p/{url}");
 
             if (response.IsSuccessStatusCode)
             {
