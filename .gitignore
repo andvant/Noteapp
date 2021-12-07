@@ -8,3 +8,5 @@
 *.db*
 Migrations/
 *.ps1
+installer/app/
+*.exe

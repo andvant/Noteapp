@@ -34,5 +34,16 @@ namespace Noteapp.Web.Controllers
         {
             return File("~/app.html", "text/html");
         }
+
+        [HttpGet("download")]
+        public IActionResult DownloadForDesktop()
+        {
+            string virtualPath = "~/installer/Noteapp-win64-setup.exe";
+            string contentType = "application/vnd.microsoft.portable-executable";
+            string downloadName = "Noteapp-win64-setup.exe";
+
+            // will crash because there are no .exe files in the git repository
+            return File(virtualPath, contentType, downloadName);
+        }
     }
 }
