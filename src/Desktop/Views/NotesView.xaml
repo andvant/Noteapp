@@ -89,6 +89,7 @@
                         <MenuItem Header="Lock" Command="{Binding ToggleLockedCommand}" Style="{StaticResource ActionMenuItem}"/>
                         <MenuItem Header="Archive" Command="{Binding ToggleArchivedCommand}" Style="{StaticResource ActionMenuItem}"/>
                         <MenuItem Header="Publish" Command="{Binding TogglePublishedCommand}" Style="{StaticResource ActionMenuItem}"/>
+                        <MenuItem Header="Copy Link" Command="{Binding CopyLinkCommand}" Style="{StaticResource ActionMenuItem}"/>
                         <MenuItem Header="Note history" Command="{Binding ShowHistoryCommand}" Style="{StaticResource ActionMenuItem}"/>
                         <MenuItem Header="Export" Command="{Binding ExportCommand}" Style="{StaticResource ActionMenuItem}"/>
                         <MenuItem Header="Import" Command="{Binding ImportCommand}" Style="{StaticResource ActionMenuItem}"/>

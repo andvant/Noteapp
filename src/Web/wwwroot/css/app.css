@@ -17,7 +17,7 @@ body {
 * {
     box-sizing: border-box;
     font-size: 17px;
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-family: Cambria, Georgia, 'Times New Roman', serif;
     color: #222;
 }
 
@@ -325,6 +325,10 @@ body {
     justify-content: space-evenly;
     align-items: center;
     background-color: var(--app-bg-color);
+}
+
+.secondary-view input {
+    width: 420px;
 }
 
 .secondary-view * {

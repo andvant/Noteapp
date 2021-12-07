@@ -121,7 +121,7 @@ async function sendRequest(url, method, headers = {}, body = null) {
     }
 
     if (!response.ok) {
-        alert(`${response.statusText}\n${await response.text()}`)
+        alert(`Received unsuccessful response from the server:\n${response.statusText}\n${await response.text()}`);
         throw new Error('Bad response from the server');
     }
 

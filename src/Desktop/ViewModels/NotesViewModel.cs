@@ -92,6 +92,7 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand ToggleArchivedCommand { get; }
         public ICommand TogglePinnedCommand { get; }
         public ICommand TogglePublishedCommand { get; }
+        public ICommand CopyLinkCommand { get; }
         public ICommand SortyByCreatedCommand { get; }
         public ICommand SortyByUpdatedCommand { get; }
         public ICommand SortyByTextCommand { get; }
@@ -114,6 +115,7 @@ namespace Noteapp.Desktop.ViewModels
             ToggleArchivedCommand = new RelayCommand(ToggleArchived);
             TogglePinnedCommand = new RelayCommand(TogglePinned);
             TogglePublishedCommand = new RelayCommand(TogglePublished);
+            CopyLinkCommand = new RelayCommand(CopyLink);
             SortyByCreatedCommand = new RelayCommand(SortByCreated, CanSort);
             SortyByUpdatedCommand = new RelayCommand(SortByUpdated, CanSort);
             SortyByTextCommand = new RelayCommand(SortByText, CanSort);
@@ -200,6 +202,18 @@ namespace Noteapp.Desktop.ViewModels
             var updatedNote = await _apiService.TogglePublished(SelectedNote.Id, SelectedNote.Published);
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
             ChangeNote(SelectedNote, updatedNote);
+        }
+
+        private void CopyLink()
+        {
+            if (SelectedNote != null && SelectedNote.Published)
+            {
+                System.Windows.Clipboard.SetText(GetFullNoteUrl(SelectedNote.PublicUrl));
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Note is not published!");
+            }
         }
 
         private void SortByCreated()
@@ -381,6 +395,11 @@ namespace Noteapp.Desktop.ViewModels
         private ObservableCollection<Note> CreateNoteCollection(IEnumerable<Note> notes)
         {
             return new ObservableCollection<Note>(OrderByPinned(notes));
+        }
+
+        private string GetFullNoteUrl(string publicUrl)
+        {
+            return $"http://localhost:5010/p/{publicUrl}";
         }
     }
 }

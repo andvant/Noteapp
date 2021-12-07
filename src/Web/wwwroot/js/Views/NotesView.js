@@ -56,6 +56,7 @@ async function render() {
                                     <label for="publish-button" class="action">Publish
                                         <input id="publish-button" type="checkbox" />
                                     </label>
+                                    <div id="copy-link-button" class="action">Copy Link</div>
                                     <div id="history-button" class="action">Note history</div>
                                     <div id="export-button" class="action">Export</div>
                                     <div id="import-button" class="action">Import</div>
@@ -94,6 +95,7 @@ async function init() {
     const lockButton = document.getElementById('lock-button');
     const archiveButton = document.getElementById('archive-button');
     const publishButton = document.getElementById('publish-button');
+    const copyLinkButton = document.getElementById('copy-link-button');
     const sortByCreatedButton = document.getElementById('sortby-created-button');
     const sortByUpdatedButton = document.getElementById('sortby-updated-button');
     const sortByTextButton = document.getElementById('sortby-text-button');
@@ -128,6 +130,7 @@ async function init() {
         archiveButton.addEventListener('change', archiveCheckboxHandler);
         pinButton.addEventListener('change', pinCheckboxHandler);
         publishButton.addEventListener('change', publishCheckboxHandler);
+        copyLinkButton.addEventListener('click', copyLinkButtonHandler);
 
         sortByCreatedButton.addEventListener('click', sortByCreatedButtonHandler);
         sortByUpdatedButton.addEventListener('click', sortByUpdatedButtonHandler);
@@ -341,7 +344,6 @@ async function init() {
     function noteSelectedHandler(event) {
         cancelHistoryButtonHandler();
         let noteElement = event.target.closest('.note');
-
         selectNote(noteElement);
     }
 
@@ -436,6 +438,7 @@ async function init() {
     }
 
     function actionMenuButtonHandler() {
+        copyLinkButton.textContent = 'Copy Link';
         actionMenu.classList.toggle('show');
     }
 
@@ -443,6 +446,21 @@ async function init() {
         if (!event.target.matches('#action-menu-button, #action-menu *')) {
             actionMenu.classList.remove('show');
         }
+    }
+
+    async function copyLinkButtonHandler() {
+        let note = getSelectedNote();
+        if (note?.published) {
+            await navigator.clipboard.writeText(getFullNoteUrl(note.publicUrl));
+            copyLinkButton.textContent = 'Copied!';
+        }
+        else {
+            copyLinkButton.textContent = 'Note is not published!';
+        }
+    }
+
+    function getFullNoteUrl(publicUrl) {
+        return `http://localhost:5010/p/${publicUrl}`;
     }
 }
 
