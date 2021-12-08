@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Noteapp.Web.Controllers;
 using System;
 
 namespace Noteapp.Web
@@ -33,7 +32,7 @@ namespace Noteapp.Web
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseStaticFiles();
             app.UseStatusCodePages();

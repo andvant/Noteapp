@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  noteappapi:
+    build:
+      context: .
+      dockerfile: src/Api/Dockerfile
+    ports:
+      - 5000:80
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+
+  noteappweb:
+    build:
+      context: .
+      dockerfile: src/Web/Dockerfile
+    ports:
+      - 5010:80
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80

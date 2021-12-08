@@ -14,7 +14,6 @@ using Noteapp.Core.Services;
 using Noteapp.Infrastructure;
 using Noteapp.Infrastructure.Data;
 using Noteapp.Infrastructure.Identity;
-using System;
 using System.Text;
 
 namespace Noteapp.Api
@@ -42,9 +41,10 @@ namespace Noteapp.Api
 
             services.AddDbContext<ApplicationContext>(options =>
             {
-                options.EnableSensitiveDataLogging(true);
                 options.UseSqlite(Configuration.GetConnectionString("App"));
                 //options.UseInMemoryDatabase("App");
+                //// to allow using in-memory database which doesn't support transactions:
+                //options.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             });
 
             services.AddDbContext<IdentityContext>(options =>
@@ -116,7 +116,7 @@ namespace Noteapp.Api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Noteapp.Api v1"));
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 

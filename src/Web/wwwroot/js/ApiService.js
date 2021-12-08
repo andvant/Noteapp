@@ -15,7 +15,7 @@
     deleteAccount
 }
 
-const API_BASE_URL = "https://localhost:5001/api/";
+const API_BASE_URL = "http://localhost:5000/api/";
 let _userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
 async function getNotes(archived) {

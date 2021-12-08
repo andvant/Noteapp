@@ -15,7 +15,7 @@ namespace Noteapp.Infrastructure.Identity
         private readonly JwtSettings _jwtSettings;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public TokenService(AppUserService appUserService, IOptions<JwtSettings> jwtSettings, 
+        public TokenService(AppUserService appUserService, IOptions<JwtSettings> jwtSettings,
             IDateTimeProvider dateTimeProvider)
         {
             _appUserService = appUserService;
