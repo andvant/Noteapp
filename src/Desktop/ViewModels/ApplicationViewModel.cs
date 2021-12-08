@@ -37,7 +37,7 @@ namespace Noteapp.Desktop.ViewModels
 
             Pages.Add(new RegisterViewModel(apiService));
             Pages.Add(new LoginViewModel(apiService));
-            Pages.Add(new NotesViewModel(apiService, configuration["PublishedNotesUrl"]));
+            Pages.Add(new NotesViewModel(apiService, configuration["WebBaseUrl"]));
             Pages.Add(new SettingsViewModel(apiService));
 
             CurrentPage = Pages.Find(vm => vm.Name == PageNames.Notes);

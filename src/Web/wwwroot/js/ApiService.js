@@ -15,7 +15,7 @@
     deleteAccount
 }
 
-const BASE_URL = "http://localhost:5000/api/";
+const API_BASE_URL = "https://localhost:5001/api/";
 let _userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
 async function getNotes(archived) {
@@ -113,7 +113,7 @@ async function sendRequest(url, method, headers = {}, body = null) {
     }
     let response;
     try {
-        response = await fetch(`${BASE_URL}${url}`, { method, headers, body });
+        response = await fetch(`${API_BASE_URL}${url}`, { method, headers, body });
     }
     catch {
         alert('Failed to connect to the server.')

@@ -33,6 +33,8 @@ namespace Noteapp.Web
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseHttpsRedirection();
+
             app.UseStaticFiles();
             app.UseStatusCodePages();
 

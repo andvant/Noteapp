@@ -74,13 +74,13 @@ namespace Noteapp.Api
 
             services.Configure<JwtSettings>(Configuration.GetSection(nameof(JwtSettings)));
 
-            services.AddCors(setup =>
+            services.AddCors(options =>
             {
-                setup.AddDefaultPolicy(policy =>
+                options.AddDefaultPolicy(builder =>
                 {
-                    policy.AllowAnyOrigin();
-                    policy.AllowAnyHeader();
-                    policy.AllowAnyMethod();
+                    builder.WithOrigins(Configuration["WebBaseUrl"].TrimEnd('/'));
+                    builder.AllowAnyHeader();
+                    builder.AllowAnyMethod();
                 });
             });
 
@@ -91,6 +91,7 @@ namespace Noteapp.Api
             })
                 .AddJwtBearer(options =>
                 {
+                    var jwtSettings = Configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
                     options.TokenValidationParameters = new()
                     {
                         ValidateIssuer = true,
@@ -98,10 +99,10 @@ namespace Noteapp.Api
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
 
-                        ValidIssuer = Configuration["JwtSettings:Issuer"],
-                        ValidAudience = Configuration["JwtSettings:Audience"],
+                        ValidIssuer = jwtSettings.Issuer,
+                        ValidAudience = jwtSettings.Audience,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                            Configuration["JwtSettings:Key"])),
+                            jwtSettings.Key)),
                     };
                 });
         }
@@ -114,6 +115,8 @@ namespace Noteapp.Api
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Noteapp.Api v1"));
             }
+
+            app.UseHttpsRedirection();
 
             app.UseRouting();
 
