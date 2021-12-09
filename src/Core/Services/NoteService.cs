@@ -207,13 +207,12 @@ namespace Noteapp.Core.Services
 
         private string GenerateUrl()
         {
-            const int LENGTH = 8;
             const string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-            var url = new StringBuilder(LENGTH);
+            var url = new StringBuilder(Constants.PUBLIC_URL_LENGTH);
             var random = new Random(Guid.NewGuid().GetHashCode());
 
-            for (int i = 0; i < LENGTH; i++)
+            for (int i = 0; i < Constants.PUBLIC_URL_LENGTH; i++)
             {
                 url.Append(alphabet[random.Next(alphabet.Length)]);
             }
