@@ -34,9 +34,9 @@ namespace Noteapp.Api.Controllers
 
             return Ok(new UserInfoDto
             {
-                access_token = _tokenService.GenerateToken(dto.Email),
+                access_token = await _tokenService.GenerateToken(dto.Email),
                 email = dto.Email,
-                encryption_salt = _userService.GetEncryptionSalt(dto.Email)
+                encryption_salt = await _userService.GetEncryptionSalt(dto.Email)
             });
         }
 

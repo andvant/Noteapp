@@ -4,6 +4,7 @@ using Noteapp.Core.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace Noteapp.Core.Services
 {
@@ -18,9 +19,9 @@ namespace Noteapp.Core.Services
             _dateTimeProvider = dateTimeProvider;
         }
 
-        public AppUser Create(string email)
+        public async Task<AppUser> Create(string email)
         {
-            ValidateEmail(email);
+            await ValidateEmail(email);
 
             var user = new AppUser()
             {
@@ -29,35 +30,35 @@ namespace Noteapp.Core.Services
                 RegistrationDate = _dateTimeProvider.Now
             };
 
-            _repository.Add(user);
+            await _repository.Add(user);
             return user;
         }
 
-        public AppUser Get(string email)
+        public async Task<AppUser> Get(string email)
         {
-            return _repository.FindByEmail(email);
+            return await _repository.FindByEmail(email);
         }
 
-        public AppUser Get(int id)
+        public async Task<AppUser> Get(int id)
         {
-            return _repository.FindById(id);
+            return await _repository.FindById(id);
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var user = _repository.FindById(id);
-            _repository.Delete(user);
+            var user = await _repository.FindById(id);
+            await _repository.Delete(user);
         }
 
         // will never fail because ASP.NET Core Identity performs its validation first
-        private void ValidateEmail(string email)
+        private async Task ValidateEmail(string email)
         {
             if (!new EmailAddressAttribute().IsValid(email))
             {
                 throw new UserRegistrationException("Provided email is invalid.");
             }
 
-            if (_repository.FindByEmail(email) != null)
+            if (await _repository.FindByEmail(email) != null)
             {
                 throw new UserRegistrationException("Provided email is already taken.");
             }

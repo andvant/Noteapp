@@ -6,6 +6,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Noteapp.Infrastructure.Identity
 {
@@ -23,9 +24,9 @@ namespace Noteapp.Infrastructure.Identity
             _dateTimeProvider = dateTimeProvider;
         }
 
-        public string GenerateToken(string userEmail)
+        public async Task<string> GenerateToken(string userEmail)
         {
-            var user = _appUserService.Get(userEmail);
+            var user = await _appUserService.Get(userEmail);
 
             var claims = new Claim[]
             {

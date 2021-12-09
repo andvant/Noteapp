@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Noteapp.Core.Services
 {
@@ -19,30 +20,30 @@ namespace Noteapp.Core.Services
             _dateTimeProvider = dateTimeProvider;
         }
 
-        public Note Get(int userId, int noteId)
+        public async Task<Note> Get(int userId, int noteId)
         {
-            return GetNoteWithCurrentSnapshot(userId, noteId);
+            return await GetNoteWithCurrentSnapshot(userId, noteId);
         }
 
-        public IEnumerable<Note> GetAll(int userId, bool? archived)
+        public async Task<IEnumerable<Note>> GetAll(int userId, bool? archived)
         {
-            var notes = _repository.GetAllForAuthor(userId, archived);
+            var notes = await _repository.GetAllForAuthor(userId, archived);
 
             return notes;
         }
 
-        public Note Create(int userId, string text)
+        public async Task<Note> Create(int userId, string text)
         {
             var note = CreateNote(userId);
             note.CurrentSnapshot = CreateSnapshot(note, text);
 
-            _repository.Add(note);
+            await _repository.Add(note);
             return note;
         }
 
-        public Note Update(int userId, int noteId, string text)
+        public async Task<Note> Update(int userId, int noteId, string text)
         {
-            var note = GetNoteWithoutSnapshots(userId, noteId);
+            var note = await GetNoteWithoutSnapshots(userId, noteId);
 
             if (note.Locked)
             {
@@ -51,11 +52,11 @@ namespace Noteapp.Core.Services
 
             note.CurrentSnapshot = CreateSnapshot(note, text);
 
-            _repository.Update(note);
+            await _repository.Update(note);
             return note;
         }
 
-        public void BulkCreate(int userId, IEnumerable<string> texts)
+        public async Task BulkCreate(int userId, IEnumerable<string> texts)
         {
             TooManyNotesException.ThrowIfTooManyNotes(texts.Count(), Constants.MAX_BULK_NOTES);
 
@@ -69,109 +70,109 @@ namespace Noteapp.Core.Services
                 notes.Add(note);
             }
 
-            _repository.AddRange(notes);
+            await _repository.AddRange(notes);
         }
 
-        public void Delete(int userId, int noteId)
+        public async Task Delete(int userId, int noteId)
         {
-            var note = GetNoteWithoutSnapshots(userId, noteId);
-            _repository.Delete(note);
+            var note = await GetNoteWithoutSnapshots(userId, noteId);
+            await _repository.Delete(note);
         }
 
-        public Note Archive(int userId, int noteId)
+        public async Task<Note> Archive(int userId, int noteId)
         {
-            var note = GetNoteWithCurrentSnapshot(userId, noteId);
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
             note.Archived = true;
-            _repository.Update(note);
+            await _repository.Update(note);
             return note;
         }
 
-        public Note Unarchive(int userId, int noteId)
+        public async Task<Note> Unarchive(int userId, int noteId)
         {
-            var note = GetNoteWithCurrentSnapshot(userId, noteId);
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
             note.Archived = false;
-            _repository.Update(note);
+            await _repository.Update(note);
             return note;
         }
 
-        public Note Pin(int userId, int noteId)
+        public async Task<Note> Pin(int userId, int noteId)
         {
-            var note = GetNoteWithCurrentSnapshot(userId, noteId);
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
             note.Pinned = true;
-            _repository.Update(note);
+            await _repository.Update(note);
             return note;
         }
 
-        public Note Unpin(int userId, int noteId)
+        public async Task<Note> Unpin(int userId, int noteId)
         {
-            var note = GetNoteWithCurrentSnapshot(userId, noteId);
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
             note.Pinned = false;
-            _repository.Update(note);
+            await _repository.Update(note);
             return note;
         }
 
-        public Note Lock(int userId, int noteId)
+        public async Task<Note> Lock(int userId, int noteId)
         {
-            var note = GetNoteWithCurrentSnapshot(userId, noteId);
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
             note.Locked = true;
-            _repository.Update(note);
+            await _repository.Update(note);
             return note;
         }
 
-        public Note Unlock(int userId, int noteId)
+        public async Task<Note> Unlock(int userId, int noteId)
         {
-            var note = GetNoteWithCurrentSnapshot(userId, noteId);
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
             note.Locked = false;
-            _repository.Update(note);
+            await _repository.Update(note);
             return note;
         }
 
-        public Note Publish(int userId, int noteId)
+        public async Task<Note> Publish(int userId, int noteId)
         {
-            var note = GetNoteWithCurrentSnapshot(userId, noteId);
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
             note.PublicUrl = GenerateUrl();
-            _repository.Update(note);
+            await _repository.Update(note);
             return note;
         }
 
-        public Note Unpublish(int userId, int noteId)
+        public async Task<Note> Unpublish(int userId, int noteId)
         {
-            var note = GetNoteWithCurrentSnapshot(userId, noteId);
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
             note.PublicUrl = null;
-            _repository.Update(note);
+            await _repository.Update(note);
             return note;
         }
 
-        public string GetPublishedNoteText(string url)
+        public async Task<string> GetPublishedNoteText(string url)
         {
-            var note = _repository.FindByPublicUrl(url);
+            var note = await _repository.FindByPublicUrl(url);
             return note?.Text ?? throw new NoteNotFoundException(url);
         }
 
-        public IEnumerable<NoteSnapshot> GetAllSnapshots(int userId, int noteId)
+        public async Task<IEnumerable<NoteSnapshot>> GetAllSnapshots(int userId, int noteId)
         {
-            var note = GetNoteWithSnapshots(userId, noteId);
+            var note = await GetNoteWithSnapshots(userId, noteId);
 
             return note.Snapshots.OrderBy(snapshot => snapshot.Created);
         }
 
-        private Note GetNoteWithSnapshots(int userId, int noteId)
+        private async Task<Note> GetNoteWithSnapshots(int userId, int noteId)
         {
-            var note = _repository.FindWithAllSnapshots(noteId);
+            var note = await _repository.FindWithAllSnapshots(noteId);
             ValidateFound(note, userId);
             return note;
         }
 
-        private Note GetNoteWithoutSnapshots(int userId, int noteId)
+        private async Task<Note> GetNoteWithoutSnapshots(int userId, int noteId)
         {
-            var note = _repository.FindWithoutSnapshots(noteId);
+            var note = await _repository.FindWithoutSnapshots(noteId);
             ValidateFound(note, userId);
             return note;
         }
 
-        private Note GetNoteWithCurrentSnapshot(int userId, int noteId)
+        private async Task<Note> GetNoteWithCurrentSnapshot(int userId, int noteId)
         {
-            var note = _repository.FindWithCurrentSnapshot(noteId);
+            var note = await _repository.FindWithCurrentSnapshot(noteId);
             ValidateFound(note, userId);
             return note;
         }

@@ -3,6 +3,7 @@ using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Noteapp.Infrastructure.Data
 {
@@ -17,27 +18,27 @@ namespace Noteapp.Infrastructure.Data
 
         // have to make two separate calls to SaveChanges, because inserting a new Note
         // with CurrentSnapshot property already set will produce a circular dependency
-        public void Add(Note note)
+        public async Task Add(Note note)
         {
-            using var transaction = _context.Database.BeginTransaction();
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
             var snapshot = note.CurrentSnapshot;
             note.CurrentSnapshot = null;
 
-            _context.Notes.Add(note);
-            _context.SaveChanges();
+            await _context.Notes.AddAsync(note);
+            await _context.SaveChangesAsync();
 
             note.CurrentSnapshot = snapshot;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            transaction.Commit();
+            await transaction.CommitAsync();
         }
 
         // have to make two separate calls to SaveChanges, because inserting a new Note
         // with CurrentSnapshot property already set will produce a circular dependency
-        public void AddRange(IEnumerable<Note> notes)
+        public async Task AddRange(IEnumerable<Note> notes)
         {
-            using var transaction = _context.Database.BeginTransaction();
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
             var snapshots = new List<NoteSnapshot>(notes.Count());
             foreach (var note in notes)
@@ -46,59 +47,61 @@ namespace Noteapp.Infrastructure.Data
                 note.CurrentSnapshot = null;
             }
 
-            _context.Notes.AddRange(notes);
-            _context.SaveChanges();
+            await _context.Notes.AddRangeAsync(notes);
+            await _context.SaveChangesAsync();
 
             int i = 0;
             foreach (var note in notes)
             {
                 note.CurrentSnapshot = snapshots[i++];
             }
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            transaction.Commit();
+            await transaction.CommitAsync();
         }
 
-        public void Update(Note note)
+        public async Task Update(Note note)
         {
             _context.Entry(note).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Delete(Note note)
+        public async Task Delete(Note note)
         {
             _context.Notes.Remove(note);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public IEnumerable<Note> GetAllForAuthor(int authorId, bool? archived)
+        public async Task<IEnumerable<Note>> GetAllForAuthor(int authorId, bool? archived)
         {
             var notes = _context.Notes.Where(note => note.AuthorId == authorId);
             if (archived.HasValue)
             {
                 notes = notes.Where(note => note.Archived == archived.Value);
             }
-            return notes.Include(note => note.CurrentSnapshot).AsEnumerable();
+            return await notes.Include(note => note.CurrentSnapshot).ToListAsync();
         }
 
-        public Note FindByPublicUrl(string url)
+        public async Task<Note> FindByPublicUrl(string url)
         {
-            return _context.Notes.Where(note => note.PublicUrl == url).Include(note => note.CurrentSnapshot).SingleOrDefault();
+            return await _context.Notes.Where(note => note.PublicUrl == url)
+                .Include(note => note.CurrentSnapshot).SingleOrDefaultAsync();
         }
 
-        public Note FindWithoutSnapshots(int id)
+        public async Task<Note> FindWithoutSnapshots(int id)
         {
-            return _context.Notes.Find(id);
+            return await _context.Notes.FindAsync(id);
         }
 
-        public Note FindWithCurrentSnapshot(int id)
+        public async Task<Note> FindWithCurrentSnapshot(int id)
         {
-            return _context.Notes.Where(note => note.Id == id).Include(note => note.CurrentSnapshot).SingleOrDefault();
+            return await _context.Notes.Where(note => note.Id == id)
+                .Include(note => note.CurrentSnapshot).SingleOrDefaultAsync();
         }
 
-        public Note FindWithAllSnapshots(int id)
+        public async Task<Note> FindWithAllSnapshots(int id)
         {
-            return _context.Notes.Where(note => note.Id == id).Include(note => note.Snapshots).SingleOrDefault();
+            return await _context.Notes.Where(note => note.Id == id).Include(note => note.Snapshots).SingleOrDefaultAsync();
         }
     }
 }

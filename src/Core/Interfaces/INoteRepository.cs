@@ -1,19 +1,20 @@
 ﻿using Noteapp.Core.Entities;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Noteapp.Core.Interfaces
 {
     public interface INoteRepository
     {
-        public void Add(Note note);
-        public void AddRange(IEnumerable<Note> notes);
-        public void Update(Note note);
-        public void Delete(Note note);
+        public Task Add(Note note);
+        public Task AddRange(IEnumerable<Note> notes);
+        public Task Update(Note note);
+        public Task Delete(Note note);
 
-        public IEnumerable<Note> GetAllForAuthor(int authorId, bool? archived);
-        public Note FindByPublicUrl(string url);
-        public Note FindWithoutSnapshots(int id);
-        public Note FindWithCurrentSnapshot(int id);
-        public Note FindWithAllSnapshots(int id);
+        public Task<IEnumerable<Note>> GetAllForAuthor(int authorId, bool? archived);
+        public Task<Note> FindByPublicUrl(string url);
+        public Task<Note> FindWithoutSnapshots(int id);
+        public Task<Note> FindWithCurrentSnapshot(int id);
+        public Task<Note> FindWithAllSnapshots(int id);
     }
 }

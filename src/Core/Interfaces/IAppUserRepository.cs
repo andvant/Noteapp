@@ -1,14 +1,14 @@
 ﻿using Noteapp.Core.Entities;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Noteapp.Core.Interfaces
 {
     public interface IAppUserRepository
     {
-        public void Add(AppUser user);
-        public void Delete(AppUser user);
-        public AppUser FindByEmail(string email);
-        public AppUser FindById(int id);
-        public IEnumerable<AppUser> GetAll();
+        public Task Add(AppUser user);
+        public Task Delete(AppUser user);
+        public Task<AppUser> FindByEmail(string email);
+        public Task<AppUser> FindById(int id);
     }
 }
