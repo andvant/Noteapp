@@ -6,7 +6,7 @@ async function render() {
     return /*html*/ `
         <div class="secondary-view">
             <input type="text" placeholder="Email" id="email" />
-            <input type="text" placeholder="Password" id="password" />
+            <input type="password" placeholder="Password" id="password" />
             <div id="login-button" class="btn btn-lg">Log in</div>
         </div>`
 }

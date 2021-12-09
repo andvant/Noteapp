@@ -68,7 +68,7 @@
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="Width" Value="Auto" />
         <Setter Property="Height" Value="Auto" />
-        <Setter Property="Padding" Value="10,7" />
+        <Setter Property="Padding" Value="20,15" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 

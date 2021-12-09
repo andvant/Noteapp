@@ -13,7 +13,7 @@ namespace Noteapp.Api.Filters
 
             switch (context.Exception)
             {
-                case NoteNotFoundException:
+                case NoteNotFoundException or SnapshotNotFoundException:
                     context.Result = new NotFoundObjectResult(error);
                     break;
                 case NoteLockedException:
@@ -21,9 +21,6 @@ namespace Noteapp.Api.Filters
                     break;
                 case TooManyNotesException or TextTooLongException:
                     context.Result = new ObjectResult(error) { StatusCode = (int)HttpStatusCode.RequestEntityTooLarge };
-                    break;
-                case SnapshotNotFoundException:
-                    context.Result = new NotFoundObjectResult(error);
                     break;
                 case UserRegistrationException:
                     context.Result = new BadRequestObjectResult(error);
