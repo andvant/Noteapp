@@ -22,7 +22,7 @@ namespace Noteapp.Desktop.Networking
         {
             string filter = archived.HasValue ? $"?archived={archived.Value}" : string.Empty;
             var request = new HttpRequestMessage(HttpMethod.Get, $"notes{filter}");
-            var response = await SendRequestAsync(request);
+            var response = await SendRequest(request);
             return await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
         }
 
@@ -30,7 +30,7 @@ namespace Noteapp.Desktop.Networking
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "notes");
             request.Content = JsonContent.Create(new { text = string.Empty });
-            var response = await SendRequestAsync(request);
+            var response = await SendRequest(request);
             return await response.Content.ReadFromJsonAsync<Note>();
         }
 
@@ -38,28 +38,28 @@ namespace Noteapp.Desktop.Networking
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "notes/bulk");
             request.Content = JsonContent.Create(notes);
-            await SendRequestAsync(request);
+            await SendRequest(request);
         }
 
         public async Task<Note> UpdateNote(int noteId, string text)
         {
             var request = new HttpRequestMessage(HttpMethod.Put, $"notes/{noteId}");
             request.Content = JsonContent.Create(new { text });
-            var response = await SendRequestAsync(request);
+            var response = await SendRequest(request);
             return await response.Content.ReadFromJsonAsync<Note>();
         }
 
         public async Task DeleteNote(int noteId)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"notes/{noteId}");
-            await SendRequestAsync(request);
+            await SendRequest(request);
         }
 
         public async Task<Note> ToggleLocked(int noteId, bool locked)
         {
             var method = locked ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"notes/{noteId}/lock");
-            var response = await SendRequestAsync(request);
+            var response = await SendRequest(request);
             return await response.Content.ReadFromJsonAsync<Note>();
         }
 
@@ -67,7 +67,7 @@ namespace Noteapp.Desktop.Networking
         {
             var method = archived ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"notes/{noteId}/archive");
-            var response = await SendRequestAsync(request);
+            var response = await SendRequest(request);
             return await response.Content.ReadFromJsonAsync<Note>();
         }
 
@@ -75,7 +75,7 @@ namespace Noteapp.Desktop.Networking
         {
             var method = pinned ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"notes/{noteId}/pin");
-            var response = await SendRequestAsync(request);
+            var response = await SendRequest(request);
             return await response.Content.ReadFromJsonAsync<Note>();
         }
 
@@ -83,14 +83,14 @@ namespace Noteapp.Desktop.Networking
         {
             var method = published ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"notes/{noteId}/publish");
-            var response = await SendRequestAsync(request);
+            var response = await SendRequest(request);
             return await response.Content.ReadFromJsonAsync<Note>();
         }
 
         public async Task<IEnumerable<NoteSnapshot>> GetAllSnapshots(int noteId)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"notes/{noteId}/snapshots");
-            var response = await SendRequestAsync(request);
+            var response = await SendRequest(request);
             return await response.Content.ReadFromJsonAsync<IEnumerable<NoteSnapshot>>();
         }
 
@@ -98,14 +98,14 @@ namespace Noteapp.Desktop.Networking
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "account/register");
             request.Content = JsonContent.Create(new { email, password });
-            await SendRequestAsync(request);
+            await SendRequest(request);
         }
 
         public async Task<UserInfoDto> Login(string email, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "account/token");
             request.Content = JsonContent.Create(new { email, password });
-            var response = await SendRequestAsync(request);
+            var response = await SendRequest(request);
 
             return await response.Content.ReadFromJsonAsync<UserInfoDto>();
         }
@@ -113,10 +113,10 @@ namespace Noteapp.Desktop.Networking
         public async Task DeleteAccount()
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, "account/delete");
-            await SendRequestAsync(request);
+            await SendRequest(request);
         }
 
-        private async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)
+        private async Task<HttpResponseMessage> SendRequest(HttpRequestMessage request)
         {
             AddAuthorizationHeader(request);
 

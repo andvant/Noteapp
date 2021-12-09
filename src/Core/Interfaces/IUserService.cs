@@ -4,9 +4,9 @@ namespace Noteapp.Core.Interfaces
 {
     public interface IUserService
     {
-        Task Register(string email, string password);
-        Task ValidatePassword(string email, string password);
-        Task<string> GetEncryptionSalt(string email);
-        Task Delete(int userId);
+        public Task Register(string email, string password);
+        public Task ValidatePassword(string email, string password);
+        public Task<string> GetEncryptionSalt(string email);
+        public Task Delete(int userId);
     }
 }

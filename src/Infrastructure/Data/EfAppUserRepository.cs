@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 

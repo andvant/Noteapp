@@ -4,9 +4,7 @@
 [Dd]ebug/
 [Rr]elease/
 *.user
-/txts/
 *.db*
 Migrations/
-*.ps1
 installer/app/
 *.exe

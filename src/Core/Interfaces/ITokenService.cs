@@ -4,6 +4,6 @@ namespace Noteapp.Core.Interfaces
 {
     public interface ITokenService
     {
-        Task<string> GenerateToken(string userEmail);
+        public Task<string> GenerateToken(string userEmail);
     }
 }

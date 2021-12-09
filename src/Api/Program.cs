@@ -31,17 +31,15 @@ namespace Noteapp.Api
         {
             using var scope = services.CreateScope();
 
-            var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUserIdentity>>();
+            var identityContext = scope.ServiceProvider.GetRequiredService<IdentityContext>();
             var appContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
 
-            //identityContext.Database.EnsureDeleted();
-            //appContext.Database.EnsureDeleted();
             identityContext.Database.EnsureCreated();
             appContext.Database.EnsureCreated();
 
             await IdentityContextSeed.Seed(userManager);
-            ApplicationContextSeed.Seed(appContext);
+            await ApplicationContextSeed.Seed(appContext);
         }
     }
 }

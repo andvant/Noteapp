@@ -9,6 +9,7 @@ namespace Noteapp.Web.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly IWebHostEnvironment _env;
+
         public HomeController(IHttpClientFactory factory, IWebHostEnvironment env)
         {
             _httpClient = factory.CreateClient("apiClient");

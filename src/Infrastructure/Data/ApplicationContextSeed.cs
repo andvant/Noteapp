@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Noteapp.Infrastructure.Data
 {
@@ -9,23 +10,23 @@ namespace Noteapp.Infrastructure.Data
     {
         private static readonly DateTime _now = DateTime.UtcNow;
 
-        public static void Seed(ApplicationContext context)
+        public static async Task Seed(ApplicationContext context)
         {
             if (!context.Notes.Any())
             {
-                context.AppUsers.AddRange(GetAppUsers());
+                await context.AppUsers.AddRangeAsync(GetAppUsers());
 
                 var notes = GetNotes();
                 var snapshots = GetNoteSnapshots();
-                context.Notes.AddRange(notes);
-                context.NoteSnapshots.AddRange(snapshots);
-                context.SaveChanges();
+                await context.Notes.AddRangeAsync(notes);
+                await context.NoteSnapshots.AddRangeAsync(snapshots);
+                await context.SaveChangesAsync();
 
                 notes[0].CurrentSnapshot = snapshots[0];
                 notes[1].CurrentSnapshot = snapshots[1];
                 notes[2].CurrentSnapshot = snapshots[2];
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 

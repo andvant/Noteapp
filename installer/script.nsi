@@ -1,3 +1,5 @@
+# requires published Desktop project files to be in app/ folder (not present in the git repository)
+
 !include "MUI2.nsh"
 
 !define NAME "Noteapp"
@@ -9,7 +11,6 @@
 Name ${NAME}
 OutFile "${NAME}-${PLATFORM}-setup.exe"
 InstallDir "$PROGRAMFILES64\${NAME}"
-; RequestExecutionLevel admin
 
 !define MUI_ICON "res\icon.ico"
 !define MUI_ABORTWARNING

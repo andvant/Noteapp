@@ -415,8 +415,8 @@ async function init() {
         reader.onload = async () => {
             let notesJson = reader.result;
             await ApiService.bulkCreateNotes(notesJson);
-        }
-        await listButtonHandler();
+            await listButtonHandler();
+        };
     }
 
     async function exportHandler() {
