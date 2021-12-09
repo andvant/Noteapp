@@ -7,6 +7,8 @@ namespace Noteapp.Infrastructure.Data
 {
     public static class ApplicationContextSeed
     {
+        private static readonly DateTime _now = DateTime.UtcNow;
+
         public static void Seed(ApplicationContext context)
         {
             if (!context.Notes.Any())
@@ -37,18 +39,21 @@ namespace Noteapp.Infrastructure.Data
                 {
                     Id = 1,
                     Email = "default@mail.com",
+                    RegistrationDate = _now,
                     EncryptionSalt = GenerateEncryptionSalt()
                 },
                 new()
                 {
                     Id = 2,
                     Email = "user1@mail.com",
+                    RegistrationDate = _now,
                     EncryptionSalt = GenerateEncryptionSalt()
                 },
                 new()
                 {
                     Id = 3,
                     Email = "user2@mail.com",
+                    RegistrationDate = _now,
                     EncryptionSalt = GenerateEncryptionSalt()
                 }
             };
@@ -70,19 +75,19 @@ namespace Noteapp.Infrastructure.Data
                 new()
                 {
                     Id = 1,
-                    Created = DateTime.Now,
+                    Created = _now,
                     AuthorId = userId
                 },
                 new()
                 {
                     Id = 2,
-                    Created = DateTime.Now,
+                    Created = _now,
                     AuthorId = userId
                 },
                 new()
                 {
                     Id = 3,
-                    Created = DateTime.Now,
+                    Created = _now,
                     AuthorId = userId
                 }
             };
@@ -98,21 +103,21 @@ namespace Noteapp.Infrastructure.Data
                 {
                     Id = 1,
                     Text = "note 1",
-                    Created = DateTime.Now,
+                    Created = _now,
                     NoteId = 1
                 },
                 new()
                 {
                     Id = 2,
                     Text = "note 2",
-                    Created = DateTime.Now,
+                    Created = _now,
                     NoteId = 2
                 },
                 new()
                 {
                     Id = 3,
                     Text = "note 3",
-                    Created = DateTime.Now,
+                    Created = _now,
                     NoteId = 3
                 }
             };

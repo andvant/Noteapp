@@ -5,6 +5,6 @@ namespace Noteapp.Infrastructure
 {
     public class DateTimeProvider : IDateTimeProvider
     {
-        public DateTime Now => DateTime.Now;
+        public DateTime Now => DateTime.UtcNow;
     }
 }
