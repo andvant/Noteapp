@@ -28,7 +28,6 @@ namespace Noteapp.Core.Services
         public async Task<IEnumerable<Note>> GetAll(int userId, bool? archived)
         {
             var notes = await _repository.GetAllForAuthor(userId, archived);
-
             return notes;
         }
 
@@ -61,7 +60,6 @@ namespace Noteapp.Core.Services
             TooManyNotesException.ThrowIfTooManyNotes(texts.Count(), Constants.MAX_BULK_NOTES);
 
             var notes = new List<Note>();
-
             foreach (var text in texts)
             {
                 var note = CreateNote(userId);
@@ -81,66 +79,42 @@ namespace Noteapp.Core.Services
 
         public async Task<Note> Archive(int userId, int noteId)
         {
-            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
-            note.Archived = true;
-            await _repository.Update(note);
-            return note;
+            return await ModifyNote(userId, noteId, note => note.Archived = true);
         }
 
         public async Task<Note> Unarchive(int userId, int noteId)
         {
-            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
-            note.Archived = false;
-            await _repository.Update(note);
-            return note;
+            return await ModifyNote(userId, noteId, note => note.Archived = false);
         }
 
         public async Task<Note> Pin(int userId, int noteId)
         {
-            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
-            note.Pinned = true;
-            await _repository.Update(note);
-            return note;
+            return await ModifyNote(userId, noteId, note => note.Pinned = true);
         }
 
         public async Task<Note> Unpin(int userId, int noteId)
         {
-            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
-            note.Pinned = false;
-            await _repository.Update(note);
-            return note;
+            return await ModifyNote(userId, noteId, note => note.Pinned = false);
         }
 
         public async Task<Note> Lock(int userId, int noteId)
         {
-            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
-            note.Locked = true;
-            await _repository.Update(note);
-            return note;
+            return await ModifyNote(userId, noteId, note => note.Locked = true);
         }
 
         public async Task<Note> Unlock(int userId, int noteId)
         {
-            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
-            note.Locked = false;
-            await _repository.Update(note);
-            return note;
+            return await ModifyNote(userId, noteId, note => note.Locked = false);
         }
 
         public async Task<Note> Publish(int userId, int noteId)
         {
-            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
-            note.PublicUrl = GenerateUrl();
-            await _repository.Update(note);
-            return note;
+            return await ModifyNote(userId, noteId, note => note.PublicUrl = GenerateUrl());
         }
 
         public async Task<Note> Unpublish(int userId, int noteId)
         {
-            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
-            note.PublicUrl = null;
-            await _repository.Update(note);
-            return note;
+            return await ModifyNote(userId, noteId, note => note.PublicUrl = null);
         }
 
         public async Task<string> GetPublishedNoteText(string url)
@@ -174,6 +148,14 @@ namespace Noteapp.Core.Services
         {
             var note = await _repository.FindWithCurrentSnapshot(noteId);
             ValidateFound(note, userId);
+            return note;
+        }
+
+        private async Task<Note> ModifyNote(int userId, int noteId, Action<Note> modification)
+        {
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
+            modification(note);
+            await _repository.Update(note);
             return note;
         }
 
