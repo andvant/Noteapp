@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  noteappapi:
+  api:
     build:
       context: .
       dockerfile: src/Api/Dockerfile
@@ -11,7 +11,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
 
-  noteappweb:
+  web:
     build:
       context: .
       dockerfile: src/Web/Dockerfile

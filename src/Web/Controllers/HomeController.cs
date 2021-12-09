@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -7,9 +10,11 @@ namespace Noteapp.Web.Controllers
     public class HomeController : Controller
     {
         private readonly HttpClient _httpClient;
-        public HomeController(IHttpClientFactory factory)
+        private readonly IWebHostEnvironment _env;
+        public HomeController(IHttpClientFactory factory, IWebHostEnvironment env)
         {
             _httpClient = factory.CreateClient("apiClient");
+            _env = env;
         }
 
         [HttpGet("/")]
@@ -37,18 +42,24 @@ namespace Noteapp.Web.Controllers
         [HttpGet("app")]
         public IActionResult App()
         {
-            return File("~/app.html", "text/html");
+            return File("app.html", "text/html");
         }
 
         [HttpGet("download")]
-        public IActionResult DownloadForDesktop()
+        public IActionResult DownloadAppForDesktop()
         {
-            string virtualPath = "~/installer/Noteapp-win64-setup.exe";
+            string virtualPath = "download/Noteapp-win64-setup.exe";
             string contentType = "application/vnd.microsoft.portable-executable";
             string downloadName = "Noteapp-win64-setup.exe";
 
-            // will crash because there are no .exe files in the git repository
-            return File(virtualPath, contentType, downloadName);
+            if (_env.WebRootFileProvider.GetFileInfo(virtualPath).Exists)
+            {
+                return File(virtualPath, contentType, downloadName);
+            }
+            else
+            {
+                return NotFound(new { error = "There's no installer in the git repository" });
+            }
         }
     }
 }

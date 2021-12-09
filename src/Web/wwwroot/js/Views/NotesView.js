@@ -87,9 +87,9 @@ async function render() {
 
 async function init() {
 
-    const saveButton = document.getElementById('save-button');
-    const newButton = document.getElementById('new-button');
     const listButton = document.getElementById('list-button');
+    const newButton = document.getElementById('new-button');
+    const saveButton = document.getElementById('save-button');
     const deleteButton = document.getElementById('delete-button');
     const pinButton = document.getElementById('pin-button');
     const lockButton = document.getElementById('lock-button');
@@ -177,7 +177,7 @@ async function init() {
         changeNote(updatedNote);
         updateNoteElement(updatedNote);
         selectNote(getNoteElement(updatedNote.id));
-        updateSelectedNoteElements()
+        updateSelectedNoteElements();
     }
 
     function updateNoteElement(note) {
@@ -190,7 +190,7 @@ async function init() {
 
     function addNotes() {
         addNoteElements();
-        updateSelectedNoteElements()
+        updateSelectedNoteElements();
     }
 
     function addNoteElements() {
@@ -246,11 +246,11 @@ async function init() {
                     <label class="note-published" style="display: ${note.published ? "inline-block" : "none"};">Published</label>
                 </div>
                 <div><strong>${textPreview}</strong></div>
-                <div>Updated: ${dateToString(note.updated)}</div>
+                <div>Updated: ${dateToLocaleString(note.updated)}</div>
             </div>`
     }
 
-    function dateToString(date) {
+    function dateToLocaleString(date) {
         let options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
         return new Date(date).toLocaleString({}, options);
     }
@@ -371,7 +371,7 @@ async function init() {
     }
 
     function historySliderHandler() {
-        snapshotDateDiv.textContent = dateToString(_snapshots[historySlider.value].created);
+        snapshotDateDiv.textContent = dateToLocaleString(_snapshots[historySlider.value].created);
         setTextElementValue(_snapshots[historySlider.value].text);
     }
 
