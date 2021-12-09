@@ -6,6 +6,7 @@ using Noteapp.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests
@@ -16,7 +17,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
-        public void ReturnsAllSnapshotsGivenValidUserIdAndNoteId()
+        public async Task ReturnsAllSnapshotsGivenValidUserIdAndNoteId()
         {
             // Arrange
             var note = new Note()
@@ -40,11 +41,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Created = new DateTime(2021, 2, 2)
             };
             note.Snapshots = new List<NoteSnapshot>() { snapshot2, snapshot1 }; // repository returns items in the wrong order
-            _mock.Setup(repo => repo.FindWithAllSnapshots(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithAllSnapshots(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            var returnedSnapshots = noteService.GetAllSnapshots(userId: 1, noteId: 1);
+            var returnedSnapshots = await noteService.GetAllSnapshots(userId: 1, noteId: 1);
 
             // Assert
             Assert.Contains(snapshot1, returnedSnapshots);
@@ -54,7 +55,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         }
 
         [Fact]
-        public void ThrowsGivenNonExistentNoteId()
+        public async Task ThrowsGivenNonExistentNoteId()
         {
             // Arrange
             var note = new Note()
@@ -78,18 +79,18 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Created = new DateTime(2021, 2, 2)
             };
             note.Snapshots = new List<NoteSnapshot>() { snapshot2, snapshot1 }; // repository returns items in the wrong order
-            _mock.Setup(repo => repo.FindWithAllSnapshots(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithAllSnapshots(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.GetAllSnapshots(userId: 1, noteId: 2);
+            Func<Task> act = async () => await noteService.GetAllSnapshots(userId: 1, noteId: 2);
 
             // Assert
-            Assert.Throws<NoteNotFoundException>(act);
+            await Assert.ThrowsAsync<NoteNotFoundException>(act);
         }
 
         [Fact]
-        public void ThrowsGivenWrongUserId()
+        public async Task ThrowsGivenWrongUserId()
         {
             // Arrange
             var note = new Note()
@@ -113,14 +114,14 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Created = new DateTime(2021, 2, 2)
             };
             note.Snapshots = new List<NoteSnapshot>() { snapshot2, snapshot1 };
-            _mock.Setup(repo => repo.FindWithAllSnapshots(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithAllSnapshots(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.GetAllSnapshots(userId: 2, noteId: 1);
+            Func<Task> act = async () => await noteService.GetAllSnapshots(userId: 2, noteId: 1);
 
             // Assert
-            Assert.Throws<NoteNotFoundException>(act);
+            await Assert.ThrowsAsync<NoteNotFoundException>(act);
         }
     }
 }

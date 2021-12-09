@@ -4,6 +4,7 @@ using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.AppUserServiceTests
@@ -21,13 +22,13 @@ namespace Noteapp.UnitTests.Core.AppUserServiceTests
         }
 
         [Fact]
-        public void CreatesUserGivenValidEmail()
+        public async Task CreatesUserGivenValidEmail()
         {
             // Arrange
-            var service = new AppUserService(_mock.Object, _dateTimeProvider);
+            var appUserService = new AppUserService(_mock.Object, _dateTimeProvider);
 
             // Act
-            var user = service.Create(email: "some@email.com");
+            var user = await appUserService.Create(email: "some@email.com");
 
             // Assert
             Assert.Equal("some@email.com", user.Email);
@@ -37,31 +38,31 @@ namespace Noteapp.UnitTests.Core.AppUserServiceTests
         }
 
         [Fact]
-        public void ThrowGivenInvalidEmail()
+        public async Task ThrowGivenInvalidEmail()
         {
             // Arrange
-            var service = new AppUserService(_mock.Object, _dateTimeProvider);
+            var appUserService = new AppUserService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => service.Create(email: "not-a-valid-email");
+            Func<Task> act = async () => await appUserService.Create(email: "not-a-valid-email");
 
             // Assert
-            Assert.Throws<UserRegistrationException>(act);
+            await Assert.ThrowsAsync<UserRegistrationException>(act);
             _mock.Verify(repo => repo.Add(It.IsAny<AppUser>()), Times.Never);
         }
 
         [Fact]
-        public void ThrowGivenTakenEmail()
+        public async Task ThrowGivenTakenEmail()
         {
             // Arrange
-            _mock.Setup(repo => repo.FindByEmail("taken@email.com")).Returns(new AppUser());
-            var service = new AppUserService(_mock.Object, _dateTimeProvider);
+            _mock.Setup(repo => repo.FindByEmail("taken@email.com")).ReturnsAsync(new AppUser());
+            var appUserService = new AppUserService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => service.Create(email: "taken@email.com");
+            Func<Task> act = async () => await appUserService.Create(email: "taken@email.com");
 
             // Assert
-            Assert.Throws<UserRegistrationException>(act);
+            await Assert.ThrowsAsync<UserRegistrationException>(act);
             _mock.Verify(repo => repo.Add(It.IsAny<AppUser>()), Times.Never);
         }
     }

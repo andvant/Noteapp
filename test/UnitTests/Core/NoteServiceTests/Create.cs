@@ -2,6 +2,7 @@
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests
@@ -11,7 +12,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         private readonly Mock<INoteRepository> _mock = new();
 
         [Fact]
-        public void CreatesNewNote()
+        public async Task CreatesNewNote()
         {
             // Arrange
             var dateTime = new DateTime(2021, 1, 1);
@@ -20,7 +21,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             var noteService = new NoteService(_mock.Object, dateTimeProvider);
 
             // Act
-            var createdNote = noteService.Create(userId: 1, text: "new note");
+            var createdNote = await noteService.Create(userId: 1, text: "new note");
 
             // Assert
             Assert.Equal(1, createdNote.AuthorId);

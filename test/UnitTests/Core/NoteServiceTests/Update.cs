@@ -4,6 +4,7 @@ using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests
@@ -22,7 +23,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         }
 
         [Fact]
-        public void UpdatesNoteGivenValidUserIdAndNoteId()
+        public async Task UpdatesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
             var note = new Note()
@@ -38,11 +39,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 Created = _updated
             };
 
-            _mock.Setup(repo => repo.FindWithoutSnapshots(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithoutSnapshots(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            noteService.Update(userId: 1, noteId: 1, text: "updated text");
+            await noteService.Update(userId: 1, noteId: 1, text: "updated text");
 
             // Assert
             Assert.Equal("updated text", note.Text);
@@ -51,7 +52,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         }
 
         [Fact]
-        public void ThrowsGivenNonExistentNoteId()
+        public async Task ThrowsGivenNonExistentNoteId()
         {
             // Arrange
             var note = new Note()
@@ -68,21 +69,21 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             };
             note.CurrentSnapshot = noteSnapshot;
 
-            _mock.Setup(repo => repo.FindWithoutSnapshots(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithoutSnapshots(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Update(userId: 1, noteId: 2, text: "updated text");
+            Func<Task> act = async () => await noteService.Update(userId: 1, noteId: 2, text: "updated text");
 
             // Assert
-            Assert.Throws<NoteNotFoundException>(act);
+            await Assert.ThrowsAsync<NoteNotFoundException>(act);
             Assert.Equal("original text", note.Text);
             Assert.Equal(_created, note.Updated, TimeSpan.Zero);
             Assert.Equal(_created, note.Created, TimeSpan.Zero);
         }
 
         [Fact]
-        public void ThrowsGivenWrongUserId()
+        public async Task ThrowsGivenWrongUserId()
         {
             // Arrange
             var note = new Note()
@@ -99,21 +100,21 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             };
             note.CurrentSnapshot = noteSnapshot;
 
-            _mock.Setup(repo => repo.FindWithoutSnapshots(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithoutSnapshots(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Update(userId: 2, noteId: 1, text: "updated text");
+            Func<Task> act = async () => await noteService.Update(userId: 2, noteId: 1, text: "updated text");
 
             // Assert
-            Assert.Throws<NoteNotFoundException>(act);
+            await Assert.ThrowsAsync<NoteNotFoundException>(act);
             Assert.Equal("original text", note.Text);
             Assert.Equal(_created, note.Updated, TimeSpan.Zero);
             Assert.Equal(_created, note.Created, TimeSpan.Zero);
         }
 
         [Fact]
-        public void ThrowsGivenNoteIsLocked()
+        public async Task ThrowsGivenNoteIsLocked()
         {
             // Arrange
             var note = new Note()
@@ -131,14 +132,14 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             };
             note.CurrentSnapshot = noteSnapshot;
 
-            _mock.Setup(repo => repo.FindWithoutSnapshots(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithoutSnapshots(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Update(userId: 1, noteId: 1, text: "updated text");
+            Func<Task> act = async () => await noteService.Update(userId: 1, noteId: 1, text: "updated text");
 
             // Assert
-            Assert.Throws<NoteLockedException>(act);
+            await Assert.ThrowsAsync<NoteLockedException>(act);
             Assert.Equal("original text", note.Text);
             Assert.Equal(_created, note.Updated, TimeSpan.Zero);
             Assert.Equal(_created, note.Created, TimeSpan.Zero);

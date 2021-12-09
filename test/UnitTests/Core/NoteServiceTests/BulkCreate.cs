@@ -7,6 +7,7 @@ using Noteapp.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests
@@ -17,7 +18,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
-        public void CreatesNewNotes()
+        public async Task CreatesNewNotes()
         {
             // Arrange
             var dateTime = new DateTime(2021, 1, 1);
@@ -33,7 +34,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             };
 
             // Act
-            noteService.BulkCreate(1, noteTexts);
+            await noteService.BulkCreate(1, noteTexts);
 
             // Assert
             _mock.Verify(repo => repo.AddRange(
@@ -48,17 +49,17 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         }
 
         [Fact]
-        public void ThrowsGivenTooManyNotes()
+        public async Task ThrowsGivenTooManyNotes()
         {
             // Arrange
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
             var newNotesTexts = Enumerable.Repeat("note", Constants.MAX_BULK_NOTES + 1);
 
             // Act
-            Action act = () => noteService.BulkCreate(userId: 1, texts: newNotesTexts);
+            Func<Task> act = async () => await noteService.BulkCreate(userId: 1, texts: newNotesTexts);
 
             // Assert
-            Assert.Throws<TooManyNotesException>(act);
+            await Assert.ThrowsAsync<TooManyNotesException>(act);
             _mock.VerifyNoOtherCalls();
         }
     }

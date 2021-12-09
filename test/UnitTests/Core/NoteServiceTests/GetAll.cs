@@ -3,6 +3,7 @@ using Noteapp.Core.Entities;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests
@@ -13,7 +14,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
-        public void ReturnsAllNotesForGivenUserId()
+        public async Task ReturnsAllNotesForGivenUserId()
         {
             // Arrange
             var note1 = new Note()
@@ -34,11 +35,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            _mock.Setup(repo => repo.GetAllForAuthor(1, null)).Returns(new[] { note1, note2 });
+            _mock.Setup(repo => repo.GetAllForAuthor(1, null)).ReturnsAsync(new[] { note1, note2 });
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            var returnedNotes = noteService.GetAll(userId: 1, archived: null);
+            var returnedNotes = await noteService.GetAll(userId: 1, archived: null);
 
             // Assert
             Assert.Equal(2, returnedNotes.Count());
@@ -47,7 +48,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         }
 
         [Fact]
-        public void ReturnsOnlyArchivedNotesForGivenUserId()
+        public async Task ReturnsOnlyArchivedNotesForGivenUserId()
         {
             // Arrange
             var note1 = new Note()
@@ -68,11 +69,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            _mock.Setup(repo => repo.GetAllForAuthor(1, true)).Returns(new[] { note1 });
+            _mock.Setup(repo => repo.GetAllForAuthor(1, true)).ReturnsAsync(new[] { note1 });
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            var returnedNotes = noteService.GetAll(userId: 1, archived: true);
+            var returnedNotes = await noteService.GetAll(userId: 1, archived: true);
 
             // Assert
             Assert.Single(returnedNotes);
@@ -80,7 +81,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         }
 
         [Fact]
-        public void ReturnsOnlyNonArchivedNotesForGivenUserId()
+        public async Task ReturnsOnlyNonArchivedNotesForGivenUserId()
         {
             // Arrange
             var note1 = new Note()
@@ -101,11 +102,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 2,
                 Archived = false
             };
-            _mock.Setup(repo => repo.GetAllForAuthor(1, false)).Returns(new[] { note2 });
+            _mock.Setup(repo => repo.GetAllForAuthor(1, false)).ReturnsAsync(new[] { note2 });
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            var returnedNotes = noteService.GetAll(userId: 1, archived: false);
+            var returnedNotes = await noteService.GetAll(userId: 1, archived: false);
 
             // Assert
             Assert.Single(returnedNotes);

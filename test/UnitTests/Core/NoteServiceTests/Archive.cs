@@ -4,6 +4,7 @@ using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests
@@ -14,7 +15,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
-        public void ArchivesNoteGivenValidUserIdAndNoteId()
+        public async Task ArchivesNoteGivenValidUserIdAndNoteId()
         {
             // Arrange
             var note = new Note()
@@ -23,11 +24,11 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Archived = false
             };
-            _mock.Setup(repo => repo.FindWithCurrentSnapshot(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithCurrentSnapshot(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            noteService.Archive(userId: 1, noteId: 1);
+            await noteService.Archive(userId: 1, noteId: 1);
 
             // Assert
             Assert.True(note.Archived);
@@ -35,7 +36,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         }
 
         [Fact]
-        public void ThrowsGivenNonExistentNoteId()
+        public async Task ThrowsGivenNonExistentNoteId()
         {
             // Arrange
             var note = new Note()
@@ -44,19 +45,19 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Archived = false
             };
-            _mock.Setup(repo => repo.FindWithCurrentSnapshot(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithCurrentSnapshot(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Archive(userId: 1, noteId: 2);
+            Func<Task> act = async () => await noteService.Archive(userId: 1, noteId: 2);
 
             // Assert
-            Assert.Throws<NoteNotFoundException>(act);
+            await Assert.ThrowsAsync<NoteNotFoundException>(act);
             Assert.False(note.Archived);
         }
 
         [Fact]
-        public void ThrowsGivenWrongUserId()
+        public async Task ThrowsGivenWrongUserId()
         {
             // Arrange
             var note = new Note()
@@ -65,14 +66,14 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 AuthorId = 1,
                 Archived = false
             };
-            _mock.Setup(repo => repo.FindWithCurrentSnapshot(1)).Returns(note);
+            _mock.Setup(repo => repo.FindWithCurrentSnapshot(1)).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.Archive(userId: 2, noteId: 1);
+            Func<Task> act = async () => await noteService.Archive(userId: 2, noteId: 1);
 
             // Assert
-            Assert.Throws<NoteNotFoundException>(act);
+            await Assert.ThrowsAsync<NoteNotFoundException>(act);
             Assert.False(note.Archived);
         }
     }

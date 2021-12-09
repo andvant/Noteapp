@@ -4,6 +4,7 @@ using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Noteapp.UnitTests.Core.NoteServiceTests
@@ -14,7 +15,7 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         private readonly IDateTimeProvider _dateTimeProvider = Mock.Of<IDateTimeProvider>();
 
         [Fact]
-        public void ReturnsNoteTextGivenValidUrl()
+        public async Task ReturnsNoteTextGivenValidUrl()
         {
             // Arrange
             var note = new Note()
@@ -29,18 +30,18 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             };
             note.CurrentSnapshot = noteSnapshot;
 
-            _mock.Setup(repo => repo.FindByPublicUrl("testtest")).Returns(note);
+            _mock.Setup(repo => repo.FindByPublicUrl("testtest")).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            var text = noteService.GetPublishedNoteText("testtest");
+            var text = await noteService.GetPublishedNoteText("testtest");
 
             // Assert
             Assert.Equal("note 1", text);
         }
 
         [Fact]
-        public void ThrowsGivenWrongUrl()
+        public async Task ThrowsGivenWrongUrl()
         {
             // Arrange
             var note = new Note()
@@ -55,14 +56,14 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
             };
             note.CurrentSnapshot = noteSnapshot;
 
-            _mock.Setup(repo => repo.FindByPublicUrl("testtest")).Returns(note);
+            _mock.Setup(repo => repo.FindByPublicUrl("testtest")).ReturnsAsync(note);
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
 
             // Act
-            Action act = () => noteService.GetPublishedNoteText("shouldfail");
+            Func<Task> act = async () => await noteService.GetPublishedNoteText("shouldfail");
 
             // Assert
-            Assert.Throws<NoteNotFoundException>(act);
+            await Assert.ThrowsAsync<NoteNotFoundException>(act);
         }
 
     }
