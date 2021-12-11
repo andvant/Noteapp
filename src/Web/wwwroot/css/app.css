@@ -33,7 +33,7 @@ body {
     align-items: center;
     padding-top: 10px;
     gap: 15px;
-    flex-basis: 180px;
+    flex-basis: 160px;
     background-color: var(--app-bg-color);
     border-right: var(--border);
 }
@@ -239,7 +239,7 @@ body {
 }
 
 .note-pinned {
-    background-color: #086dd6;
+    background-color: #2e97f2;
 }
 
 .note-locked {

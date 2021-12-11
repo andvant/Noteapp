@@ -10,7 +10,7 @@
     <SolidColorBrush x:Key="NoteSelectedColor" Color="#1c77d4" />
     <SolidColorBrush x:Key="ActionMenuItemHoverColor" Color="#eee" />
     <SolidColorBrush x:Key="ActionMenuItemPressedColor" Color="#ddd" />
-    <SolidColorBrush x:Key="NotePinnedFlagColor" Color="#086dd6" />
+    <SolidColorBrush x:Key="NotePinnedFlagColor" Color="#2e97f2" />
     <SolidColorBrush x:Key="NoteLockedFlagColor" Color="#f6a200" />
     <SolidColorBrush x:Key="NoteArchivedFlagColor" Color="#989898" />
     <SolidColorBrush x:Key="NotePublishedFlagColor" Color="#de0231" />

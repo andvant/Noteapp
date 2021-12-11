@@ -27,7 +27,7 @@
 
     <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" >
         <DockPanel>
-            <ItemsControl ItemsSource="{Binding Pages}" Width="180" DockPanel.Dock="Left" BorderThickness="0,0,1,0"
+            <ItemsControl ItemsSource="{Binding Pages}" Width="160" DockPanel.Dock="Left" BorderThickness="0,0,1,0"
                           BorderBrush="{StaticResource BorderColor}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
