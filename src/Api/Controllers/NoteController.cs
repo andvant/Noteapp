@@ -119,7 +119,7 @@ namespace Noteapp.Api.Controllers
             return Ok(new NoteDto(note));
         }
 
-        [HttpGet("/p/{url}")]
+        [HttpGet("/api/p/{url}")]
         public async Task<IActionResult> GetPublishedNoteText(string url)
         {
             string text = await _noteService.GetPublishedNoteText(url);
