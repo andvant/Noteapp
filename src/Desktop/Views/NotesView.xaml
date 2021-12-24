@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Noteapp.Desktop.Views"
         xmlns:converters="clr-namespace:Noteapp.Desktop.Converters"
         xmlns:vm="clr-namespace:Noteapp.Desktop.ViewModels"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d">
     <UserControl.Resources>
         <converters:DateTimeToStringConverter x:Key="DateTimeConverter" />
@@ -117,9 +118,15 @@
             
 
             <!--Note text-->
-            <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}">
+            <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}"> 
                 <TextBox Text="{Binding SelectedNote.Text, UpdateSourceTrigger=PropertyChanged}"
-                         IsReadOnly="{Binding SelectedNote.Locked}" Style="{StaticResource SelectedNoteText}"/>    
+                         IsReadOnly="{Binding SelectedNote.Locked}" Style="{StaticResource SelectedNoteText}">
+                    <behaviors:Interaction.Triggers>
+                        <behaviors:EventTrigger EventName="TextChanged">
+                            <behaviors:InvokeCommandAction Command="{Binding SaveAfterDelayCommand}" />
+                        </behaviors:EventTrigger>
+                    </behaviors:Interaction.Triggers>
+                </TextBox>
             </Border>
             
         </DockPanel>

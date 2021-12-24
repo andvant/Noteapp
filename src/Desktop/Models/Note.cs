@@ -15,6 +15,7 @@ namespace Noteapp.Desktop.Models
             set
             {
                 Set(ref _text, value);
+                TextChanged = true;
                 OnPropertyChanged(nameof(TextPreview));
             }
         }
@@ -34,5 +35,6 @@ namespace Noteapp.Desktop.Models
         public bool Pinned { get; set; }
         public string PublicUrl { get; set; }
         public bool Published => PublicUrl != null;
+        public bool TextChanged { get; set; } = false;
     }
 }

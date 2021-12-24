@@ -27,6 +27,9 @@ namespace Noteapp.Desktop.ViewModels
         private bool _descendingText;
         private string _webBaseUrl;
 
+        private bool _setForSaving = false;
+        private const int SAVE_DELAY_MS = 1000;
+
         public ObservableCollection<Note> Notes
         {
             get => _notes;
@@ -39,6 +42,7 @@ namespace Noteapp.Desktop.ViewModels
             set
             {
                 if (HistoryVisible) CancelHistory();
+                value.TextChanged = false;
                 Set(ref _selectedNote, value);
             }
         }
@@ -103,6 +107,7 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand RestoreSnapshotCommand { get; }
         public ICommand CancelHistoryCommand { get; }
         public ICommand ToggleShowArchivedCommand { get; }
+        public ICommand SaveAfterDelayCommand { get; }
 
         public NotesViewModel(ApiService apiService, string webBaseUrl)
         {
@@ -127,6 +132,7 @@ namespace Noteapp.Desktop.ViewModels
             RestoreSnapshotCommand = new RelayCommand(RestoreSnapshot, CanRestoreSnapshot);
             CancelHistoryCommand = new RelayCommand(CancelHistory);
             ToggleShowArchivedCommand = new RelayCommand(ToggleShowArchived);
+            SaveAfterDelayCommand = new RelayCommand(SaveAfterDelay);
 
             ListCommand.Execute(null);
         }
@@ -305,10 +311,10 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void RestoreSnapshot()
         {
-            HistoryVisible = false;
             SelectedNote.Text = CurrentSnapshotText;
             Snapshots = null;
             await Save();
+            HistoryVisible = false;
         }
 
         private bool CanRestoreSnapshot()
@@ -339,9 +345,9 @@ namespace Noteapp.Desktop.ViewModels
 
         private void CancelHistory()
         {
-            HistoryVisible = false;
             SelectedNote.Text = _oldNoteText;
             Snapshots = null;
+            HistoryVisible = false;
         }
 
         private async void ToggleShowArchived()
@@ -349,6 +355,19 @@ namespace Noteapp.Desktop.ViewModels
             ShowArchived = !ShowArchived;
             await List();
             SelectedNote = Notes.FirstOrDefault();
+        }
+
+        private async void SaveAfterDelay()
+        {
+            if (!_setForSaving && !HistoryVisible && SelectedNote.TextChanged)
+            {
+                _setForSaving = true;
+
+                await Task.Delay(SAVE_DELAY_MS);
+                await Save();
+
+                _setForSaving = false;
+            }
         }
 
         private IOrderedEnumerable<Note> OrderByPinned(IEnumerable<Note> notes)
