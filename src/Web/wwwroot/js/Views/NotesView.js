@@ -11,6 +11,9 @@ let _sortByUpdatedDescending = false;
 let _sortByCreatedDescending = false;
 let _sortByTextDescending = false;
 
+let _setForSaving = false;
+const SAVE_DELAY_MS = 1000;
+
 async function render() {
     return /*html*/ `
         <div id="notes-view">
@@ -150,6 +153,7 @@ async function init() {
 
         actionMenuButton.addEventListener('click', actionMenuButtonHandler);
         document.addEventListener('click', hideActionMenuIfClickedAway);
+        noteTextElement.addEventListener('input', saveAfterDelay);
     }
 
     function addNote(newNote) {
@@ -461,6 +465,21 @@ async function init() {
 
     function getFullNoteUrl(publicUrl) {
         return `${window.location.protocol}//${window.location.host}/p/${publicUrl}`;
+    }
+
+    async function saveAfterDelay() {
+        if (!_setForSaving) {
+            _setForSaving = true;
+
+            await delay(SAVE_DELAY_MS);
+            await saveButtonHandler();
+
+            _setForSaving = false;
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
     }
 }
 
