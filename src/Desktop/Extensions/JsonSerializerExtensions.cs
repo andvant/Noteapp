@@ -5,7 +5,7 @@ namespace Noteapp.Desktop.Extensions
     public static class JsonSerializerExtensions
     {
         private readonly static JsonSerializerOptions _options = new()
-        { 
+        {
             WriteIndented = true,
             PropertyNameCaseInsensitive = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

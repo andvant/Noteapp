@@ -23,7 +23,7 @@ namespace Noteapp.Desktop.Models
         {
             get
             {
-                var preview = Text?.Split(Environment.NewLine)?[0];
+                var preview = Text?.Split('\n', '\r')?[0];
                 preview = preview?.Substring(0, Math.Min(preview.Length, 30));
                 return string.IsNullOrWhiteSpace(preview) ? "New note..." : preview;
             }

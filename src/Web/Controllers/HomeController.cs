@@ -22,22 +22,6 @@ namespace Noteapp.Web.Controllers
             return View();
         }
 
-        [HttpGet("p/{url}")]
-        public async Task<IActionResult> ReadPublishedNote(string url)
-        {
-            var response = await _httpClient.GetAsync($"p/{url}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                string text = await response.Content.ReadAsStringAsync();
-                return View((object)text);
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-
         [HttpGet("app")]
         public IActionResult App()
         {
@@ -57,7 +41,23 @@ namespace Noteapp.Web.Controllers
             }
             else
             {
-                return NotFound(new { error = "There's no installer in the git repository" });
+                return NotFound(new { error = "Installer file not found" });
+            }
+        }
+
+        [HttpGet("p/{url}")]
+        public async Task<IActionResult> ReadPublishedNote(string url)
+        {
+            var response = await _httpClient.GetAsync($"p/{url}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                string text = await response.Content.ReadAsStringAsync();
+                return View((object)text);
+            }
+            else
+            {
+                return NotFound();
             }
         }
     }

@@ -388,7 +388,7 @@ namespace Noteapp.Desktop.ViewModels
             {
                 return await Protector.Decrypt(text, userInfo.EncryptionKey);
             }
-            catch
+            catch // text was not encrypted and thus could not be decrypted
             {
                 return text;
             }
