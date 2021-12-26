@@ -26,10 +26,10 @@ namespace Noteapp.Desktop.Networking
             return await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
         }
 
-        public async Task<Note> CreateNote()
+        public async Task<Note> CreateNote(string text = "")
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "notes");
-            request.Content = JsonContent.Create(new { text = string.Empty });
+            request.Content = JsonContent.Create(new { text });
             var response = await SendRequest(request);
             return await response.Content.ReadFromJsonAsync<Note>();
         }

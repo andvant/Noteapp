@@ -1,5 +1,7 @@
 ﻿using Noteapp.Desktop.Extensions;
+using Noteapp.Desktop.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +13,8 @@ namespace Noteapp.Desktop.Session
         private static readonly string _userInfoPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             "noteapp_userinfo.json");
+
+        private static readonly string _notesPath = "notes.json";
 
         public static async Task SaveUserInfo(UserInfoDto userInfoDto, string encryptionKey)
         {
@@ -62,6 +66,23 @@ namespace Noteapp.Desktop.Session
             {
                 File.Delete(_userInfoPath);
             }
+        }
+
+        public static IEnumerable<Note> GetLocalNotes()
+        {
+            try
+            {
+                return File.ReadAllText(_notesPath).FromJson<IEnumerable<Note>>();
+            }
+            catch
+            {
+                return new List<Note>();
+            }
+        }
+
+        public static void SaveLocalNotes(IEnumerable<Note> notes)
+        {
+            File.WriteAllText(_notesPath, notes.ToJson());
         }
     }
 }

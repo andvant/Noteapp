@@ -134,12 +134,15 @@ namespace Noteapp.Desktop.ViewModels
             ToggleShowArchivedCommand = new RelayCommand(ToggleShowArchived);
             SaveAfterDelayCommand = new RelayCommand(SaveAfterDelay);
 
+            Notes = new ObservableCollection<Note>(SessionManager.GetLocalNotes());
+
             ListCommand.Execute(null);
         }
 
         private async Task List()
         {
             var selectedNoteId = SelectedNote?.Id;
+
             var notes = await _apiService.GetNotes(ShowArchived);
 
             foreach (var note in notes)
@@ -147,26 +150,127 @@ namespace Noteapp.Desktop.ViewModels
                 note.Text = await TryDecrypt(note.Text);
             }
 
-            Notes = CreateNoteCollection(notes);
+            await ProcessNotes(notes);
+
             SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId) ?? Notes.FirstOrDefault();
+        }
+
+        private async Task ProcessNotes(IEnumerable<Note> fetchedNotes)
+        {
+            var localNotes = Notes.ToList();
+            var joinedNotes = localNotes.Join(fetchedNotes, note => note.Id, note => note.Id, (local, fetched) => (local, fetched)).ToList();
+
+            foreach (var note in joinedNotes)
+            {
+                if (note.local.Synchronized)
+                {
+                    if (note.fetched.Updated != note.local.Updated)
+                    {
+                        // fetched note is newer than local copy; update local note
+                        ChangeNote(note.local, note.fetched);
+                    }
+                    else
+                    {
+                        // all good, do nothing
+                    }
+                }
+                else
+                {
+                    if (note.fetched.Updated == note.local.Updated)
+                    {
+                        await SendUpdateRequest(note.local);
+                    }
+                    else
+                    {
+                        // merge conflict; send a request to create a new note with local note's text and keep the fetched note
+                        try
+                        {
+                            var newNote = await _apiService.CreateNote(note.local.Text);
+                            Notes.Add(newNote);
+
+                            ChangeNote(note.local, note.fetched);
+                        }
+                        catch { }
+                    }
+                }
+            }
+
+            // process fetched notes that are not present locally
+            foreach (var fetchedNote in fetchedNotes.ExceptBy(joinedNotes.Select(note => note.fetched.Id), note => note.Id))
+            {
+                Notes.Add(fetchedNote);
+            }
+
+            // process local notes that are no longer on the server
+            foreach (var localNote in localNotes.ExceptBy(joinedNotes.Select(note => note.local.Id), note => note.Id).ToList())
+            {
+                if (localNote.Synchronized)
+                {
+                    Notes.Remove(localNote);
+                }
+                else
+                {
+                    // changes made locally were not synchronized; send a request to create a new note with local note's text
+                    try
+                    {
+                        var newNote = await _apiService.CreateNote(localNote.Text);
+                        ChangeNote(localNote, newNote);
+                    }
+                    catch { }
+
+                }
+            }
+
+            SessionManager.SaveLocalNotes(Notes);
         }
 
         private async void Create()
         {
-            var newNote = await _apiService.CreateNote();
+            var newNote = new Note() { Id = -1, Synchronized = false, Text = string.Empty };
             if (!ShowArchived)
             {
                 Notes.Add(newNote);
                 SelectedNote = newNote;
             }
+            try
+            {
+                newNote = await _apiService.CreateNote();
+                newNote.Synchronized = true;
+                ChangeSelectedNote(newNote);
+            }
+            catch { }
         }
 
         private async Task Save()
         {
-            string text = await TryEncrypt(SelectedNote.Text);
-            var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, text);
-            updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeNote(SelectedNote, updatedNote);
+            SelectedNote.Synchronized = false;
+
+            try
+            {
+                string text = await TryEncrypt(SelectedNote.Text);
+
+                var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, text);
+                updatedNote.Text = await TryDecrypt(updatedNote.Text);
+
+                ChangeSelectedNote(updatedNote);
+
+                SelectedNote.Synchronized = true;
+            }
+            finally
+            {
+                SessionManager.SaveLocalNotes(Notes);
+            }
+        }
+
+        private async Task SendUpdateRequest(Note note)
+        {
+            try
+            {
+                // assumed that the note.Text is encrypted
+                var updatedNote = await _apiService.UpdateNote(note.Id, note.Text);
+                note.Synchronized = true;
+            }
+            catch { }
         }
 
         private bool CanSave()
@@ -181,18 +285,19 @@ namespace Noteapp.Desktop.ViewModels
             SelectedNote = Notes.FirstOrDefault();
         }
 
+
         private async void ToggleLocked()
         {
             var updatedNote = await _apiService.ToggleLocked(SelectedNote.Id, SelectedNote.Locked);
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeNote(SelectedNote, updatedNote);
+            ChangeSelectedNote(updatedNote);
         }
 
         private async void ToggleArchived()
         {
             var updatedNote = await _apiService.ToggleArchived(SelectedNote.Id, SelectedNote.Archived);
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeNote(SelectedNote, updatedNote);
+            ChangeSelectedNote(updatedNote);
             Notes.Remove(updatedNote);
             SelectedNote = Notes.FirstOrDefault();
         }
@@ -201,15 +306,14 @@ namespace Noteapp.Desktop.ViewModels
         {
             var updatedNote = await _apiService.TogglePinned(SelectedNote.Id, SelectedNote.Pinned);
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeNote(SelectedNote, updatedNote);
-            Notes = CreateNoteCollection(Notes);
+            ChangeSelectedNote(updatedNote);
         }
 
         private async void TogglePublished()
         {
             var updatedNote = await _apiService.TogglePublished(SelectedNote.Id, SelectedNote.Published);
             updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeNote(SelectedNote, updatedNote);
+            ChangeSelectedNote(updatedNote);
         }
 
         private void CopyLink()
@@ -235,7 +339,7 @@ namespace Noteapp.Desktop.ViewModels
             _descendingText = false;
             _descendingUpdated = false;
 
-            Notes = CreateNoteCollection(notes);
+            Notes = new ObservableCollection<Note>(notes);
         }
 
         private void SortByUpdated()
@@ -249,7 +353,7 @@ namespace Noteapp.Desktop.ViewModels
             _descendingCreated = false;
             _descendingText = false;
 
-            Notes = CreateNoteCollection(notes);
+            Notes = new ObservableCollection<Note>(notes);
         }
 
         private void SortByText()
@@ -264,7 +368,7 @@ namespace Noteapp.Desktop.ViewModels
             _descendingCreated = false;
             _descendingUpdated = false;
 
-            Notes = CreateNoteCollection(notes);
+            Notes = new ObservableCollection<Note>(notes);
         }
 
         private bool CanSort()
@@ -406,11 +510,16 @@ namespace Noteapp.Desktop.ViewModels
             return await Protector.Encrypt(text, userInfo.EncryptionKey);
         }
 
+        private void ChangeSelectedNote(Note newNote)
+        {
+            ChangeNote(SelectedNote, newNote);
+            SelectedNote = newNote;
+        }
+
         private void ChangeNote(Note oldNote, Note newNote)
         {
             int noteIndex = Notes.IndexOf(oldNote);
             Notes[noteIndex] = newNote;
-            SelectedNote = newNote;
         }
 
         private ObservableCollection<Note> CreateNoteCollection(IEnumerable<Note> notes)

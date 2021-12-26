@@ -36,5 +36,6 @@ namespace Noteapp.Desktop.Models
         public string PublicUrl { get; set; }
         public bool Published => PublicUrl != null;
         public bool TextChanged { get; set; } = false;
+        public bool Synchronized { get; set; } = true;
     }
 }
