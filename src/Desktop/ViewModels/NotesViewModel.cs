@@ -42,7 +42,10 @@ namespace Noteapp.Desktop.ViewModels
             set
             {
                 if (HistoryVisible) CancelHistory();
-                value.TextChanged = false;
+                if (value != null)
+                {
+                    value.TextChanged = false;
+                }
                 Set(ref _selectedNote, value);
             }
         }
@@ -136,26 +139,27 @@ namespace Noteapp.Desktop.ViewModels
             ToggleShowArchivedCommand = new RelayCommand(ToggleShowArchived);
             SaveAfterDelayCommand = new RelayCommand(SaveAfterDelay);
 
-            Notes = new ObservableCollection<Note>(SessionManager.GetLocalNotes());
+            Notes = CreateNoteCollection(SessionManager.GetLocalNotes());
 
             ListCommand.Execute(null);
         }
 
         private async Task List()
         {
-            var notes = await _apiService.GetNotes(ShowArchived);
+            SelectedNote ??= Notes.FirstOrDefault();
 
+            var notes = await _apiService.GetNotes(ShowArchived);
             if (notes != null)
             {
                 foreach (var note in notes)
                 {
                     note.Text = await TryDecrypt(note.Text);
                 }
-
-                var selectedNoteId = SelectedNote?.Id;
-                await ProcessNotes(notes);
-                SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId) ?? Notes.FirstOrDefault();
+                
+                await ProcessNotes(notes);    
             }
+
+            SelectedNote ??= Notes.FirstOrDefault();
         }
 
         // assumes that local notes' texts are encrypted
@@ -308,6 +312,7 @@ namespace Noteapp.Desktop.ViewModels
             {
                 updatedNote.Text = await TryDecrypt(updatedNote.Text);
                 ChangeSelectedNote(updatedNote);
+                Notes = CreateNoteCollection(Notes);
             }
         }
 
@@ -344,7 +349,7 @@ namespace Noteapp.Desktop.ViewModels
             _descendingText = false;
             _descendingUpdated = false;
 
-            Notes = new ObservableCollection<Note>(notes);
+            Notes = CreateNoteCollection(notes);
         }
 
         private void SortByUpdated()
@@ -358,7 +363,7 @@ namespace Noteapp.Desktop.ViewModels
             _descendingCreated = false;
             _descendingText = false;
 
-            Notes = new ObservableCollection<Note>(notes);
+            Notes = CreateNoteCollection(notes);
         }
 
         private void SortByText()
@@ -373,7 +378,7 @@ namespace Noteapp.Desktop.ViewModels
             _descendingCreated = false;
             _descendingUpdated = false;
 
-            Notes = new ObservableCollection<Note>(notes);
+            Notes = CreateNoteCollection(notes);
         }
 
         private bool CanSort()
