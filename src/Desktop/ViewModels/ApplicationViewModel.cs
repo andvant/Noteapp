@@ -25,7 +25,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public ApplicationViewModel()
         {
-            SessionManager.LoadUserInfo();
+            SessionManager.LoadUserInfoToMemory();
             var configuration = CreateConfiguration();
 
             var httpClient = new HttpClient()

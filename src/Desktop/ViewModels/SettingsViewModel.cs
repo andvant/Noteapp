@@ -30,6 +30,7 @@ namespace Noteapp.Desktop.ViewModels
         private void Logout()
         {
             SessionManager.DeleteUserInfo();
+            SessionManager.DeleteLocalNotes();
             MessageBox.Show("Successfully logged out.");
             OnPropertyChanged(nameof(Email));
             OnPropertyChanged(nameof(EncryptionEnabled));
@@ -37,9 +38,11 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void DeleteAccount()
         {
-            await _apiService.DeleteAccount();
-            MessageBox.Show("Account successfully deleted.");
-            LogoutCommand.Execute(null);
+            if (await _apiService.DeleteAccount())
+            {
+                MessageBox.Show("Account successfully deleted.");
+                LogoutCommand.Execute(null);
+            }
         }
 
         private async void ToggleEncryption()

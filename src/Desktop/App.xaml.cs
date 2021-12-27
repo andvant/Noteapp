@@ -1,5 +1,4 @@
-﻿using Noteapp.Desktop.Exceptions;
-using Noteapp.Desktop.ViewModels;
+﻿using Noteapp.Desktop.ViewModels;
 using Noteapp.Desktop.Views;
 using System.Security.Cryptography;
 using System.Windows;
@@ -26,10 +25,6 @@ namespace Noteapp.Desktop
             var ex = args.Exception;
             switch (ex)
             {
-                case ApiConnectionException or ApiBadResponseException:
-                    MessageBox.Show($"{ex.Message}");
-                    args.Handled = true;
-                    break;
                 case CryptographicException:
                     MessageBox.Show($"Encryption/decryption failed: invalid encryption key.");
                     args.Handled = true;

@@ -39,7 +39,7 @@ namespace Noteapp.Desktop.Session
             return Application.Current.Properties["userInfo"] as UserInfo;
         }
 
-        public static UserInfo GetUserInfoFromFile()
+        private static UserInfo GetUserInfoFromFile()
         {
             try
             {
@@ -52,7 +52,7 @@ namespace Noteapp.Desktop.Session
             }
         }
 
-        public static void LoadUserInfo()
+        public static void LoadUserInfoToMemory()
         {
             var userInfo = GetUserInfoFromFile();
             Application.Current.Properties["userInfo"] = userInfo;
@@ -83,6 +83,14 @@ namespace Noteapp.Desktop.Session
         public static void SaveLocalNotes(IEnumerable<Note> notes)
         {
             File.WriteAllText(_notesPath, notes.ToJson());
+        }
+
+        public static void DeleteLocalNotes()
+        {
+            if (File.Exists(_notesPath))
+            {
+                File.Delete(_notesPath);
+            }
         }
     }
 }

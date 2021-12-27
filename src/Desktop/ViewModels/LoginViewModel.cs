@@ -27,9 +27,12 @@ namespace Noteapp.Desktop.ViewModels
         private async void Login()
         {
             var userInfoDto = await _apiService.Login(Email, Password);
-            var encryptionKey = Protector.GenerateEncryptionKey(Password, userInfoDto.encryption_salt);
-            await SessionManager.SaveUserInfo(userInfoDto, encryptionKey);
-            MessageBox.Show("Successfully logged in.");
+            if (userInfoDto != null)
+            {
+                var encryptionKey = Protector.GenerateEncryptionKey(Password, userInfoDto.encryption_salt);
+                await SessionManager.SaveUserInfo(userInfoDto, encryptionKey);
+                MessageBox.Show("Successfully logged in.");
+            }
         }
     }
 }

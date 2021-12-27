@@ -19,8 +19,6 @@ namespace Noteapp.Desktop.ViewModels
     {
         public string Name => PageNames.Notes;
 
-        private ObservableCollection<Note> _notes;
-        private Note _selectedNote;
         private readonly ApiService _apiService;
         private bool _descendingUpdated;
         private bool _descendingCreated;
@@ -30,12 +28,14 @@ namespace Noteapp.Desktop.ViewModels
         private bool _setForSaving = false;
         private const int SAVE_DELAY_MS = 1000;
 
+        private ObservableCollection<Note> _notes;
         public ObservableCollection<Note> Notes
         {
             get => _notes;
             set => Set(ref _notes, value);
         }
 
+        private Note _selectedNote;
         public Note SelectedNote
         {
             get => _selectedNote;
@@ -55,6 +55,8 @@ namespace Noteapp.Desktop.ViewModels
         }
 
         // Note history
+        private string _oldNoteText;
+
         private bool _historyVisible = false;
         public bool HistoryVisible
         {
@@ -63,9 +65,6 @@ namespace Noteapp.Desktop.ViewModels
         }
 
         private ObservableCollection<NoteSnapshot> _snapshots;
-        private int _currentSnapshotIndex;
-        private string _oldNoteText;
-
         public ObservableCollection<NoteSnapshot> Snapshots
         {
             get => _snapshots;
@@ -75,6 +74,8 @@ namespace Noteapp.Desktop.ViewModels
                 OnPropertyChanged(nameof(MaximumSnapshotIndex));
             }
         }
+
+        private int _currentSnapshotIndex;
         public int CurrentSnapshotIndex
         {
             get => _currentSnapshotIndex;
@@ -85,6 +86,7 @@ namespace Noteapp.Desktop.ViewModels
                 OnPropertyChanged(nameof(CurrentSnapshotDate));
             }
         }
+
         public int MaximumSnapshotIndex => (Snapshots?.Count - 1) ?? 0;
         public string CurrentSnapshotText => Snapshots?[CurrentSnapshotIndex]?.Text;
         public DateTime? CurrentSnapshotDate => Snapshots?[CurrentSnapshotIndex]?.Created;
@@ -141,20 +143,22 @@ namespace Noteapp.Desktop.ViewModels
 
         private async Task List()
         {
-            var selectedNoteId = SelectedNote?.Id;
-
             var notes = await _apiService.GetNotes(ShowArchived);
 
-            foreach (var note in notes)
+            if (notes != null)
             {
-                note.Text = await TryDecrypt(note.Text);
+                foreach (var note in notes)
+                {
+                    note.Text = await TryDecrypt(note.Text);
+                }
+
+                var selectedNoteId = SelectedNote?.Id;
+                await ProcessNotes(notes);
+                SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId) ?? Notes.FirstOrDefault();
             }
-
-            await ProcessNotes(notes);
-
-            SelectedNote = Notes.FirstOrDefault(note => note.Id == selectedNoteId) ?? Notes.FirstOrDefault();
         }
 
+        // assumes that local notes' texts are encrypted
         private async Task ProcessNotes(IEnumerable<Note> fetchedNotes)
         {
             var localNotes = Notes.ToList();
@@ -178,19 +182,22 @@ namespace Noteapp.Desktop.ViewModels
                 {
                     if (note.fetched.Updated == note.local.Updated)
                     {
-                        await SendUpdateRequest(note.local);
+                        var updatedNote = await _apiService.UpdateNote(note.local.Id, note.local.Text);
+                        if (updatedNote != null)
+                        {
+                            note.local.Synchronized = true;
+                        }
                     }
                     else
                     {
                         // merge conflict; send a request to create a new note with local note's text and keep the fetched note
-                        try
-                        {
-                            var newNote = await _apiService.CreateNote(note.local.Text);
-                            Notes.Add(newNote);
+                        var newNote = await _apiService.CreateNote(note.local.Text);
 
+                        if (newNote != null)
+                        {
+                            Notes.Add(newNote);
                             ChangeNote(note.local, note.fetched);
                         }
-                        catch { }
                     }
                 }
             }
@@ -211,13 +218,11 @@ namespace Noteapp.Desktop.ViewModels
                 else
                 {
                     // changes made locally were not synchronized; send a request to create a new note with local note's text
-                    try
+                    var newNote = await _apiService.CreateNote(localNote.Text);
+                    if (newNote != null)
                     {
-                        var newNote = await _apiService.CreateNote(localNote.Text);
                         ChangeNote(localNote, newNote);
                     }
-                    catch { }
-
                 }
             }
 
@@ -232,45 +237,32 @@ namespace Noteapp.Desktop.ViewModels
                 Notes.Add(newNote);
                 SelectedNote = newNote;
             }
-            try
+
+            newNote = await _apiService.CreateNote();
+            if (newNote != null)
             {
-                newNote = await _apiService.CreateNote();
                 newNote.Synchronized = true;
                 ChangeSelectedNote(newNote);
             }
-            catch { }
+
+            SessionManager.SaveLocalNotes(Notes);
         }
 
         private async Task Save()
         {
             SelectedNote.Synchronized = false;
+            string text = await TryEncrypt(SelectedNote.Text);
 
-            try
+            var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, text);
+
+            if (updatedNote != null)
             {
-                string text = await TryEncrypt(SelectedNote.Text);
-
-                var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, text);
                 updatedNote.Text = await TryDecrypt(updatedNote.Text);
-
                 ChangeSelectedNote(updatedNote);
-
                 SelectedNote.Synchronized = true;
             }
-            finally
-            {
-                SessionManager.SaveLocalNotes(Notes);
-            }
-        }
 
-        private async Task SendUpdateRequest(Note note)
-        {
-            try
-            {
-                // assumed that the note.Text is encrypted
-                var updatedNote = await _apiService.UpdateNote(note.Id, note.Text);
-                note.Synchronized = true;
-            }
-            catch { }
+            SessionManager.SaveLocalNotes(Notes);
         }
 
         private bool CanSave()
@@ -280,40 +272,53 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void Delete()
         {
-            await _apiService.DeleteNote(SelectedNote.Id);
-            Notes.Remove(SelectedNote);
-            SelectedNote = Notes.FirstOrDefault();
+            if (await _apiService.DeleteNote(SelectedNote.Id))
+            {
+                Notes.Remove(SelectedNote);
+                SelectedNote = Notes.FirstOrDefault();
+            }
         }
-
 
         private async void ToggleLocked()
         {
             var updatedNote = await _apiService.ToggleLocked(SelectedNote.Id, SelectedNote.Locked);
-            updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeSelectedNote(updatedNote);
+            if (updatedNote != null)
+            {
+                updatedNote.Text = await TryDecrypt(updatedNote.Text);
+                ChangeSelectedNote(updatedNote);
+            }
         }
 
         private async void ToggleArchived()
         {
             var updatedNote = await _apiService.ToggleArchived(SelectedNote.Id, SelectedNote.Archived);
-            updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeSelectedNote(updatedNote);
-            Notes.Remove(updatedNote);
-            SelectedNote = Notes.FirstOrDefault();
+            if (updatedNote != null)
+            {
+                updatedNote.Text = await TryDecrypt(updatedNote.Text);
+                ChangeSelectedNote(updatedNote);
+                Notes.Remove(updatedNote);
+                SelectedNote = Notes.FirstOrDefault();
+            }
         }
 
         private async void TogglePinned()
         {
             var updatedNote = await _apiService.TogglePinned(SelectedNote.Id, SelectedNote.Pinned);
-            updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeSelectedNote(updatedNote);
+            if (updatedNote != null)
+            {
+                updatedNote.Text = await TryDecrypt(updatedNote.Text);
+                ChangeSelectedNote(updatedNote);
+            }
         }
 
         private async void TogglePublished()
         {
             var updatedNote = await _apiService.TogglePublished(SelectedNote.Id, SelectedNote.Published);
-            updatedNote.Text = await TryDecrypt(updatedNote.Text);
-            ChangeSelectedNote(updatedNote);
+            if (updatedNote != null)
+            {
+                updatedNote.Text = await TryDecrypt(updatedNote.Text);
+                ChangeSelectedNote(updatedNote);
+            }
         }
 
         private void CopyLink()
@@ -408,8 +413,10 @@ namespace Noteapp.Desktop.ViewModels
                     note.Text = await TryEncrypt(note.Text);
                 }
 
-                await _apiService.BulkCreateNotes(notes);
-                await List();
+                if (await _apiService.BulkCreateNotes(notes))
+                {
+                    await List();
+                }
             }
         }
 
@@ -433,13 +440,16 @@ namespace Noteapp.Desktop.ViewModels
 
             var snapshots = await _apiService.GetAllSnapshots(SelectedNote.Id);
 
-            foreach (var snapshot in snapshots)
+            if (snapshots != null)
             {
-                snapshot.Text = await TryDecrypt(snapshot.Text);
-            }
+                foreach (var snapshot in snapshots)
+                {
+                    snapshot.Text = await TryDecrypt(snapshot.Text);
+                }
 
-            Snapshots = new ObservableCollection<NoteSnapshot>(snapshots);
-            CurrentSnapshotIndex = MaximumSnapshotIndex;
+                Snapshots = new ObservableCollection<NoteSnapshot>(snapshots);
+                CurrentSnapshotIndex = MaximumSnapshotIndex;
+            }
         }
 
         private bool CanShowHistory()

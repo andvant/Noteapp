@@ -24,8 +24,10 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void Register()
         {
-            await _apiService.Register(Email, Password);
-            MessageBox.Show("Successfully registered.");
+            if (await _apiService.Register(Email, Password))
+            {
+                MessageBox.Show("Successfully registered.");
+            }
         }
     }
 }
