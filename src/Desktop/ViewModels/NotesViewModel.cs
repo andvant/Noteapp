@@ -3,7 +3,6 @@ using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
-using Noteapp.Desktop.Security;
 using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
@@ -151,18 +150,12 @@ namespace Noteapp.Desktop.ViewModels
             var notes = await _apiService.GetNotes(ShowArchived);
             if (notes != null)
             {
-                foreach (var note in notes)
-                {
-                    note.Text = await TryDecrypt(note.Text);
-                }
-                
-                await ProcessNotes(notes);    
+                await ProcessNotes(notes);
             }
 
             SelectedNote ??= Notes.FirstOrDefault();
         }
 
-        // assumes that local notes' texts are encrypted
         private async Task ProcessNotes(IEnumerable<Note> fetchedNotes)
         {
             var localNotes = Notes.ToList();
@@ -255,13 +248,10 @@ namespace Noteapp.Desktop.ViewModels
         private async Task Save()
         {
             SelectedNote.Synchronized = false;
-            string text = await TryEncrypt(SelectedNote.Text);
 
-            var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, text);
-
+            var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, SelectedNote.Text);
             if (updatedNote != null)
             {
-                updatedNote.Text = await TryDecrypt(updatedNote.Text);
                 ChangeSelectedNote(updatedNote);
                 SelectedNote.Synchronized = true;
             }
@@ -288,7 +278,6 @@ namespace Noteapp.Desktop.ViewModels
             var updatedNote = await _apiService.ToggleLocked(SelectedNote.Id, SelectedNote.Locked);
             if (updatedNote != null)
             {
-                updatedNote.Text = await TryDecrypt(updatedNote.Text);
                 ChangeSelectedNote(updatedNote);
             }
         }
@@ -298,7 +287,6 @@ namespace Noteapp.Desktop.ViewModels
             var updatedNote = await _apiService.ToggleArchived(SelectedNote.Id, SelectedNote.Archived);
             if (updatedNote != null)
             {
-                updatedNote.Text = await TryDecrypt(updatedNote.Text);
                 ChangeSelectedNote(updatedNote);
                 Notes.Remove(updatedNote);
                 SelectedNote = Notes.FirstOrDefault();
@@ -310,7 +298,6 @@ namespace Noteapp.Desktop.ViewModels
             var updatedNote = await _apiService.TogglePinned(SelectedNote.Id, SelectedNote.Pinned);
             if (updatedNote != null)
             {
-                updatedNote.Text = await TryDecrypt(updatedNote.Text);
                 ChangeSelectedNote(updatedNote);
                 Notes = CreateNoteCollection(Notes);
             }
@@ -321,7 +308,6 @@ namespace Noteapp.Desktop.ViewModels
             var updatedNote = await _apiService.TogglePublished(SelectedNote.Id, SelectedNote.Published);
             if (updatedNote != null)
             {
-                updatedNote.Text = await TryDecrypt(updatedNote.Text);
                 ChangeSelectedNote(updatedNote);
             }
         }
@@ -413,11 +399,6 @@ namespace Noteapp.Desktop.ViewModels
                 string json = File.ReadAllText(dialog.FileName);
                 var notes = json.FromJson<IEnumerable<Note>>();
 
-                foreach (var note in notes)
-                {
-                    note.Text = await TryEncrypt(note.Text);
-                }
-
                 if (await _apiService.BulkCreateNotes(notes))
                 {
                     await List();
@@ -447,11 +428,6 @@ namespace Noteapp.Desktop.ViewModels
 
             if (snapshots != null)
             {
-                foreach (var snapshot in snapshots)
-                {
-                    snapshot.Text = await TryDecrypt(snapshot.Text);
-                }
-
                 Snapshots = new ObservableCollection<NoteSnapshot>(snapshots);
                 CurrentSnapshotIndex = MaximumSnapshotIndex;
             }
@@ -492,37 +468,6 @@ namespace Noteapp.Desktop.ViewModels
         private IOrderedEnumerable<Note> OrderByPinned(IEnumerable<Note> notes)
         {
             return notes.OrderBy(note => !note.Pinned);
-        }
-
-        private async Task<string> TryDecrypt(string text)
-        {
-            var userInfo = SessionManager.GetUserInfo();
-
-            if (userInfo is null || !userInfo.EncryptionEnabled)
-            {
-                return text;
-            }
-
-            try
-            {
-                return await Protector.Decrypt(text, userInfo.EncryptionKey);
-            }
-            catch // text was not encrypted and thus could not be decrypted
-            {
-                return text;
-            }
-        }
-
-        private async Task<string> TryEncrypt(string text)
-        {
-            var userInfo = SessionManager.GetUserInfo();
-
-            if (userInfo is null || !userInfo.EncryptionEnabled)
-            {
-                return text;
-            }
-
-            return await Protector.Encrypt(text, userInfo.EncryptionKey);
         }
 
         private void ChangeSelectedNote(Note newNote)
