@@ -5,10 +5,10 @@ namespace Noteapp.Desktop.Models
 {
     public class Note : NotifyPropertyChanged
     {
-        private string _text;
-
         public int Id { get; set; }
         public int AuthorId { get; set; }
+
+        private string _text;
         public string Text
         {
             get => _text;
@@ -19,6 +19,7 @@ namespace Noteapp.Desktop.Models
                 OnPropertyChanged(nameof(TextPreview));
             }
         }
+
         public string TextPreview
         {
             get
@@ -28,6 +29,7 @@ namespace Noteapp.Desktop.Models
                 return string.IsNullOrWhiteSpace(preview) ? "New note..." : preview;
             }
         }
+
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public bool Locked { get; set; }
@@ -37,5 +39,16 @@ namespace Noteapp.Desktop.Models
         public bool Published => PublicUrl != null;
         public bool TextChanged { get; set; } = false;
         public bool Synchronized { get; set; } = true;
+
+        public static Note CreateLocalNote()
+        {
+            var note = new Note()
+            {
+                Id = -1,
+                Synchronized = false,
+                Text = string.Empty,
+            };
+            return note;
+        }
     }
 }

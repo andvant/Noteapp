@@ -24,8 +24,8 @@ namespace Noteapp.Desktop.ViewModels
         private bool _descendingText;
         private string _webBaseUrl;
 
-        private bool _setForSaving = false;
         private const int SAVE_DELAY_MS = 1000;
+        private HashSet<Note> _notesBeingSaved = new();
 
         private ObservableCollection<Note> _notes;
         public ObservableCollection<Note> Notes
@@ -120,7 +120,7 @@ namespace Noteapp.Desktop.ViewModels
 
             ListCommand = new RelayCommand(async () => await List());
             CreateCommand = new RelayCommand(Create);
-            SaveCommand = new RelayCommand(async () => await Save(), CanSave);
+            SaveCommand = new RelayCommand(async () => await Save(SelectedNote), CanSave);
             DeleteCommand = new RelayCommand(Delete);
             ToggleLockedCommand = new RelayCommand(ToggleLocked);
             ToggleArchivedCommand = new RelayCommand(ToggleArchived);
@@ -151,117 +151,59 @@ namespace Noteapp.Desktop.ViewModels
             if (notes != null)
             {
                 await ProcessNotes(notes);
+                SelectedNote ??= Notes.FirstOrDefault();
             }
-
-            SelectedNote ??= Notes.FirstOrDefault();
-        }
-
-        private async Task ProcessNotes(IEnumerable<Note> fetchedNotes)
-        {
-            var localNotes = Notes.ToList();
-            var joinedNotes = localNotes.Join(fetchedNotes, note => note.Id, note => note.Id, (local, fetched) => (local, fetched)).ToList();
-
-            foreach (var note in joinedNotes)
-            {
-                if (note.local.Synchronized)
-                {
-                    if (note.fetched.Updated != note.local.Updated)
-                    {
-                        // fetched note is newer than local copy; update local note
-                        ChangeNote(note.local, note.fetched);
-                    }
-                    else
-                    {
-                        // all good, do nothing
-                    }
-                }
-                else
-                {
-                    if (note.fetched.Updated == note.local.Updated)
-                    {
-                        var updatedNote = await _apiService.UpdateNote(note.local.Id, note.local.Text);
-                        if (updatedNote != null)
-                        {
-                            note.local.Synchronized = true;
-                        }
-                    }
-                    else
-                    {
-                        // merge conflict; send a request to create a new note with local note's text and keep the fetched note
-                        var newNote = await _apiService.CreateNote(note.local.Text);
-
-                        if (newNote != null)
-                        {
-                            Notes.Add(newNote);
-                            ChangeNote(note.local, note.fetched);
-                        }
-                    }
-                }
-            }
-
-            // process fetched notes that are not present locally
-            foreach (var fetchedNote in fetchedNotes.ExceptBy(joinedNotes.Select(note => note.fetched.Id), note => note.Id))
-            {
-                Notes.Add(fetchedNote);
-            }
-
-            // process local notes that are no longer on the server
-            foreach (var localNote in localNotes.ExceptBy(joinedNotes.Select(note => note.local.Id), note => note.Id).ToList())
-            {
-                if (localNote.Synchronized)
-                {
-                    Notes.Remove(localNote);
-                }
-                else
-                {
-                    // changes made locally were not synchronized; send a request to create a new note with local note's text
-                    var newNote = await _apiService.CreateNote(localNote.Text);
-                    if (newNote != null)
-                    {
-                        ChangeNote(localNote, newNote);
-                    }
-                }
-            }
-
-            SessionManager.SaveLocalNotes(Notes);
         }
 
         private async void Create()
         {
-            var newNote = new Note() { Id = -1, Synchronized = false, Text = string.Empty };
+            var localNewNote = Note.CreateLocalNote();
             if (!ShowArchived)
             {
-                Notes.Add(newNote);
-                SelectedNote = newNote;
+                Notes.Add(localNewNote);
+                SelectedNote = localNewNote;
             }
 
-            newNote = await _apiService.CreateNote();
+            var newNote = await _apiService.CreateNote();
             if (newNote != null)
             {
-                newNote.Synchronized = true;
-                ChangeSelectedNote(newNote);
+                ChangeNote(localNewNote, newNote);
             }
 
             SessionManager.SaveLocalNotes(Notes);
         }
 
-        private async Task Save()
+        private async Task Save(Note note)
         {
-            SelectedNote.Synchronized = false;
+            note.Synchronized = false;
 
-            var updatedNote = await _apiService.UpdateNote(SelectedNote.Id, SelectedNote.Text);
+            var updatedNote = await _apiService.UpdateNote(note.Id, note.Text);
             if (updatedNote != null)
             {
-                ChangeSelectedNote(updatedNote);
-                SelectedNote.Synchronized = true;
+                ChangeNote(note, updatedNote);
             }
 
             SessionManager.SaveLocalNotes(Notes);
+        }
+
+        private async void SaveAfterDelay()
+        {
+            if (CanSave())
+            {
+                _notesBeingSaved.Add(SelectedNote);
+
+                var note = SelectedNote;
+                await Task.Delay(SAVE_DELAY_MS);
+                await Save(note);
+
+                _notesBeingSaved.Remove(SelectedNote);
+            }
         }
 
         private bool CanSave()
         {
-            return SelectedNote != null && !SelectedNote.Locked && !HistoryVisible;
+            return SelectedNote != null && SelectedNote.TextChanged && !SelectedNote.Locked &&
+                !HistoryVisible && !_notesBeingSaved.Contains(SelectedNote);
         }
 
         private async void Delete()
@@ -278,7 +220,7 @@ namespace Noteapp.Desktop.ViewModels
             var updatedNote = await _apiService.ToggleLocked(SelectedNote.Id, SelectedNote.Locked);
             if (updatedNote != null)
             {
-                ChangeSelectedNote(updatedNote);
+                ChangeNote(SelectedNote, updatedNote);
             }
         }
 
@@ -287,7 +229,7 @@ namespace Noteapp.Desktop.ViewModels
             var updatedNote = await _apiService.ToggleArchived(SelectedNote.Id, SelectedNote.Archived);
             if (updatedNote != null)
             {
-                ChangeSelectedNote(updatedNote);
+                ChangeNote(SelectedNote, updatedNote);
                 Notes.Remove(updatedNote);
                 SelectedNote = Notes.FirstOrDefault();
             }
@@ -298,7 +240,7 @@ namespace Noteapp.Desktop.ViewModels
             var updatedNote = await _apiService.TogglePinned(SelectedNote.Id, SelectedNote.Pinned);
             if (updatedNote != null)
             {
-                ChangeSelectedNote(updatedNote);
+                ChangeNote(SelectedNote, updatedNote);
                 Notes = CreateNoteCollection(Notes);
             }
         }
@@ -308,7 +250,7 @@ namespace Noteapp.Desktop.ViewModels
             var updatedNote = await _apiService.TogglePublished(SelectedNote.Id, SelectedNote.Published);
             if (updatedNote != null)
             {
-                ChangeSelectedNote(updatedNote);
+                ChangeNote(SelectedNote, updatedNote);
             }
         }
 
@@ -410,7 +352,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             SelectedNote.Text = CurrentSnapshotText;
             Snapshots = null;
-            await Save();
+            await Save(SelectedNote);
             HistoryVisible = false;
         }
 
@@ -452,39 +394,110 @@ namespace Noteapp.Desktop.ViewModels
             SelectedNote = Notes.FirstOrDefault();
         }
 
-        private async void SaveAfterDelay()
-        {
-            if (!_setForSaving && !HistoryVisible && SelectedNote.TextChanged)
-            {
-                _setForSaving = true;
-
-                await Task.Delay(SAVE_DELAY_MS);
-                await Save();
-
-                _setForSaving = false;
-            }
-        }
-
-        private IOrderedEnumerable<Note> OrderByPinned(IEnumerable<Note> notes)
+        private IEnumerable<Note> OrderByPinned(IEnumerable<Note> notes)
         {
             return notes.OrderBy(note => !note.Pinned);
         }
 
-        private void ChangeSelectedNote(Note newNote)
-        {
-            ChangeNote(SelectedNote, newNote);
-            SelectedNote = newNote;
-        }
-
         private void ChangeNote(Note oldNote, Note newNote)
         {
-            int noteIndex = Notes.IndexOf(oldNote);
-            Notes[noteIndex] = newNote;
+            Notes.Insert(Notes.IndexOf(oldNote), newNote);
+            if (oldNote == SelectedNote)
+            {
+                SelectedNote = newNote;
+            }
+            Notes.Remove(oldNote);
         }
 
         private ObservableCollection<Note> CreateNoteCollection(IEnumerable<Note> notes)
         {
             return new ObservableCollection<Note>(OrderByPinned(notes));
+        }
+
+        private async Task ProcessNotes(IEnumerable<Note> fetchedNotes)
+        {
+            var localNotes = Notes.ToList();
+            var joinedNotes = localNotes.Join(fetchedNotes, local => local.Id, fetched => fetched.Id,
+                (local, fetched) => (local, fetched));
+
+            // process notes that exist both locally and on the server
+            foreach (var note in joinedNotes)
+            {
+                await ProcessJoinedNote(note);
+            }
+
+            // process notes that were fetched from the server but don't exist locally
+            foreach (var fetchedNote in fetchedNotes.ExceptBy(joinedNotes.Select(note => note.fetched.Id), note => note.Id))
+            {
+                Notes.Add(fetchedNote);
+            }
+
+            // process notes that exist locally but were not fetched from the server
+            foreach (var localNote in localNotes.ExceptBy(joinedNotes.Select(note => note.local.Id), note => note.Id))
+            {
+                await ProcessLocalNote(localNote);
+            }
+
+            SessionManager.SaveLocalNotes(Notes);
+        }
+
+        private async Task ProcessJoinedNote((Note local, Note fetched) note)
+        {
+            if (note.local.Synchronized)
+            {
+                if (note.fetched.Updated != note.local.Updated)
+                {
+                    // fetched note is newer than local copy; update local note
+                    ChangeNote(note.local, note.fetched);
+                }
+                else
+                {
+                    // note is up-to-date with the server; do nothing
+                }
+            }
+            else
+            {
+                if (note.fetched.Updated == note.local.Updated)
+                {
+                    // synchronizing local note with the server
+                    var updatedNote = await _apiService.UpdateNote(note.local.Id, note.local.Text);
+                    if (updatedNote != null)
+                    {
+                        ChangeNote(note.local, updatedNote);
+                    }
+                }
+                else
+                {
+                    // there are unsynchronized local and remote versions of the same note
+                    // keep the fetched version and send a request to create a new note for the local version
+                    var newNote = await _apiService.CreateNote(note.local.Text);
+
+                    if (newNote != null)
+                    {
+                        Notes.Add(newNote);
+                        ChangeNote(note.local, note.fetched);
+                    }
+                }
+            }
+        }
+
+        private async Task ProcessLocalNote(Note localNote)
+        {
+            if (localNote.Synchronized)
+            {
+                // note was deleted on the server; remove local note
+                Notes.Remove(localNote);
+            }
+            else
+            {
+                // changes made locally were not synchronized before the note was deleted on the server
+                // send a request to create a new note with local note's text
+                var newNote = await _apiService.CreateNote(localNote.Text);
+                if (newNote != null)
+                {
+                    ChangeNote(localNote, newNote);
+                }
+            }
         }
     }
 }
