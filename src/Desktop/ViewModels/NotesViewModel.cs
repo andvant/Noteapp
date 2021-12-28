@@ -25,7 +25,7 @@ namespace Noteapp.Desktop.ViewModels
         private string _webBaseUrl;
 
         private const int SAVE_DELAY_MS = 1000;
-        private HashSet<Note> _notesBeingSaved = new();
+        private HashSet<Note> _notesCurrentlyBeingSaved = new();
 
         private ObservableCollection<Note> _notes;
         public ObservableCollection<Note> Notes
@@ -177,7 +177,10 @@ namespace Noteapp.Desktop.ViewModels
         {
             note.Synchronized = false;
 
-            var updatedNote = await _apiService.UpdateNote(note.Id, note.Text);
+            var updatedNote = note.Id != -1
+                ? await _apiService.UpdateNote(note.Id, note.Text)
+                : await _apiService.CreateNote(note.Text);
+
             if (updatedNote != null)
             {
                 ChangeNote(note, updatedNote);
@@ -190,29 +193,33 @@ namespace Noteapp.Desktop.ViewModels
         {
             if (CanSave())
             {
-                _notesBeingSaved.Add(SelectedNote);
+                _notesCurrentlyBeingSaved.Add(SelectedNote);
 
                 var note = SelectedNote;
                 await Task.Delay(SAVE_DELAY_MS);
                 await Save(note);
 
-                _notesBeingSaved.Remove(SelectedNote);
+                _notesCurrentlyBeingSaved.Remove(SelectedNote);
             }
         }
 
         private bool CanSave()
         {
             return SelectedNote != null && SelectedNote.TextChanged && !SelectedNote.Locked &&
-                !HistoryVisible && !_notesBeingSaved.Contains(SelectedNote);
+                !HistoryVisible && !_notesCurrentlyBeingSaved.Contains(SelectedNote);
         }
 
         private async void Delete()
         {
-            if (await _apiService.DeleteNote(SelectedNote.Id))
+            var noteId = SelectedNote.Id;
+            Notes.Remove(SelectedNote);
+            SelectedNote = Notes.FirstOrDefault();
+            if (noteId != -1)
             {
-                Notes.Remove(SelectedNote);
-                SelectedNote = Notes.FirstOrDefault();
+                await _apiService.DeleteNote(noteId);
             }
+
+            SessionManager.SaveLocalNotes(Notes);
         }
 
         private async void ToggleLocked()
