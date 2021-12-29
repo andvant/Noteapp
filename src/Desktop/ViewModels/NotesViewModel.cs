@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Noteapp.Desktop.Dtos;
 using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
@@ -10,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -157,29 +159,29 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void Create()
         {
-            var localNewNote = Note.CreateLocalNote();
+            var newLocalNote = Note.CreateLocalNote();
             if (!ShowArchived)
             {
-                Notes.Add(localNewNote);
-                SelectedNote = localNewNote;
+                Notes.Add(newLocalNote);
+                SelectedNote = newLocalNote;
             }
 
-            var newNote = await _apiService.CreateNote();
+            var newNote = await _apiService.CreateNote(newLocalNote);
             if (newNote != null)
             {
-                ChangeNote(localNewNote, newNote);
+                ChangeNote(newLocalNote, newNote);
             }
 
             SessionManager.SaveLocalNotes(Notes);
         }
 
-        private async Task Save(Note note)
+        private async Task<bool> Save(Note note)
         {
             note.Synchronized = false;
 
             var updatedNote = note.Id != -1
-                ? await _apiService.UpdateNote(note.Id, note.Text)
-                : await _apiService.CreateNote(note.Text);
+                ? await _apiService.UpdateNote(note)
+                : await _apiService.CreateNote(note);
 
             if (updatedNote != null)
             {
@@ -187,6 +189,8 @@ namespace Noteapp.Desktop.ViewModels
             }
 
             SessionManager.SaveLocalNotes(Notes);
+
+            return updatedNote != null;
         }
 
         private async void SaveAfterDelay()
@@ -224,13 +228,11 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void ToggleLocked()
         {
-            var updatedNote = await _apiService.ToggleLocked(SelectedNote.Id, SelectedNote.Locked);
-            if (updatedNote != null)
-            {
-                ChangeNote(SelectedNote, updatedNote);
-            }
+            SelectedNote.Locked = !SelectedNote.Locked;
+            await Save(SelectedNote);
         }
 
+        // needs to be updated
         private async void ToggleArchived()
         {
             var updatedNote = await _apiService.ToggleArchived(SelectedNote.Id, SelectedNote.Archived);
@@ -244,32 +246,36 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void TogglePinned()
         {
-            var updatedNote = await _apiService.TogglePinned(SelectedNote.Id, SelectedNote.Pinned);
-            if (updatedNote != null)
-            {
-                ChangeNote(SelectedNote, updatedNote);
-                Notes = CreateNoteCollection(Notes);
-            }
+            SelectedNote.Pinned = !SelectedNote.Pinned;
+            Notes = CreateNoteCollection(Notes);
+            await Save(SelectedNote);
         }
 
         private async void TogglePublished()
         {
-            var updatedNote = await _apiService.TogglePublished(SelectedNote.Id, SelectedNote.Published);
-            if (updatedNote != null)
+            var note = SelectedNote;
+            var synchronizedBeforePublishing = SelectedNote.Synchronized;
+
+            SelectedNote.Published = !SelectedNote.Published;
+            var success = await Save(SelectedNote);
+
+            if (!success)
             {
-                ChangeNote(SelectedNote, updatedNote);
+                note.Published = !note.Published;
+                note.Synchronized = synchronizedBeforePublishing;
+                SessionManager.SaveLocalNotes(Notes);
             }
         }
 
         private void CopyLink()
         {
-            if (SelectedNote != null && SelectedNote.Published)
+            if (SelectedNote?.PublicUrl != null)
             {
-                System.Windows.Clipboard.SetText($"{_webBaseUrl}p/{SelectedNote.PublicUrl}");
+                Clipboard.SetText($"{_webBaseUrl}p/{SelectedNote.PublicUrl}");
             }
             else
             {
-                System.Windows.MessageBox.Show("Note is not published!");
+                MessageBox.Show("Note is not published!");
             }
         }
 
@@ -467,7 +473,7 @@ namespace Noteapp.Desktop.ViewModels
                 if (note.fetched.Updated == note.local.Updated)
                 {
                     // synchronizing local note with the server
-                    var updatedNote = await _apiService.UpdateNote(note.local.Id, note.local.Text);
+                    var updatedNote = await _apiService.UpdateNote(note.local);
                     if (updatedNote != null)
                     {
                         ChangeNote(note.local, updatedNote);
@@ -477,7 +483,7 @@ namespace Noteapp.Desktop.ViewModels
                 {
                     // there are unsynchronized local and remote versions of the same note
                     // keep the fetched version and send a request to create a new note for the local version
-                    var newNote = await _apiService.CreateNote(note.local.Text);
+                    var newNote = await _apiService.CreateNote(note.local);
 
                     if (newNote != null)
                     {
@@ -499,7 +505,7 @@ namespace Noteapp.Desktop.ViewModels
             {
                 // changes made locally were not synchronized before the note was deleted on the server
                 // send a request to create a new note with local note's text
-                var newNote = await _apiService.CreateNote(localNote.Text);
+                var newNote = await _apiService.CreateNote(localNote);
                 if (newNote != null)
                 {
                     ChangeNote(localNote, newNote);

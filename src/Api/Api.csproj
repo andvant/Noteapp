@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="app.db" />
-    <None Remove="identity.db" />
+    <None Remove="app.db*" />
+    <None Remove="identity.db*" />
   </ItemGroup>
 
   <ItemGroup>

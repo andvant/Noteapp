@@ -32,11 +32,42 @@ namespace Noteapp.Desktop.Models
 
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
-        public bool Locked { get; set; }
-        public bool Archived { get; set; }
-        public bool Pinned { get; set; }
-        public string PublicUrl { get; set; }
-        public bool Published => PublicUrl != null;
+
+        private bool _locked;
+        public bool Locked
+        {
+            get => _locked;
+            set => Set(ref _locked, value);
+        }
+        private bool _archived;
+        public bool Archived
+        {
+            get => _archived;
+            set => Set(ref _archived, value);
+        }
+        private bool _pinned;
+        public bool Pinned
+        {
+            get => _pinned;
+            set => Set(ref _pinned, value);
+        }
+        private string _publicUrl;
+        public string PublicUrl
+        {
+            get => _publicUrl;
+            set
+            {
+                Set(ref _publicUrl, value);
+                OnPropertyChanged(nameof(Published));
+            }
+        }
+
+        private bool _published;
+        public bool Published
+        {
+            get => _published;
+            set => Set(ref _published, value);
+        }
         public bool TextChanged { get; set; } = false;
         public bool Synchronized { get; set; } = true;
 

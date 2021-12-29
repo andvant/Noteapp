@@ -1,4 +1,5 @@
-﻿using Noteapp.Core.Entities;
+﻿using Noteapp.Core.Dtos;
+using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using System;
@@ -40,6 +41,15 @@ namespace Noteapp.Core.Services
             return note;
         }
 
+        public async Task<Note> CreateNew(int userId, UpdateNoteDtoNew noteDto)
+        {
+            var note = CreateNoteNew(userId, noteDto);
+            note.CurrentSnapshot = CreateSnapshot(note, noteDto.Text);
+
+            await _repository.Add(note);
+            return note;
+        }
+
         public async Task<Note> Update(int userId, int noteId, string text)
         {
             var note = await GetNoteWithoutSnapshots(userId, noteId);
@@ -55,6 +65,27 @@ namespace Noteapp.Core.Services
             return note;
         }
 
+        public async Task<Note> UpdateNew(int userId, int noteId, UpdateNoteDtoNew noteDto)
+        {
+            var note = await GetNoteWithCurrentSnapshot(userId, noteId);
+
+            if (note.Text != noteDto.Text)
+            {
+                if (note.Locked) throw new NoteLockedException(noteId);
+                note.CurrentSnapshot = CreateSnapshot(note, noteDto.Text);
+            }
+
+            note.Pinned = noteDto.Pinned;
+            note.Locked = noteDto.Locked;
+            note.Archived = noteDto.Archived;
+            note.PublicUrl = note.Published != noteDto.Published
+                ? (noteDto.Published ? GenerateUrl() : null)
+                : note.PublicUrl;
+
+            await _repository.Update(note);
+            return note;
+        }
+
         public async Task BulkCreate(int userId, IEnumerable<string> texts)
         {
             TooManyNotesException.ThrowIfTooManyNotes(texts.Count(), Constants.MAX_BULK_NOTES);
@@ -64,6 +95,22 @@ namespace Noteapp.Core.Services
             {
                 var note = CreateNote(userId);
                 note.CurrentSnapshot = CreateSnapshot(note, text);
+
+                notes.Add(note);
+            }
+
+            await _repository.AddRange(notes);
+        }
+
+        public async Task BulkCreateNew(int userId, IEnumerable<UpdateNoteDtoNew> noteDtos)
+        {
+            TooManyNotesException.ThrowIfTooManyNotes(noteDtos.Count(), Constants.MAX_BULK_NOTES);
+
+            var notes = new List<Note>();
+            foreach (var noteDto in noteDtos)
+            {
+                var note = CreateNoteNew(userId, noteDto);
+                note.CurrentSnapshot = CreateSnapshot(note, noteDto.Text);
 
                 notes.Add(note);
             }
@@ -173,6 +220,19 @@ namespace Noteapp.Core.Services
             {
                 AuthorId = userId,
                 Created = _dateTimeProvider.Now,
+            };
+        }
+
+        private Note CreateNoteNew(int userId, UpdateNoteDtoNew dto)
+        {
+            return new Note()
+            {
+                AuthorId = userId,
+                Created = _dateTimeProvider.Now,
+                Locked = dto.Locked,
+                Pinned = dto.Pinned,
+                Archived = dto.Archived,
+                PublicUrl = dto.Published ? GenerateUrl() : null
             };
         }
 

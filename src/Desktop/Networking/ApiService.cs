@@ -1,4 +1,5 @@
-﻿using Noteapp.Desktop.Logging;
+﻿using Noteapp.Desktop.Dtos;
+using Noteapp.Desktop.Logging;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.Security;
 using Noteapp.Desktop.Session;
@@ -27,32 +28,32 @@ namespace Noteapp.Desktop.Networking
             return await GetNotesFromResponse(response);
         }
 
-        public async Task<Note> CreateNote(string text = "")
+        public async Task<Note> CreateNote(Note note)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "notes");
-            request.Content = JsonContent.Create(new { text = await TryEncrypt(text) });
-            var response = await SendRequest(request);
-            return await GetNoteFromResponse(response);
+            var request = new HttpRequestMessage(HttpMethod.Post, "notes/new");
+            return await GetUpdatedNoteFromServer(request, note);
         }
 
         public async Task<bool> BulkCreateNotes(IEnumerable<Note> notes)
         {
+            var noteDtos = new List<NoteDto>();
+
             foreach (var note in notes)
             {
-                note.Text = await TryEncrypt(note.Text);
+                var dto = new NoteDto(note);
+                dto.Text = await TryEncrypt(dto.Text);
+                noteDtos.Add(dto);
             }
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "notes/bulk");
-            request.Content = JsonContent.Create(notes);
+            var request = new HttpRequestMessage(HttpMethod.Post, "notes/bulk/new");
+            request.Content = JsonContent.Create(noteDtos);
             return await SendRequest(request) != null;
         }
 
-        public async Task<Note> UpdateNote(int noteId, string text)
+        public async Task<Note> UpdateNote(Note note)
         {
-            var request = new HttpRequestMessage(HttpMethod.Put, $"notes/{noteId}");
-            request.Content = JsonContent.Create(new { text = await TryEncrypt(text) });
-            var response = await SendRequest(request);
-            return await GetNoteFromResponse(response);
+            var request = new HttpRequestMessage(HttpMethod.Put, $"notes/{note.Id}/new");
+            return await GetUpdatedNoteFromServer(request, note);
         }
 
         public async Task<bool> DeleteNote(int noteId)
@@ -61,36 +62,13 @@ namespace Noteapp.Desktop.Networking
             return await SendRequest(request) != null;
         }
 
-        public async Task<Note> ToggleLocked(int noteId, bool locked)
-        {
-            var method = locked ? HttpMethod.Delete : HttpMethod.Put;
-            var request = new HttpRequestMessage(method, $"notes/{noteId}/lock");
-            var response = await SendRequest(request);
-            return await GetNoteFromResponse(response);
-        }
-
         public async Task<Note> ToggleArchived(int noteId, bool archived)
         {
             var method = archived ? HttpMethod.Delete : HttpMethod.Put;
             var request = new HttpRequestMessage(method, $"notes/{noteId}/archive");
             var response = await SendRequest(request);
-            return await GetNoteFromResponse(response);
-        }
-
-        public async Task<Note> TogglePinned(int noteId, bool pinned)
-        {
-            var method = pinned ? HttpMethod.Delete : HttpMethod.Put;
-            var request = new HttpRequestMessage(method, $"notes/{noteId}/pin");
-            var response = await SendRequest(request);
-            return await GetNoteFromResponse(response);
-        }
-
-        public async Task<Note> TogglePublished(int noteId, bool published)
-        {
-            var method = published ? HttpMethod.Delete : HttpMethod.Put;
-            var request = new HttpRequestMessage(method, $"notes/{noteId}/publish");
-            var response = await SendRequest(request);
-            return await GetNoteFromResponse(response);
+            throw new System.NotImplementedException();
+            //return await GetNoteFromResponse(response);
         }
 
         public async Task<IEnumerable<NoteSnapshot>> GetAllSnapshots(int noteId)
@@ -155,12 +133,17 @@ namespace Noteapp.Desktop.Networking
             }
         }
 
-        private async Task<Note> GetNoteFromResponse(HttpResponseMessage response)
+        private async Task<Note> GetUpdatedNoteFromServer(HttpRequestMessage request, Note note)
         {
+            var dto = new NoteDto(note);
+            dto.Text = await TryEncrypt(dto.Text);
+            request.Content = JsonContent.Create(dto);
+            var response = await SendRequest(request);
+
             if (response == null) return null;
-            var note = await response.Content.ReadFromJsonAsync<Note>();
-            note.Text = await TryDecrypt(note.Text);
-            return note;
+            var returnedNote = await response.Content.ReadFromJsonAsync<Note>();
+            returnedNote.Text = await TryDecrypt(returnedNote.Text);
+            return returnedNote;
         }
 
         private async Task<IEnumerable<Note>> GetNotesFromResponse(HttpResponseMessage response)

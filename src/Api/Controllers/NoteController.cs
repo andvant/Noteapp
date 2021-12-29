@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Noteapp.Api.Dtos;
+using Noteapp.Core.Dtos;
 using Noteapp.Core.Services;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,10 +36,24 @@ namespace Noteapp.Api.Controllers
             return CreatedAtAction(nameof(Get), new { id = note.Id }, new NoteDto(note));
         }
 
+        [HttpPost("new")]
+        public async Task<IActionResult> CreateNew(UpdateNoteDtoNew dto)
+        {
+            var note = await _noteService.CreateNew(GetUserId(), dto);
+            return CreatedAtAction(nameof(Get), new { id = note.Id }, new NoteDto(note));
+        }
+
         [HttpPost("bulk")]
         public async Task<IActionResult> BulkCreate(IEnumerable<CreateNoteDto> dtos)
         {
             await _noteService.BulkCreate(GetUserId(), dtos.Select(dto => dto.Text));
+            return NoContent();
+        }
+
+        [HttpPost("bulk/new")]
+        public async Task<IActionResult> BulkCreateNew(IEnumerable<UpdateNoteDtoNew> dtos)
+        {
+            await _noteService.BulkCreateNew(GetUserId(), dtos);
             return NoContent();
         }
 
@@ -53,6 +68,13 @@ namespace Noteapp.Api.Controllers
         public async Task<IActionResult> Update(int id, UpdateNoteDto dto)
         {
             var note = await _noteService.Update(GetUserId(), id, dto.Text);
+            return Ok(new NoteDto(note));
+        }
+
+        [HttpPut("{id:int}/new")]
+        public async Task<IActionResult> UpdateNew(int id, UpdateNoteDtoNew dto)
+        {
+            var note = await _noteService.UpdateNew(GetUserId(), id, dto);
             return Ok(new NoteDto(note));
         }
 
