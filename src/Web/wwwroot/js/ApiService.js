@@ -1,9 +1,9 @@
 ﻿let ApiService = {
     getNotes,
     createNote,
-    updateNote,
+    updateNoteNew: updateNote,
     deleteNote,
-    bulkCreateNotes,
+    bulkCreateNotesNew: bulkCreateNotes,
     toggleLocked,
     toggleArchived,
     togglePinned,
@@ -24,17 +24,17 @@ async function getNotes(archived) {
     return await response.json();
 }
 
-async function createNote() {
+async function createNote(note) {
     let headers = { "Content-Type": "application/json" };
-    let body = JSON.stringify({ text: "" });
-    let response = await sendRequest("notes", "POST", headers, body);
+    let body = JSON.stringify(new NoteDto(note));
+    let response = await sendRequest("notes/new", "POST", headers, body);
     return await response.json();
 }
 
-async function updateNote(noteId, noteText) {
+async function updateNote(note) {
     let headers = { "Content-Type": "application/json" };
-    let body = JSON.stringify({ text: noteText });
-    let response = await sendRequest(`notes/${noteId}`, "PUT", headers, body);
+    let body = JSON.stringify(new NoteDto(note));
+    let response = await sendRequest(`notes/${note.id}/new`, "PUT", headers, body);
     return await response.json();
 }
 
@@ -42,10 +42,10 @@ async function deleteNote(noteId) {
     await sendRequest(`notes/${noteId}`, "DELETE");
 }
 
-async function bulkCreateNotes(notesJson) {
+async function bulkCreateNotes(notes) {
     let headers = { "Content-Type": "application/json" };
-    let body = notesJson;
-    await sendRequest("notes/bulk", "POST", headers, body);
+    let body = JSON.stringify(notes.map(note => new NoteDto(note)));
+    await sendRequest("notes/bulk/new", "POST", headers, body);
 }
 
 async function toggleLocked(note) {
@@ -126,6 +126,14 @@ async function sendRequest(url, method, headers = {}, body = null) {
     }
 
     return response;
+}
+
+function NoteDto(note) {
+    this.text = note.text;
+    this.pinned = note.pinned;
+    this.locked = note.locked;
+    this.archived = note.archived;
+    this.published = note.published;
 }
 
 export default ApiService;

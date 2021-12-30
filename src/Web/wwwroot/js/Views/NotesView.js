@@ -11,8 +11,8 @@ let _sortByUpdatedDescending = false;
 let _sortByCreatedDescending = false;
 let _sortByTextDescending = false;
 
-let _setForSaving = false;
 const SAVE_DELAY_MS = 1000;
+let _notesCurrentlyBeingSaved = new Set();
 
 async function render() {
     return /*html*/ `
@@ -302,7 +302,15 @@ async function init() {
     }
 
     async function newButtonHandler() {
-        let newNote = await ApiService.createNote();
+        let newLocalNote = {
+            id: -1,
+            text: '',
+            pinned: false,
+            locked: false,
+            archived: false,
+            published: false
+        };
+        let newNote = await ApiService.createNote(newLocalNote);
         if (!_showArchived) {
             addNote(newNote);
             selectNote(getNoteElement(newNote.id));
@@ -311,7 +319,13 @@ async function init() {
     }
 
     async function saveButtonHandler() {
-        let updatedNote = await ApiService.updateNote(_selectedNoteId, getTextElementValue());
+        if (!canSave()) return;
+        await save(getSelectedNote());
+    }
+
+    async function save(note) {
+        note.text = getTextElementValue();
+        let updatedNote = await ApiService.updateNote(note);
         updateNote(updatedNote);
     }
 
@@ -322,27 +336,32 @@ async function init() {
     }
 
     async function lockCheckboxHandler() {
-        let updatedNote = await ApiService.toggleLocked(getSelectedNote());
-        updateNote(updatedNote);
+        let note = getSelectedNote();
+        note.locked = !note.locked;
+        await save(note);
     }
 
     async function archiveCheckboxHandler() {
-        let updatedNote = await ApiService.toggleArchived(getSelectedNote());
-        updateNote(updatedNote);
-        removeNote(updatedNote.id);
-        selectFirstNote();
+        let note = getSelectedNote();
+        note.archived = !note.archived;
+        await save(note);
+        // removeNote(updatedNote.id);
+        // selectFirstNote();
     }
 
+    // TODO: resort notes afterwards
     async function pinCheckboxHandler() {
-        let updatedNote = await ApiService.togglePinned(getSelectedNote());
-        updateNote(updatedNote);
-        addNoteElements();
-        selectNote(getNoteElement(updatedNote.id));
+        let note = getSelectedNote();
+        note.pinned = !note.pinned;
+        await save(note);
+        // addNoteElements();
+        // selectNote(getNoteElement(updatedNote.id));
     }
 
     async function publishCheckboxHandler() {
-        let updatedNote = await ApiService.togglePublished(getSelectedNote());
-        updateNote(updatedNote);
+        let note = getSelectedNote();
+        note.published = !note.published;
+        await save(note);
     }
 
     function noteSelectedHandler(event) {
@@ -351,8 +370,12 @@ async function init() {
         selectNote(noteElement);
     }
 
+    function historyVisible() {
+        return historyDiv.classList.contains('show');
+    }
+
     async function historyButtonHandler() {
-        if (historyDiv.classList.contains('show')) {
+        if (historyVisible()) {
             cancelHistoryButtonHandler();
             return;
         }
@@ -381,7 +404,7 @@ async function init() {
 
     async function restoreSnapshotButtonHandler() {
         setTextElementValue(_snapshots[historySlider.value].text);
-        await saveButtonHandler();
+        await save(getSelectedNote());
         historyDiv.classList.remove('show');
         _oldNoteText = null;
     }
@@ -417,8 +440,8 @@ async function init() {
         const reader = new FileReader();
         reader.readAsText(importInput.files[0]);
         reader.onload = async () => {
-            let notesJson = reader.result;
-            await ApiService.bulkCreateNotes(notesJson);
+            let notes = JSON.parse(reader.result);
+            await ApiService.bulkCreateNotes(notes);
             await listButtonHandler();
         };
     }
@@ -467,14 +490,23 @@ async function init() {
         return `${window.location.protocol}//${window.location.host}/p/${publicUrl}`;
     }
 
+    function canSave() {
+        let selectedNote = getSelectedNote();
+        
+        return selectedNote != null && !selectedNote.locked && !historyVisible() &&
+            !_notesCurrentlyBeingSaved.has(selectedNote);
+    }
+
     async function saveAfterDelay() {
-        if (!_setForSaving) {
-            _setForSaving = true;
+        if (canSave()) {
+            let note = getSelectedNote();
+
+            _notesCurrentlyBeingSaved.add(note);
 
             await delay(SAVE_DELAY_MS);
-            await saveButtonHandler();
+            await save(note);
 
-            _setForSaving = false;
+            _notesCurrentlyBeingSaved.delete(note);
         }
 
         function delay(ms) {
