@@ -352,7 +352,16 @@ namespace Noteapp.Desktop.ViewModels
             if (result == true)
             {
                 string json = File.ReadAllText(dialog.FileName);
-                var notes = json.FromJson<IEnumerable<Note>>();
+                var notes = json.FromJson<IEnumerable<Note>>().ToList();
+
+                notes.ForEach(note => 
+                { 
+                    note.Id = -1;
+                    note.Synchronized = false; 
+                });
+
+                Notes = CreateNoteCollection(Notes.Union(notes));
+                SessionManager.SaveLocalNotes(Notes);
 
                 if (await _apiService.BulkCreateNotes(notes))
                 {
