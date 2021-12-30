@@ -12,10 +12,14 @@ namespace Noteapp.Infrastructure.Data
 
         public static async Task Seed(ApplicationContext context)
         {
-            if (!context.Notes.Any())
+            if (!context.AppUsers.Any())
             {
                 await context.AppUsers.AddRangeAsync(GetAppUsers());
+                await context.SaveChangesAsync();
+            }
 
+            if (!context.Notes.Any())
+            {
                 var notes = GetNotes();
                 var snapshots = GetNoteSnapshots();
                 await context.Notes.AddRangeAsync(notes);
@@ -25,7 +29,6 @@ namespace Noteapp.Infrastructure.Data
                 notes[0].CurrentSnapshot = snapshots[0];
                 notes[1].CurrentSnapshot = snapshots[1];
                 notes[2].CurrentSnapshot = snapshots[2];
-
                 await context.SaveChangesAsync();
             }
         }
