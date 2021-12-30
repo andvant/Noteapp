@@ -2,7 +2,7 @@
 
 namespace Noteapp.Desktop.Dtos
 {
-    public class NoteDto
+    public class NoteRequest
     {
         public string Text { get; set; }
         public bool Locked { get; set; }
@@ -10,7 +10,7 @@ namespace Noteapp.Desktop.Dtos
         public bool Pinned { get; set; }
         public bool Published { get; set; }
 
-        public NoteDto(Note note)
+        public NoteRequest(Note note)
         {
             Text = note.Text;
             Locked = note.Locked;

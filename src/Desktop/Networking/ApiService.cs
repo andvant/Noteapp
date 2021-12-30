@@ -30,29 +30,29 @@ namespace Noteapp.Desktop.Networking
 
         public async Task<Note> CreateNote(Note note)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "notes/new");
+            var request = new HttpRequestMessage(HttpMethod.Post, "notes");
             return await GetUpdatedNoteFromServer(request, note);
         }
 
         public async Task<bool> BulkCreateNotes(IEnumerable<Note> notes)
         {
-            var noteDtos = new List<NoteDto>();
+            var noteRequests = new List<NoteRequest>();
 
             foreach (var note in notes)
             {
-                var dto = new NoteDto(note);
-                dto.Text = await TryEncrypt(dto.Text);
-                noteDtos.Add(dto);
+                var noteRequest = new NoteRequest(note);
+                noteRequest.Text = await TryEncrypt(noteRequest.Text);
+                noteRequests.Add(noteRequest);
             }
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "notes/bulk/new");
-            request.Content = JsonContent.Create(noteDtos);
+            var request = new HttpRequestMessage(HttpMethod.Post, "notes/bulk");
+            request.Content = JsonContent.Create(noteRequests);
             return await SendRequest(request) != null;
         }
 
         public async Task<Note> UpdateNote(Note note)
         {
-            var request = new HttpRequestMessage(HttpMethod.Put, $"notes/{note.Id}/new");
+            var request = new HttpRequestMessage(HttpMethod.Put, $"notes/{note.Id}");
             return await GetUpdatedNoteFromServer(request, note);
         }
 
@@ -60,15 +60,6 @@ namespace Noteapp.Desktop.Networking
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"notes/{noteId}");
             return await SendRequest(request) != null;
-        }
-
-        public async Task<Note> ToggleArchived(int noteId, bool archived)
-        {
-            var method = archived ? HttpMethod.Delete : HttpMethod.Put;
-            var request = new HttpRequestMessage(method, $"notes/{noteId}/archive");
-            var response = await SendRequest(request);
-            throw new System.NotImplementedException();
-            //return await GetNoteFromResponse(response);
         }
 
         public async Task<IEnumerable<NoteSnapshot>> GetAllSnapshots(int noteId)
@@ -85,12 +76,12 @@ namespace Noteapp.Desktop.Networking
             return await SendRequest(request) != null;
         }
 
-        public async Task<UserInfoDto> Login(string email, string password)
+        public async Task<UserInfoResponse> Login(string email, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "account/token");
             request.Content = JsonContent.Create(new { email, password });
             var response = await SendRequest(request);
-            return response != null ? await response.Content.ReadFromJsonAsync<UserInfoDto>() : null;
+            return response != null ? await response.Content.ReadFromJsonAsync<UserInfoResponse>() : null;
         }
 
         public async Task<bool> DeleteAccount()
@@ -135,9 +126,9 @@ namespace Noteapp.Desktop.Networking
 
         private async Task<Note> GetUpdatedNoteFromServer(HttpRequestMessage request, Note note)
         {
-            var dto = new NoteDto(note);
-            dto.Text = await TryEncrypt(dto.Text);
-            request.Content = JsonContent.Create(dto);
+            var noteRequest = new NoteRequest(note);
+            noteRequest.Text = await TryEncrypt(noteRequest.Text);
+            request.Content = JsonContent.Create(noteRequest);
             var response = await SendRequest(request);
 
             if (response == null) return null;

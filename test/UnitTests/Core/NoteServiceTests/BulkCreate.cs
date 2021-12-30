@@ -1,5 +1,6 @@
 ﻿using Moq;
 using Noteapp.Core;
+using Noteapp.Core.Dtos;
 using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
@@ -26,25 +27,25 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 dateTimeProvider.Now == dateTime);
             var noteService = new NoteService(_mock.Object, dateTimeProvider);
 
-            var noteTexts = new List<string>
+            var noteRequests = new List<NoteRequest>
             {
-                "note1",
-                "note2",
-                "note3"
+                new() { Text = "note1"},
+                new() { Text = "note2"},
+                new() { Text = "note3"},
             };
 
             // Act
-            await noteService.BulkCreate(1, noteTexts);
+            await noteService.BulkCreate(1, noteRequests);
 
             // Assert
             _mock.Verify(repo => repo.AddRange(
                 It.Is<List<Note>>(notes =>
-                    notes.Count == noteTexts.Count &&
+                    notes.Count == noteRequests.Count &&
                     notes.Any(note =>
                         note.AuthorId == 1 &&
                         note.Created == dateTime &&
                         note.Updated == dateTime &&
-                        noteTexts.Contains(note.Text)))
+                        noteRequests.Select(request => request.Text).Contains(note.Text)))
             ), Times.Once);
         }
 
@@ -53,10 +54,10 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
         {
             // Arrange
             var noteService = new NoteService(_mock.Object, _dateTimeProvider);
-            var newNotesTexts = Enumerable.Repeat("note", Constants.MAX_BULK_NOTES + 1);
+            var noteRequests = Enumerable.Repeat(new NoteRequest() { Text = "note" }, Constants.MAX_BULK_NOTES + 1);
 
             // Act
-            Func<Task> act = async () => await noteService.BulkCreate(userId: 1, texts: newNotesTexts);
+            Func<Task> act = async () => await noteService.BulkCreate(userId: 1, noteRequests);
 
             // Assert
             await Assert.ThrowsAsync<TooManyNotesException>(act);

@@ -1,13 +1,9 @@
 ﻿let ApiService = {
     getNotes,
     createNote,
-    updateNoteNew: updateNote,
+    updateNote,
     deleteNote,
-    bulkCreateNotesNew: bulkCreateNotes,
-    toggleLocked,
-    toggleArchived,
-    togglePinned,
-    togglePublished,
+    bulkCreateNotes,
     getAllSnapshots,
     login,
     logout,
@@ -26,50 +22,26 @@ async function getNotes(archived) {
 
 async function createNote(note) {
     let headers = { "Content-Type": "application/json" };
-    let body = JSON.stringify(new NoteDto(note));
-    let response = await sendRequest("notes/new", "POST", headers, body);
+    let body = JSON.stringify(new NoteRequest(note));
+    let response = await sendRequest("notes", "POST", headers, body);
     return await response.json();
+}
+
+async function bulkCreateNotes(notes) {
+    let headers = { "Content-Type": "application/json" };
+    let body = JSON.stringify(notes.map(note => new NoteRequest(note)));
+    await sendRequest("notes/bulk", "POST", headers, body);
 }
 
 async function updateNote(note) {
     let headers = { "Content-Type": "application/json" };
-    let body = JSON.stringify(new NoteDto(note));
-    let response = await sendRequest(`notes/${note.id}/new`, "PUT", headers, body);
+    let body = JSON.stringify(new NoteRequest(note));
+    let response = await sendRequest(`notes/${note.id}`, "PUT", headers, body);
     return await response.json();
 }
 
 async function deleteNote(noteId) {
     await sendRequest(`notes/${noteId}`, "DELETE");
-}
-
-async function bulkCreateNotes(notes) {
-    let headers = { "Content-Type": "application/json" };
-    let body = JSON.stringify(notes.map(note => new NoteDto(note)));
-    await sendRequest("notes/bulk/new", "POST", headers, body);
-}
-
-async function toggleLocked(note) {
-    let method = note.locked ? "DELETE" : "PUT";
-    let response = await sendRequest(`notes/${note.id}/lock`, method);
-    return await response.json();
-}
-
-async function toggleArchived(note) {
-    let method = note.archived ? "DELETE" : "PUT";
-    let response = await sendRequest(`notes/${note.id}/archive`, method);
-    return await response.json();
-}
-
-async function togglePinned(note) {
-    let method = note.pinned ? "DELETE" : "PUT";
-    let response = await sendRequest(`notes/${note.id}/pin`, method);
-    return await response.json();
-}
-
-async function togglePublished(note) {
-    let method = note.published ? "DELETE" : "PUT";
-    let response = await sendRequest(`notes/${note.id}/publish`, method);
-    return await response.json();
 }
 
 async function getAllSnapshots(noteId) {
@@ -128,7 +100,7 @@ async function sendRequest(url, method, headers = {}, body = null) {
     return response;
 }
 
-function NoteDto(note) {
+function NoteRequest(note) {
     this.text = note.text;
     this.pinned = note.pinned;
     this.locked = note.locked;

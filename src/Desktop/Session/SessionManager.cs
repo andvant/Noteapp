@@ -1,4 +1,5 @@
-﻿using Noteapp.Desktop.Extensions;
+﻿using Noteapp.Desktop.Dtos;
+using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace Noteapp.Desktop.Session
 
         private static readonly string _notesPath = "notes.json";
 
-        public static async Task SaveUserInfo(UserInfoDto userInfoDto, string encryptionKey)
+        public static async Task SaveUserInfoResponse(UserInfoResponse userInfoDto, string encryptionKey)
         {
             var userInfo = new UserInfo()
             {

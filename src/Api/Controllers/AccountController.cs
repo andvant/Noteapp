@@ -21,23 +21,23 @@ namespace Noteapp.Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        public async Task<IActionResult> Register(RegisterRequest request)
         {
-            await _userService.Register(dto.Email, dto.Password);
+            await _userService.Register(request.Email, request.Password);
             return NoContent();
         }
 
         [HttpPost("token")]
-        public async Task<IActionResult> Login(LoginDto dto)
+        public async Task<IActionResult> Login(LoginRequest request)
         {
-            await _userService.ValidatePassword(dto.Email, dto.Password);
+            await _userService.ValidatePassword(request.Email, request.Password);
 
-            return Ok(new UserInfoDto
-            {
-                access_token = await _tokenService.GenerateToken(dto.Email),
-                email = dto.Email,
-                encryption_salt = await _userService.GetEncryptionSalt(dto.Email)
-            });
+            return Ok(new UserInfoResponse
+            (
+                access_token: await _tokenService.GenerateToken(request.Email),
+                email: request.Email,
+                encryption_salt: await _userService.GetEncryptionSalt(request.Email)
+            ));
         }
 
         [Authorize]

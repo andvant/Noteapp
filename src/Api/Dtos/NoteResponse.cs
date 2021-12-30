@@ -3,7 +3,7 @@ using System;
 
 namespace Noteapp.Api.Dtos
 {
-    public class NoteDto
+    public class NoteResponse
     {
         public int Id { get; set; }
         public int AuthorId { get; set; }
@@ -16,7 +16,7 @@ namespace Noteapp.Api.Dtos
         public string PublicUrl { get; set; }
         public bool Published { get; set; }
 
-        public NoteDto(Note note)
+        public NoteResponse(Note note)
         {
             Id = note.Id;
             AuthorId = note.AuthorId;

@@ -1,6 +1,6 @@
 ﻿namespace Noteapp.Core.Dtos
 {
-    public class UpdateNoteDtoNew
+    public class NoteRequest
     {
         public string Text { get; set; }
         public bool Locked { get; set; }

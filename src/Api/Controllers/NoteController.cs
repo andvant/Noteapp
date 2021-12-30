@@ -21,61 +21,40 @@ namespace Noteapp.Api.Controllers
             _noteService = noteService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll(bool? archived = null)
-        {
-            var notes = await _noteService.GetAll(GetUserId(), archived);
-            var noteDtos = notes.Select(note => new NoteDto(note));
-            return Ok(noteDtos);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateNoteDto dto)
-        {
-            var note = await _noteService.Create(GetUserId(), dto.Text);
-            return CreatedAtAction(nameof(Get), new { id = note.Id }, new NoteDto(note));
-        }
-
-        [HttpPost("new")]
-        public async Task<IActionResult> CreateNew(UpdateNoteDtoNew dto)
-        {
-            var note = await _noteService.CreateNew(GetUserId(), dto);
-            return CreatedAtAction(nameof(Get), new { id = note.Id }, new NoteDto(note));
-        }
-
-        [HttpPost("bulk")]
-        public async Task<IActionResult> BulkCreate(IEnumerable<CreateNoteDto> dtos)
-        {
-            await _noteService.BulkCreate(GetUserId(), dtos.Select(dto => dto.Text));
-            return NoContent();
-        }
-
-        [HttpPost("bulk/new")]
-        public async Task<IActionResult> BulkCreateNew(IEnumerable<UpdateNoteDtoNew> dtos)
-        {
-            await _noteService.BulkCreateNew(GetUserId(), dtos);
-            return NoContent();
-        }
-
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
             var note = await _noteService.Get(GetUserId(), id);
-            return Ok(new NoteDto(note));
+            return Ok(new NoteResponse(note));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll(bool? archived = null)
+        {
+            var notes = await _noteService.GetAll(GetUserId(), archived);
+            var noteDtos = notes.Select(note => new NoteResponse(note));
+            return Ok(noteDtos);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(NoteRequest request)
+        {
+            var note = await _noteService.Create(GetUserId(), request);
+            return CreatedAtAction(nameof(Get), new { id = note.Id }, new NoteResponse(note));
+        }
+
+        [HttpPost("bulk")]
+        public async Task<IActionResult> BulkCreate(IEnumerable<NoteRequest> requests)
+        {
+            await _noteService.BulkCreate(GetUserId(), requests);
+            return NoContent();
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, UpdateNoteDto dto)
+        public async Task<IActionResult> Update(int id, NoteRequest request)
         {
-            var note = await _noteService.Update(GetUserId(), id, dto.Text);
-            return Ok(new NoteDto(note));
-        }
-
-        [HttpPut("{id:int}/new")]
-        public async Task<IActionResult> UpdateNew(int id, UpdateNoteDtoNew dto)
-        {
-            var note = await _noteService.UpdateNew(GetUserId(), id, dto);
-            return Ok(new NoteDto(note));
+            var note = await _noteService.Update(GetUserId(), id, request);
+            return Ok(new NoteResponse(note));
         }
 
         [HttpDelete("{id:int}")]
@@ -83,62 +62,6 @@ namespace Noteapp.Api.Controllers
         {
             await _noteService.Delete(GetUserId(), id);
             return NoContent();
-        }
-
-        [HttpPut("{id:int}/lock")]
-        public async Task<IActionResult> Lock(int id)
-        {
-            var note = await _noteService.Lock(GetUserId(), id);
-            return Ok(new NoteDto(note));
-        }
-
-        [HttpDelete("{id:int}/lock")]
-        public async Task<IActionResult> Unlock(int id)
-        {
-            var note = await _noteService.Unlock(GetUserId(), id);
-            return Ok(new NoteDto(note));
-        }
-
-        [HttpPut("{id:int}/archive")]
-        public async Task<IActionResult> Archive(int id)
-        {
-            var note = await _noteService.Archive(GetUserId(), id);
-            return Ok(new NoteDto(note));
-        }
-
-        [HttpDelete("{id:int}/archive")]
-        public async Task<IActionResult> Unarchive(int id)
-        {
-            var note = await _noteService.Unarchive(GetUserId(), id);
-            return Ok(new NoteDto(note));
-        }
-
-        [HttpPut("{id:int}/pin")]
-        public async Task<IActionResult> Pin(int id)
-        {
-            var note = await _noteService.Pin(GetUserId(), id);
-            return Ok(new NoteDto(note));
-        }
-
-        [HttpDelete("{id:int}/pin")]
-        public async Task<IActionResult> Unpin(int id)
-        {
-            var note = await _noteService.Unpin(GetUserId(), id);
-            return Ok(new NoteDto(note));
-        }
-
-        [HttpPut("{id:int}/publish")]
-        public async Task<IActionResult> Publish(int id)
-        {
-            var note = await _noteService.Publish(GetUserId(), id);
-            return Ok(new NoteDto(note));
-        }
-
-        [HttpDelete("{id:int}/publish")]
-        public async Task<IActionResult> Unpublish(int id)
-        {
-            var note = await _noteService.Unpublish(GetUserId(), id);
-            return Ok(new NoteDto(note));
         }
 
         [HttpGet("/api/p/{url}")]
@@ -152,7 +75,7 @@ namespace Noteapp.Api.Controllers
         public async Task<IActionResult> GetAllSnapshots(int id)
         {
             var snapshots = await _noteService.GetAllSnapshots(GetUserId(), id);
-            var snapshotDtos = snapshots.Select(snapshot => new NoteSnapshotDto(snapshot));
+            var snapshotDtos = snapshots.Select(snapshot => new NoteSnapshotResponse(snapshot));
             return Ok(snapshotDtos);
         }
 

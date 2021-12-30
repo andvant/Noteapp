@@ -1,4 +1,5 @@
 ﻿using Moq;
+using Noteapp.Core.Dtos;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
 using System;
@@ -20,8 +21,13 @@ namespace Noteapp.UnitTests.Core.NoteServiceTests
                 dateTimeProvider.Now == dateTime);
             var noteService = new NoteService(_mock.Object, dateTimeProvider);
 
+            var noteRequest = new NoteRequest()
+            {
+                Text = "new note"
+            };
+
             // Act
-            var createdNote = await noteService.Create(userId: 1, text: "new note");
+            var createdNote = await noteService.Create(userId: 1, noteRequest);
 
             // Assert
             Assert.Equal(1, createdNote.AuthorId);

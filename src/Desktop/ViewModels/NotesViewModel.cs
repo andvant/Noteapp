@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using Noteapp.Desktop.Dtos;
 using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
@@ -197,13 +196,14 @@ namespace Noteapp.Desktop.ViewModels
         {
             if (CanSave())
             {
-                _notesCurrentlyBeingSaved.Add(SelectedNote);
-
                 var note = SelectedNote;
+
+                _notesCurrentlyBeingSaved.Add(note);
+
                 await Task.Delay(SAVE_DELAY_MS);
                 await Save(note);
 
-                _notesCurrentlyBeingSaved.Remove(SelectedNote);
+                _notesCurrentlyBeingSaved.Remove(note);
             }
         }
 
@@ -235,11 +235,12 @@ namespace Noteapp.Desktop.ViewModels
         // needs to be updated
         private async void ToggleArchived()
         {
-            var updatedNote = await _apiService.ToggleArchived(SelectedNote.Id, SelectedNote.Archived);
-            if (updatedNote != null)
+            SelectedNote.Archived = !SelectedNote.Archived;
+            var success = await Save(SelectedNote);
+
+            if (success)
             {
-                ChangeNote(SelectedNote, updatedNote);
-                Notes.Remove(updatedNote);
+                Notes.Remove(SelectedNote);
                 SelectedNote = Notes.FirstOrDefault();
             }
         }
@@ -354,10 +355,10 @@ namespace Noteapp.Desktop.ViewModels
                 string json = File.ReadAllText(dialog.FileName);
                 var notes = json.FromJson<IEnumerable<Note>>().ToList();
 
-                notes.ForEach(note => 
-                { 
+                notes.ForEach(note =>
+                {
                     note.Id = -1;
-                    note.Synchronized = false; 
+                    note.Synchronized = false;
                 });
 
                 Notes = CreateNoteCollection(Notes.Union(notes));
