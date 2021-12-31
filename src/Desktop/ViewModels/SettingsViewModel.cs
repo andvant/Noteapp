@@ -30,7 +30,7 @@ namespace Noteapp.Desktop.ViewModels
         private void Logout()
         {
             SessionManager.DeleteUserInfo();
-            SessionManager.DeleteLocalNotes();
+            SessionManager.DeleteNotes();
             MessageBox.Show("Successfully logged out.");
             OnPropertyChanged(nameof(Email));
             OnPropertyChanged(nameof(EncryptionEnabled));

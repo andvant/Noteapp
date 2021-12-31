@@ -70,16 +70,16 @@ namespace Noteapp.Desktop.Models
         }
         public bool TextChanged { get; set; } = false;
         public bool Synchronized { get; set; } = true;
+        public bool Local { get; set; } = false;
 
         public static Note CreateLocalNote()
         {
-            var note = new Note()
+            return new Note()
             {
-                Id = -1,
                 Synchronized = false,
+                Local = true,
                 Text = string.Empty,
             };
-            return note;
         }
     }
 }

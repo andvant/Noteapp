@@ -139,7 +139,7 @@ namespace Noteapp.Desktop.ViewModels
             ToggleShowArchivedCommand = new RelayCommand(ToggleShowArchived);
             SaveAfterDelayCommand = new RelayCommand(SaveAfterDelay);
 
-            Notes = CreateNoteCollection(SessionManager.GetLocalNotes());
+            Notes = CreateNoteCollection(SessionManager.GetNotes());
 
             ListCommand.Execute(null);
         }
@@ -151,7 +151,7 @@ namespace Noteapp.Desktop.ViewModels
             var notes = await _apiService.GetNotes(ShowArchived);
             if (notes != null)
             {
-                await ProcessNotes(notes);
+                await SynchronizeNotes(notes);
                 SelectedNote ??= Notes.FirstOrDefault();
             }
         }
@@ -171,23 +171,23 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(newLocalNote, newNote);
             }
 
-            SessionManager.SaveLocalNotes(Notes);
+            SessionManager.SaveNotes(Notes);
         }
 
         private async Task<bool> Save(Note note)
         {
             note.Synchronized = false;
 
-            var updatedNote = note.Id != -1
-                ? await _apiService.UpdateNote(note)
-                : await _apiService.CreateNote(note);
+            var updatedNote = note.Local
+                ? await _apiService.CreateNote(note)
+                : await _apiService.UpdateNote(note);
 
             if (updatedNote != null)
             {
                 ChangeNote(note, updatedNote);
             }
 
-            SessionManager.SaveLocalNotes(Notes);
+            SessionManager.SaveNotes(Notes);
 
             return updatedNote != null;
         }
@@ -215,15 +215,15 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void Delete()
         {
-            var noteId = SelectedNote.Id;
-            Notes.Remove(SelectedNote);
+            var note = SelectedNote;
+            Notes.Remove(note);
             SelectedNote = Notes.FirstOrDefault();
-            if (noteId != -1)
+            if (!note.Local)
             {
-                await _apiService.DeleteNote(noteId);
+                await _apiService.DeleteNote(note.Id);
             }
 
-            SessionManager.SaveLocalNotes(Notes);
+            SessionManager.SaveNotes(Notes);
         }
 
         private async void ToggleLocked()
@@ -264,7 +264,7 @@ namespace Noteapp.Desktop.ViewModels
             {
                 note.Published = !note.Published;
                 note.Synchronized = synchronizedBeforePublishing;
-                SessionManager.SaveLocalNotes(Notes);
+                SessionManager.SaveNotes(Notes);
             }
         }
 
@@ -357,12 +357,12 @@ namespace Noteapp.Desktop.ViewModels
 
                 notes.ForEach(note =>
                 {
-                    note.Id = -1;
+                    note.Local = true;
                     note.Synchronized = false;
                 });
 
                 Notes = CreateNoteCollection(Notes.Union(notes));
-                SessionManager.SaveLocalNotes(Notes);
+                SessionManager.SaveNotes(Notes);
 
                 if (await _apiService.BulkCreateNotes(notes))
                 {
@@ -437,7 +437,7 @@ namespace Noteapp.Desktop.ViewModels
             return new ObservableCollection<Note>(OrderByPinned(notes));
         }
 
-        private async Task ProcessNotes(IEnumerable<Note> fetchedNotes)
+        private async Task SynchronizeNotes(IEnumerable<Note> fetchedNotes)
         {
             var localNotes = Notes.ToList();
             var joinedNotes = localNotes.Join(fetchedNotes, local => local.Id, fetched => fetched.Id,
@@ -446,25 +446,28 @@ namespace Noteapp.Desktop.ViewModels
             // process notes that exist both locally and on the server
             foreach (var note in joinedNotes)
             {
-                await ProcessJoinedNote(note);
+                await SynchronizeJoinedNote(note);
             }
 
             // process notes that were fetched from the server but don't exist locally
-            foreach (var fetchedNote in fetchedNotes.ExceptBy(joinedNotes.Select(note => note.fetched.Id), note => note.Id))
+            foreach (var fetchedNote in fetchedNotes
+                .ExceptBy(joinedNotes.Select(note => note.fetched.Id), note => note.Id))
             {
                 Notes.Add(fetchedNote);
             }
 
             // process notes that exist locally but were not fetched from the server
-            foreach (var localNote in localNotes.ExceptBy(joinedNotes.Select(note => note.local.Id), note => note.Id))
+            foreach (var localNote in localNotes
+                .ExceptBy(joinedNotes.Select(note => note.local.Id), note => note.Id)
+                .Union(localNotes.Where(note => note.Local)))
             {
-                await ProcessLocalNote(localNote);
+                await SynchronizeLocalNote(localNote);
             }
 
-            SessionManager.SaveLocalNotes(Notes);
+            SessionManager.SaveNotes(Notes);
         }
 
-        private async Task ProcessJoinedNote((Note local, Note fetched) note)
+        private async Task SynchronizeJoinedNote((Note local, Note fetched) note)
         {
             if (note.local.Synchronized)
             {
@@ -491,7 +494,7 @@ namespace Noteapp.Desktop.ViewModels
                 }
                 else
                 {
-                    // there are unsynchronized local and remote versions of the same note
+                    // there are unsynchronized local and remote versions of the same note.
                     // keep the fetched version and send a request to create a new note for the local version
                     var newNote = await _apiService.CreateNote(note.local);
 
@@ -504,7 +507,7 @@ namespace Noteapp.Desktop.ViewModels
             }
         }
 
-        private async Task ProcessLocalNote(Note localNote)
+        private async Task SynchronizeLocalNote(Note localNote)
         {
             if (localNote.Synchronized)
             {
@@ -513,7 +516,8 @@ namespace Noteapp.Desktop.ViewModels
             }
             else
             {
-                // changes made locally were not synchronized before the note was deleted on the server
+                // note was never sent to the server, or changes made locally were not synchronized
+                // before the note was deleted on the server.
                 // send a request to create a new note with local note's text
                 var newNote = await _apiService.CreateNote(localNote);
                 if (newNote != null)

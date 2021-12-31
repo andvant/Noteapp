@@ -69,7 +69,7 @@ namespace Noteapp.Desktop.Session
             }
         }
 
-        public static IEnumerable<Note> GetLocalNotes()
+        public static IEnumerable<Note> GetNotes()
         {
             try
             {
@@ -81,12 +81,12 @@ namespace Noteapp.Desktop.Session
             }
         }
 
-        public static void SaveLocalNotes(IEnumerable<Note> notes)
+        public static void SaveNotes(IEnumerable<Note> notes)
         {
             File.WriteAllText(_notesPath, notes.ToJson());
         }
 
-        public static void DeleteLocalNotes()
+        public static void DeleteNotes()
         {
             if (File.Exists(_notesPath))
             {
