@@ -3,7 +3,7 @@
 let NotesView = { render, init }
 
 let _notes;
-let _selectedNoteId;
+let _selectedNote;
 let _snapshots;
 let _showArchived = false;
 let _oldNoteText;
@@ -165,31 +165,26 @@ async function init() {
         notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
     }
 
-    function removeNote(noteId) {
-        let noteIndex = _notes.indexOf(getNote(noteId))
+    function removeNote() {
+        let noteIndex = _notes.indexOf(_selectedNote)
         _notes.splice(noteIndex, 1);
-        removeNoteElement(noteId);
+        getNoteElement(_selectedNote).remove();
         actionMenu.classList.remove('show');
-    }
-
-    function removeNoteElement(noteId) {
-        let noteDiv = document.getElementById(`note-${noteId}`);
-        noteDiv.remove();
     }
 
     function updateNote(updatedNote) {
         changeNote(updatedNote);
         updateNoteElement(updatedNote);
-        selectNote(getNoteElement(updatedNote.id));
+        selectNote(updatedNote);
         updateSelectedNoteElements();
     }
 
     function updateNoteElement(note) {
-        getNoteElement(note.id).outerHTML = createNoteHtml(note);
+        getNoteElement(note).outerHTML = createNoteHtml(note);
     }
 
-    function getNoteElement(noteId) {
-        return document.getElementById(`note-${noteId}`);
+    function getNoteElement(note) {
+        return document.getElementById(`note-${note?.elementId}`);
     }
 
     function addNotes() {
@@ -205,8 +200,9 @@ async function init() {
         }
     }
 
-    function getNoteId(noteElement) {
-        return parseInt(noteElement.id.split('-')[1]);
+    function getNoteElementId(noteElement) {
+        let id = noteElement.id;
+        return id.substring(id.indexOf('-') + 1);
     }
 
     function getTextElementValue() {
@@ -218,31 +214,30 @@ async function init() {
     }
 
     function makeSelectedNoteReadOnly() {
-        let note = getSelectedNote();
-        noteTextElement.readOnly = note?.locked ?? false;
-        saveButton.disabled = note?.locked ?? false;
+        noteTextElement.readOnly = _selectedNote?.locked ?? false;
+        saveButton.disabled = _selectedNote?.locked ?? false;
     }
 
-    function selectNote(noteElement) {
-        getNoteElement(_selectedNoteId)?.classList.remove('note-selected');
-        noteElement.classList.add('note-selected');
-        _selectedNoteId = getNoteId(noteElement);
+    function selectNote(note) {
+        getNoteElement(_selectedNote)?.classList.remove('note-selected');
+        getNoteElement(note).classList.add('note-selected');
+        _selectedNote = note;
         updateSelectedNoteElements();
     }
 
     function setSelectedNoteCheckboxes() {
-        let note = getSelectedNote();
-        document.getElementById("pin-button").checked = note?.pinned ?? false;
-        document.getElementById("lock-button").checked = note?.locked ?? false;
-        document.getElementById("archive-button").checked = note?.archived ?? false;
-        document.getElementById("publish-button").checked = note?.published ?? false;
+        document.getElementById("pin-button").checked = _selectedNote?.pinned ?? false;
+        document.getElementById("lock-button").checked = _selectedNote?.locked ?? false;
+        document.getElementById("archive-button").checked = _selectedNote?.archived ?? false;
+        document.getElementById("publish-button").checked = _selectedNote?.published ?? false;
     }
 
     function createNoteHtml(note) {
+        note.elementId = generateNoteElementId();
         let textPreview = note.text == '' ? "New note..." : note.text?.split(/\r?\n/)[0]?.substring(0, 30);
 
         return /*html*/ `
-            <div id="note-${note.id}" class="note">
+            <div id="note-${note.elementId}" class="note">
                 <div class="note-flags">
                     <label class="note-pinned" style="display: ${note.pinned ? "inline-block" : "none"};">Pinned</label>
                     <label class="note-archived" style="display: ${note.archived ? "inline-block" : "none"};">Archived</label>
@@ -254,29 +249,42 @@ async function init() {
             </div>`
     }
 
+    function generateNoteElementId()
+    {
+        const ALPHABET = 'abcdef0123456789';
+        const ELEMENT_ID_LENGTH = 8;
+
+        let elementId = '';
+
+        for (let i = 0; i < ELEMENT_ID_LENGTH; i++)
+        {
+            let index = Math.floor((Math.random() * 1_000_000_000) % ALPHABET.length)
+            elementId += ALPHABET[index];
+        }
+
+        return elementId;
+    }
+
     function dateToLocaleString(date) {
         let options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
         return new Date(date).toLocaleString({}, options);
     }
 
     function updateSelectedNoteElements() {
-        setTextElementValue(getSelectedNote()?.text);
+        setTextElementValue(_selectedNote?.text);
         setSelectedNoteCheckboxes();
         makeSelectedNoteReadOnly();
     }
 
-    function getNote(noteId) {
-        return _notes.find(note => note.id === noteId);
+    function getNote(noteElement) {
+        return _notes.find(note => note.elementId === getNoteElementId(noteElement));
     }
 
-    function getSelectedNote() {
-        return getNote(_selectedNoteId);
-    }
-
-    function changeNote(note) {
-        let oldNote = getNote(note.id)
+    // TODO: think if need to change implementation
+    function changeNote(newNote) {
+        let oldNote = _notes.find(note => note.elementId === newNote.elementId);
         let noteIndex = _notes.indexOf(oldNote);
-        _notes[noteIndex] = note;
+        _notes[noteIndex] = newNote;
     }
 
     function sortByPinned() {
@@ -285,10 +293,10 @@ async function init() {
 
     function selectFirstNote() {
         if (notesListDiv.childElementCount > 0) {
-            selectNote(notesListDiv.firstElementChild)
+            selectNote(getNote(notesListDiv.firstElementChild))
         }
         else {
-            _selectedNoteId = null;
+            _selectedNote = null;
             updateSelectedNoteElements();
         }
     }
@@ -302,72 +310,74 @@ async function init() {
     }
 
     async function newButtonHandler() {
+        // TODO: write a constructor function
         let newLocalNote = {
-            id: -1,
+            id: 0,
+            elementId: generateNoteElementId(),
             text: '',
             pinned: false,
             locked: false,
             archived: false,
-            published: false
+            published: false,
+            synchronized: false,
+            local: true // TODO: think if needed
         };
         let newNote = await ApiService.createNote(newLocalNote);
+        newNote = newLocalNote.elementId; // TODO: think if belongs here
         if (!_showArchived) {
             addNote(newNote);
-            selectNote(getNoteElement(newNote.id));
+            selectNote(newNote);
             noteTextElement.focus();
         }
     }
 
     async function saveButtonHandler() {
         if (!canSave()) return;
-        await save(getSelectedNote());
+        await save(_selectedNote);
     }
 
     async function save(note) {
         note.text = getTextElementValue();
         let updatedNote = await ApiService.updateNote(note);
+        updatedNote.elementId = note.elementId; // TODO: think if setting elementId belongs here
         updateNote(updatedNote);
     }
 
     async function deleteButtonHandler() {
-        await ApiService.deleteNote(_selectedNoteId);
-        removeNote(_selectedNoteId);
+        await ApiService.deleteNote(_selectedNote.id);
+        removeNote(_selectedNote.elementId);
         selectFirstNote();
     }
 
     async function lockCheckboxHandler() {
-        let note = getSelectedNote();
-        note.locked = !note.locked;
-        await save(note);
+        _selectedNote.locked = !_selectedNote.locked;
+        await save(_selectedNote);
     }
 
     async function archiveCheckboxHandler() {
-        let note = getSelectedNote();
-        note.archived = !note.archived;
-        await save(note);
+        _selectedNote.archived = !_selectedNote.archived;
+        await save(_selectedNote);
         // removeNote(updatedNote.id);
         // selectFirstNote();
     }
 
     // TODO: resort notes afterwards
     async function pinCheckboxHandler() {
-        let note = getSelectedNote();
-        note.pinned = !note.pinned;
-        await save(note);
+        _selectedNote.pinned = !_selectedNote.pinned;
+        await save(_selectedNote);
         // addNoteElements();
         // selectNote(getNoteElement(updatedNote.id));
     }
 
     async function publishCheckboxHandler() {
-        let note = getSelectedNote();
-        note.published = !note.published;
-        await save(note);
+        _selectedNote.published = !_selectedNote.published;
+        await save(_selectedNote);
     }
 
     function noteSelectedHandler(event) {
         cancelHistoryButtonHandler();
         let noteElement = event.target.closest('.note');
-        selectNote(noteElement);
+        selectNote(getNote(noteElement));
     }
 
     function historyVisible() {
@@ -380,7 +390,8 @@ async function init() {
             return;
         }
 
-        _snapshots = await ApiService.getAllSnapshots(_selectedNoteId);
+        let noteId = _selectedNote.id;
+        _snapshots = await ApiService.getAllSnapshots(noteId);
 
         _oldNoteText = getTextElementValue();
         historySlider.setAttribute('min', '0');
@@ -404,7 +415,7 @@ async function init() {
 
     async function restoreSnapshotButtonHandler() {
         setTextElementValue(_snapshots[historySlider.value].text);
-        await save(getSelectedNote());
+        await save(_selectedNote);
         historyDiv.classList.remove('show');
         _oldNoteText = null;
     }
@@ -476,9 +487,8 @@ async function init() {
     }
 
     async function copyLinkButtonHandler() {
-        let note = getSelectedNote();
-        if (note?.published) {
-            await navigator.clipboard.writeText(getFullNoteUrl(note.publicUrl));
+        if (_selectedNote?.published) {
+            await navigator.clipboard.writeText(getFullNoteUrl(_selectedNote.publicUrl));
             copyLinkButton.textContent = 'Copied!';
         }
         else {
@@ -491,15 +501,13 @@ async function init() {
     }
 
     function canSave() {
-        let selectedNote = getSelectedNote();
-        
-        return selectedNote != null && !selectedNote.locked && !historyVisible() &&
-            !_notesCurrentlyBeingSaved.has(selectedNote);
+        return _selectedNote != null && !_selectedNote.locked && !historyVisible() &&
+            !_notesCurrentlyBeingSaved.has(_selectedNote);
     }
 
     async function saveAfterDelay() {
         if (canSave()) {
-            let note = getSelectedNote();
+            let note = _selectedNote;
 
             _notesCurrentlyBeingSaved.add(note);
 
