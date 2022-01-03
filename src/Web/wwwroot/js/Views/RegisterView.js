@@ -12,13 +12,19 @@ async function render() {
 }
 
 async function init() {
+
     const registerButton = document.getElementById('register-button');
 
-    registerButton.addEventListener('click', async () => {
+    registerButton.addEventListener('click', register);
+
+    async function register() {
         let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
-        await ApiService.register(email, password);
-    });
+        
+        if (await ApiService.register(email, password)) {
+            alert('Successfully registered.')
+        }
+    }
 }
 
 export default RegisterView;

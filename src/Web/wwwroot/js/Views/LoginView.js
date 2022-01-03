@@ -1,4 +1,5 @@
 ﻿import ApiService from "../ApiService.js";
+import LocalDataManager from "../LocalDataManager.js";
 
 let LoginView = { render, init }
 
@@ -12,13 +13,21 @@ async function render() {
 }
 
 async function init() {
+
     const loginButton = document.getElementById('login-button');
 
-    loginButton.addEventListener('click', async () => {
+    loginButton.addEventListener('click', login);
+
+    async function login() {
         let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
-        await ApiService.login(email, password);
-    });
+        let userInfo = await ApiService.login(email, password);
+
+        if (userInfo != null) {
+            LocalDataManager.saveUserInfo(userInfo);
+            alert('Successfully logged in.')
+        }
+    }
 }
 
 export default LoginView;
