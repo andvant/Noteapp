@@ -1,8 +1,8 @@
 ﻿using Noteapp.Desktop.Dtos;
+using Noteapp.Desktop.LocalData;
 using Noteapp.Desktop.Logging;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.Security;
-using Noteapp.Desktop.Session;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -117,7 +117,7 @@ namespace Noteapp.Desktop.Networking
 
         private void AddAuthorizationHeader(HttpRequestMessage request)
         {
-            var userInfo = SessionManager.GetUserInfo();
+            var userInfo = LocalDataManager.GetUserInfo();
             if (!string.IsNullOrWhiteSpace(userInfo?.AccessToken))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", userInfo.AccessToken);
@@ -161,7 +161,7 @@ namespace Noteapp.Desktop.Networking
 
         private async Task<string> TryDecrypt(string text)
         {
-            var userInfo = SessionManager.GetUserInfo();
+            var userInfo = LocalDataManager.GetUserInfo();
 
             if (userInfo is null || !userInfo.EncryptionEnabled)
             {
@@ -180,7 +180,7 @@ namespace Noteapp.Desktop.Networking
 
         private async Task<string> TryEncrypt(string text)
         {
-            var userInfo = SessionManager.GetUserInfo();
+            var userInfo = LocalDataManager.GetUserInfo();
 
             if (userInfo is null || !userInfo.EncryptionEnabled)
             {

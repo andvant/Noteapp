@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Noteapp.Desktop.LocalData;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
-using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,7 +25,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public ApplicationViewModel()
         {
-            SessionManager.LoadUserInfoToMemory();
+            LocalDataManager.LoadUserInfoToMemory();
             var configuration = CreateConfiguration();
 
             var httpClient = new HttpClient()

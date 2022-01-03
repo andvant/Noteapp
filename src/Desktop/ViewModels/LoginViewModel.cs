@@ -1,7 +1,7 @@
-﻿using Noteapp.Desktop.MVVM;
+﻿using Noteapp.Desktop.LocalData;
+using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
 using Noteapp.Desktop.Security;
-using Noteapp.Desktop.Session;
 using System.Windows;
 using System.Windows.Input;
 
@@ -30,7 +30,7 @@ namespace Noteapp.Desktop.ViewModels
             if (userInfoResponse != null)
             {
                 var encryptionKey = Protector.GenerateEncryptionKey(Password, userInfoResponse.encryption_salt);
-                await SessionManager.SaveUserInfoResponse(userInfoResponse, encryptionKey);
+                await LocalDataManager.SaveUserInfoResponse(userInfoResponse, encryptionKey);
                 MessageBox.Show("Successfully logged in.");
             }
         }

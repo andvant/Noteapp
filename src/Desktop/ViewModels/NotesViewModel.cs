@@ -1,9 +1,9 @@
 ﻿using Microsoft.Win32;
 using Noteapp.Desktop.Extensions;
+using Noteapp.Desktop.LocalData;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
-using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -139,7 +139,7 @@ namespace Noteapp.Desktop.ViewModels
             ToggleShowArchivedCommand = new RelayCommand(ToggleShowArchived);
             SaveAfterDelayCommand = new RelayCommand(SaveAfterDelay);
 
-            Notes = CreateNoteCollection(SessionManager.GetNotes());
+            Notes = CreateNoteCollection(LocalDataManager.GetNotes());
 
             ListCommand.Execute(null);
         }
@@ -171,7 +171,7 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(newLocalNote, newNote);
             }
 
-            SessionManager.SaveNotes(Notes);
+            LocalDataManager.SaveNotes(Notes);
         }
 
         private async Task<bool> Save(Note note)
@@ -187,7 +187,7 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(note, updatedNote);
             }
 
-            SessionManager.SaveNotes(Notes);
+            LocalDataManager.SaveNotes(Notes);
 
             return updatedNote != null;
         }
@@ -223,7 +223,7 @@ namespace Noteapp.Desktop.ViewModels
                 await _apiService.DeleteNote(note.Id);
             }
 
-            SessionManager.SaveNotes(Notes);
+            LocalDataManager.SaveNotes(Notes);
         }
 
         private async void ToggleLocked()
@@ -264,7 +264,7 @@ namespace Noteapp.Desktop.ViewModels
             {
                 note.Published = !note.Published;
                 note.Synchronized = synchronizedBeforePublishing;
-                SessionManager.SaveNotes(Notes);
+                LocalDataManager.SaveNotes(Notes);
             }
         }
 
@@ -362,7 +362,7 @@ namespace Noteapp.Desktop.ViewModels
                 });
 
                 Notes = CreateNoteCollection(Notes.Union(notes));
-                SessionManager.SaveNotes(Notes);
+                LocalDataManager.SaveNotes(Notes);
 
                 if (await _apiService.BulkCreateNotes(notes))
                 {
@@ -377,6 +377,7 @@ namespace Noteapp.Desktop.ViewModels
             Snapshots = null;
             await Save(SelectedNote);
             HistoryVisible = false;
+            _oldNoteText = null;
         }
 
         private bool CanRestoreSnapshot()
@@ -386,16 +387,13 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void ShowHistory()
         {
-            HistoryVisible = true;
-            _oldNoteText = SelectedNote.Text;
-
             var snapshots = await _apiService.GetAllSnapshots(SelectedNote.Id);
+            if (snapshots == null) return;
 
-            if (snapshots != null)
-            {
-                Snapshots = new ObservableCollection<NoteSnapshot>(snapshots);
-                CurrentSnapshotIndex = MaximumSnapshotIndex;
-            }
+            _oldNoteText = SelectedNote.Text;
+            Snapshots = new ObservableCollection<NoteSnapshot>(snapshots);
+            CurrentSnapshotIndex = MaximumSnapshotIndex;
+            HistoryVisible = true;
         }
 
         private bool CanShowHistory()
@@ -464,7 +462,7 @@ namespace Noteapp.Desktop.ViewModels
                 await SynchronizeLocalNote(localNote);
             }
 
-            SessionManager.SaveNotes(Notes);
+            LocalDataManager.SaveNotes(Notes);
         }
 
         private async Task SynchronizeJoinedNote((Note local, Note fetched) note)

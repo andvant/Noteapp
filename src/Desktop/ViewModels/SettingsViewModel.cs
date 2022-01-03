@@ -1,6 +1,6 @@
-﻿using Noteapp.Desktop.MVVM;
+﻿using Noteapp.Desktop.LocalData;
+using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
-using Noteapp.Desktop.Session;
 using System.Windows;
 using System.Windows.Input;
 
@@ -12,8 +12,8 @@ namespace Noteapp.Desktop.ViewModels
 
         private readonly ApiService _apiService;
 
-        public string Email => SessionManager.GetUserInfo()?.Email ?? "Anonymous";
-        public bool EncryptionEnabled => SessionManager.GetUserInfo()?.EncryptionEnabled ?? false;
+        public string Email => LocalDataManager.GetUserInfo()?.Email ?? "Anonymous";
+        public bool EncryptionEnabled => LocalDataManager.GetUserInfo()?.EncryptionEnabled ?? false;
 
         public ICommand LogoutCommand { get; }
         public ICommand DeleteAccountCommand { get; }
@@ -29,8 +29,8 @@ namespace Noteapp.Desktop.ViewModels
 
         private void Logout()
         {
-            SessionManager.DeleteUserInfo();
-            SessionManager.DeleteNotes();
+            LocalDataManager.DeleteUserInfo();
+            LocalDataManager.DeleteNotes();
             MessageBox.Show("Successfully logged out.");
             OnPropertyChanged(nameof(Email));
             OnPropertyChanged(nameof(EncryptionEnabled));
@@ -41,20 +41,20 @@ namespace Noteapp.Desktop.ViewModels
             if (await _apiService.DeleteAccount())
             {
                 MessageBox.Show("Account successfully deleted.");
-                LogoutCommand.Execute(null);
+                Logout();
             }
         }
 
         private async void ToggleEncryption()
         {
-            var userInfo = SessionManager.GetUserInfo();
+            var userInfo = LocalDataManager.GetUserInfo();
             if (userInfo is null)
             {
                 MessageBox.Show("You have to be logged in to enable encryption!");
                 return;
             }
             userInfo.EncryptionEnabled = !userInfo.EncryptionEnabled;
-            await SessionManager.SaveUserInfo(userInfo);
+            await LocalDataManager.SaveUserInfo(userInfo);
         }
     }
 }

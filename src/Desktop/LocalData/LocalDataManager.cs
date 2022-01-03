@@ -1,15 +1,16 @@
 ﻿using Noteapp.Desktop.Dtos;
 using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
+using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Noteapp.Desktop.Session
+namespace Noteapp.Desktop.LocalData
 {
-    public static class SessionManager
+    public static class LocalDataManager
     {
         private static readonly string _userInfoPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -55,8 +56,7 @@ namespace Noteapp.Desktop.Session
 
         public static void LoadUserInfoToMemory()
         {
-            var userInfo = GetUserInfoFromFile();
-            Application.Current.Properties["userInfo"] = userInfo;
+            Application.Current.Properties["userInfo"] = GetUserInfoFromFile();
         }
 
         public static void DeleteUserInfo()
