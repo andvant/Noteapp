@@ -32,8 +32,16 @@ namespace Noteapp.Desktop.ViewModels
         public ObservableCollection<Note> Notes
         {
             get => _notes;
-            set => Set(ref _notes, value);
+            set
+            {
+                Set(ref _notes, value);
+                OnPropertyChanged(nameof(ShownNotes));
+            }
         }
+
+        public IEnumerable<Note> ShownNotes => Notes
+            .Where(note => note.Archived == ShowArchived)
+            .OrderBy(note => !note.Pinned);
 
         private Note _selectedNote;
         public Note SelectedNote
@@ -54,7 +62,11 @@ namespace Noteapp.Desktop.ViewModels
         public bool ShowArchived
         {
             get => _showArchived;
-            set => Set(ref _showArchived, value);
+            set
+            {
+                Set(ref _showArchived, value);
+                OnPropertyChanged(nameof(ShownNotes));
+            }
         }
 
         // Note history
@@ -146,24 +158,23 @@ namespace Noteapp.Desktop.ViewModels
 
         private async Task List()
         {
-            SelectedNote ??= Notes.FirstOrDefault();
+            SelectedNote ??= ShownNotes.FirstOrDefault();
 
-            var notes = await _apiService.GetNotes(ShowArchived);
+            var notes = await _apiService.GetNotes();
             if (notes != null)
             {
                 await SynchronizeNotes(notes);
-                SelectedNote ??= Notes.FirstOrDefault();
+                SelectedNote ??= ShownNotes.FirstOrDefault();
             }
         }
 
         private async void Create()
         {
             var newLocalNote = Note.CreateLocalNote();
-            if (!ShowArchived)
-            {
-                Notes.Add(newLocalNote);
-                SelectedNote = newLocalNote;
-            }
+            newLocalNote.Archived = ShowArchived;
+
+            Notes.Add(newLocalNote);
+            SelectedNote = newLocalNote;
 
             var newNote = await _apiService.CreateNote(newLocalNote);
             if (newNote != null)
@@ -217,7 +228,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             var note = SelectedNote;
             Notes.Remove(note);
-            SelectedNote = Notes.FirstOrDefault();
+            SelectFirstNote();
             if (!note.Local)
             {
                 await _apiService.DeleteNote(note.Id);
@@ -232,24 +243,19 @@ namespace Noteapp.Desktop.ViewModels
             await Save(SelectedNote);
         }
 
-        // needs to be updated
-        private async void ToggleArchived()
-        {
-            SelectedNote.Archived = !SelectedNote.Archived;
-            var success = await Save(SelectedNote);
-
-            if (success)
-            {
-                Notes.Remove(SelectedNote);
-                SelectedNote = Notes.FirstOrDefault();
-            }
-        }
-
         private async void TogglePinned()
         {
             SelectedNote.Pinned = !SelectedNote.Pinned;
-            Notes = CreateNoteCollection(Notes);
             await Save(SelectedNote);
+        }
+
+        private async void ToggleArchived()
+        {
+            var note = SelectedNote;
+            SelectedNote.Archived = !SelectedNote.Archived;
+            OnPropertyChanged(nameof(ShownNotes));
+            SelectFirstNote();
+            await Save(note);
         }
 
         private async void TogglePublished()
@@ -325,7 +331,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private bool CanSort()
         {
-            return Notes?.Count > 0;
+            return ShownNotes?.Count() > 0;
         }
 
         private void Export()
@@ -353,18 +359,19 @@ namespace Noteapp.Desktop.ViewModels
             if (result == true)
             {
                 string json = File.ReadAllText(dialog.FileName);
-                var notes = json.FromJson<IEnumerable<Note>>().ToList();
+                var importedNotes = json.FromJson<IEnumerable<Note>>().ToList();
 
-                notes.ForEach(note =>
+                importedNotes.ForEach(note =>
                 {
+                    note.Id = 0;
                     note.Local = true;
                     note.Synchronized = false;
                 });
 
-                Notes = CreateNoteCollection(Notes.Union(notes));
+                Notes = CreateNoteCollection(Notes.Concat(importedNotes));
                 LocalDataManager.SaveNotes(Notes);
 
-                if (await _apiService.BulkCreateNotes(notes))
+                if (await _apiService.BulkCreateNotes(importedNotes))
                 {
                     await List();
                 }
@@ -408,16 +415,10 @@ namespace Noteapp.Desktop.ViewModels
             HistoryVisible = false;
         }
 
-        private async void ToggleShowArchived()
+        private void ToggleShowArchived()
         {
             ShowArchived = !ShowArchived;
-            await List();
-            SelectedNote = Notes.FirstOrDefault();
-        }
-
-        private IEnumerable<Note> OrderByPinned(IEnumerable<Note> notes)
-        {
-            return notes.OrderBy(note => !note.Pinned);
+            SelectFirstNote();
         }
 
         private void ChangeNote(Note oldNote, Note newNote)
@@ -430,9 +431,16 @@ namespace Noteapp.Desktop.ViewModels
             Notes.Remove(oldNote);
         }
 
+        private void SelectFirstNote()
+        {
+            SelectedNote = ShownNotes.FirstOrDefault();
+        }
+
         private ObservableCollection<Note> CreateNoteCollection(IEnumerable<Note> notes)
         {
-            return new ObservableCollection<Note>(OrderByPinned(notes));
+            var noteCollection = new ObservableCollection<Note>(notes);
+            noteCollection.CollectionChanged += (o, e) => OnPropertyChanged(nameof(ShownNotes));
+            return noteCollection;
         }
 
         private async Task SynchronizeNotes(IEnumerable<Note> fetchedNotes)

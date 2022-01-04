@@ -20,10 +20,9 @@ namespace Noteapp.Desktop.Networking
             _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<Note>> GetNotes(bool? archived = null)
+        public async Task<IEnumerable<Note>> GetNotes()
         {
-            string filter = archived.HasValue ? $"?archived={archived.Value}" : string.Empty;
-            var request = new HttpRequestMessage(HttpMethod.Get, $"notes{filter}");
+            var request = new HttpRequestMessage(HttpMethod.Get, "notes");
             var response = await SendRequest(request);
             return await GetNotesFromResponse(response);
         }

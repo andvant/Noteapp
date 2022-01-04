@@ -37,7 +37,7 @@
             </Border>
 
             <!--Notes-->
-            <ListBox ItemsSource="{Binding Notes}" SelectedItem="{Binding SelectedNote}"
+            <ListBox ItemsSource="{Binding ShownNotes}" SelectedItem="{Binding SelectedNote}"
                      BorderThickness="0,0,1,0" BorderBrush="{StaticResource BorderColor}"
                      ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <ListBox.ItemTemplate>

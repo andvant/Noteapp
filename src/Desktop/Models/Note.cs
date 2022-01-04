@@ -76,9 +76,10 @@ namespace Noteapp.Desktop.Models
         {
             return new Note()
             {
+                Id = 0,
                 Synchronized = false,
                 Local = true,
-                Text = string.Empty,
+                Text = string.Empty
             };
         }
     }

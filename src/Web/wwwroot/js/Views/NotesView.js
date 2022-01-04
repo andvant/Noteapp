@@ -121,7 +121,7 @@ async function init() {
     const actionMenu = document.getElementById('action-menu');
 
     addListeners();
-    addNotes(LocalDataManager.getNotes());
+    setNotes(LocalDataManager.getNotes());
     await listNotes();
 
     function addListeners() {
@@ -157,23 +157,30 @@ async function init() {
         noteTextElement.addEventListener('input', saveAfterDelay);
     }
 
+    function getShownNotes() {
+        let notes = _notes.slice();
+        notes.sort((noteLeft, noteRight) => noteLeft.pinned === noteRight.pinned ? 0 : noteLeft.pinned ? -1 : 1);
+        return notes.filter(note => note.archived == _showArchived);
+    }
+
     async function listNotes() {
         selectFirstNote();
-        let notes = await ApiService.getNotes(_showArchived);
-        notes.forEach(note => note.synchronized = false);
+        let notes = await ApiService.getNotes();
         if (notes != null) {
+            notes.forEach(note => note.synchronized = false);
             synchronizeNotes(notes);
+            addNoteElements();
             selectFirstNote();
         }
     }
 
     async function createNote() {
         let newLocalNote = new Note();
-        if (!_showArchived) {
-            addNote(newLocalNote);
-            selectNote(newLocalNote);
-            noteTextElement.focus();
-        }
+        newLocalNote.archived = _showArchived;
+
+        addNote(newLocalNote);
+        selectNote(newLocalNote);
+        noteTextElement.focus();
 
         let newNote = await ApiService.createNote(newLocalNote);
         if (newNote != null) {
@@ -204,6 +211,7 @@ async function init() {
         let note = _selectedNote;
         removeNote(_selectedNote);
         selectFirstNote();
+        actionMenu.classList.remove('show');
 
         if (!note.local) {
             await ApiService.deleteNote(note.id);
@@ -225,8 +233,12 @@ async function init() {
     }
 
     async function toggleArchived() {
+        let note = _selectedNote;
         _selectedNote.archived = !_selectedNote.archived;
-        await saveNote(_selectedNote);
+        removeNoteElement(note);
+        selectFirstNote();
+        actionMenu.classList.remove('show');
+        await saveNote(note);
     }
 
     async function togglePublished() {
@@ -249,17 +261,19 @@ async function init() {
         notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
     }
 
-    function addNotes(notes) {
+    function setNotes(notes) {
         _notes = notes;
         addNoteElements();
         updateSelectedNoteElements();
     }
 
     function removeNote(note) {
-        let noteIndex = _notes.indexOf(note)
-        _notes.splice(noteIndex, 1);
+        _notes.splice(_notes.indexOf(note), 1);
+        removeNoteElement(note);
+    }
+
+    function removeNoteElement(note) {
         getNoteElement(note).remove();
-        actionMenu.classList.remove('show');
     }
 
     function updateNote(oldNote, newNote) {
@@ -272,9 +286,9 @@ async function init() {
     }
 
     function addNoteElements() {
-        sortByPinned();
+        let notes = getShownNotes();
         notesListDiv.innerHTML = '';
-        for (let note of _notes) {
+        for (let note of notes) {
             notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
         }
     }
@@ -364,10 +378,6 @@ async function init() {
         _notes[noteIndex] = newNote;
     }
 
-    function sortByPinned() {
-        _notes.sort((note1, note2) => note1.pinned === note2.pinned ? 0 : note1.pinned ? -1 : 1);
-    }
-
     function selectFirstNote() {
         if (notesListDiv.childElementCount > 0) {
             selectNote(getNote(notesListDiv.firstElementChild))
@@ -454,16 +464,17 @@ async function init() {
         const reader = new FileReader();
         reader.readAsText(importInput.files[0]);
         reader.onload = async () => {
-            let notes = JSON.parse(reader.result);
-            notes.forEach(note => {
+            let importedNotes = JSON.parse(reader.result);
+
+            importedNotes.forEach(note => {
                 note.local = true;
                 note.synchronized = false;
             })
 
-            addNotes(_notes.concat(notes));
+            setNotes(_notes.concat(importedNotes));
             LocalDataManager.saveNotes(_notes);
 
-            if (await ApiService.bulkCreateNotes(notes)) {
+            if (await ApiService.bulkCreateNotes(importedNotes)) {
                 await listNotes();
             }
         };
@@ -479,10 +490,11 @@ async function init() {
         a.download = `ExportedNotes-${new Date().toLocaleDateString()}.json`;
         a.click();
     }
-
+    
     async function toggleShowArchived() {
         _showArchived = !_showArchived;
-        await listNotes();
+        addNoteElements();
+        selectFirstNote();
         toggleShowArchivedButton.classList.toggle('show-archived');
     }
 
@@ -554,7 +566,7 @@ async function init() {
 
         // process notes that were fetched from the server but don't exist locally
         for (let fetchedNote of getFetchedOnlyNotes(fetchedNotes, joinedNotes)) {
-            addNote(fetchedNote);
+            _notes.push(fetchedNote);
         }
 
         // process notes that exist locally but were not fetched from the server
@@ -571,7 +583,7 @@ async function init() {
             if (note.fetched.updated != note.local.updated)
             {
                 // fetched note is newer than local copy; update local note
-                updateNote(note.local, note.fetched);
+                changeNote(note.local, note.fetched);
             }
             else
             {
@@ -586,7 +598,7 @@ async function init() {
                 let updatedNote = await ApiService.updateNote(note.local);
                 if (updatedNote != null)
                 {
-                    updateNote(note.local, updatedNote);
+                    changeNote(note.local, updatedNote);
                 }
             }
             else
@@ -597,8 +609,8 @@ async function init() {
 
                 if (newNote != null)
                 {
-                    addNote(newNote);
-                    updateNote(note.local, note.fetched);
+                    _notes.push(newNote);
+                    changeNote(note.local, note.fetched);
                 }
             }
         }
@@ -608,7 +620,7 @@ async function init() {
         if (localNote.synchronized)
         {
             // note was deleted on the server; remove local note
-            removeNote(localNote);
+            _notes.splice(_notes.indexOf(localNote), 1);
         }
         else
         {
@@ -618,7 +630,7 @@ async function init() {
             let newNote = await ApiService.createNote(localNote);
             if (newNote != null)
             {
-                updateNote(localNote, newNote);
+                changeNote(localNote, newNote);
             }
         }
     }
@@ -632,7 +644,7 @@ async function init() {
         return localNotes.filter(localNote =>
             (joinedNotes.find(note => note.local.id == localNote.id) == undefined) || localNote.local)
     }
-    
+
     function Note() {
         this.id = 0;
         this.text = '';
