@@ -460,12 +460,14 @@ async function init() {
         addNoteElements();
     }
 
-    async function importNotes() {
-        const reader = new FileReader();
-        reader.readAsText(importInput.files[0]);
-        reader.onload = async () => {
-            let importedNotes = JSON.parse(reader.result);
+    async function exportNotes() {
+        LocalDataManager.exportNotes(_notes);
+    }
 
+    async function importNotes() {
+        let importedNotes = await LocalDataManager.importNotes(importInput.files[0]);
+
+        if (importedNotes != null) {
             importedNotes.forEach(note => {
                 note.local = true;
                 note.synchronized = false;
@@ -477,20 +479,9 @@ async function init() {
             if (await ApiService.bulkCreateNotes(importedNotes)) {
                 await listNotes();
             }
-        };
+        }
     }
 
-    async function exportNotes() {
-        let notesJson = JSON.stringify(_notes, null, 2);
-        let blob = new Blob([notesJson], {
-            type: "application/json"
-        });
-        let a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `ExportedNotes-${new Date().toLocaleDateString()}.json`;
-        a.click();
-    }
-    
     async function toggleShowArchived() {
         _showArchived = !_showArchived;
         addNoteElements();

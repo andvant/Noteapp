@@ -1,10 +1,12 @@
-﻿using Noteapp.Desktop.Dtos;
+﻿using Microsoft.Win32;
+using Noteapp.Desktop.Dtos;
 using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -92,6 +94,33 @@ namespace Noteapp.Desktop.LocalData
             {
                 File.Delete(_notesPath);
             }
+        }
+
+        public static void ExportNotes(IEnumerable<Note> notes)
+        {
+            var saveDialog = new SaveFileDialog()
+            {
+                FileName = $"ExportedNotes-{DateTime.Now.ToShortDateString()}",
+                Filter = "JSON file|*.json"
+            };
+            var success = saveDialog.ShowDialog();
+            if (success == true)
+            {
+                File.WriteAllText(saveDialog.FileName, notes.ToJson());
+            }
+        }
+
+        public static IEnumerable<Note> ImportNotes()
+        {
+            var openDialog = new OpenFileDialog()
+            {
+                Filter = "JSON file|*.json"
+            };
+            var success = openDialog.ShowDialog();
+            if (success == false) return null;
+
+            string notesJson = File.ReadAllText(openDialog.FileName);
+            return notesJson.FromJson<IEnumerable<Note>>().ToList();
         }
     }
 }

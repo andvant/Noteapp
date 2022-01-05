@@ -1,13 +1,10 @@
-﻿using Microsoft.Win32;
-using Noteapp.Desktop.Extensions;
-using Noteapp.Desktop.LocalData;
+﻿using Noteapp.Desktop.LocalData;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -336,37 +333,21 @@ namespace Noteapp.Desktop.ViewModels
 
         private void Export()
         {
-            var dialog = new SaveFileDialog()
-            {
-                FileName = $"ExportedNotes-{DateTime.Now.ToShortDateString()}",
-                Filter = "JSON file|*.json"
-            };
-            var result = dialog.ShowDialog();
-            if (result == true)
-            {
-                File.WriteAllText(dialog.FileName, Notes.ToJson());
-            }
+            LocalDataManager.ExportNotes(Notes);
         }
 
         private async void Import()
         {
-            var dialog = new OpenFileDialog()
-            {
-                Filter = "JSON file|*.json"
-            };
-            var result = dialog.ShowDialog();
+            var importedNotes = LocalDataManager.ImportNotes();
 
-            if (result == true)
+            if (importedNotes != null)
             {
-                string json = File.ReadAllText(dialog.FileName);
-                var importedNotes = json.FromJson<IEnumerable<Note>>().ToList();
-
-                importedNotes.ForEach(note =>
+                foreach (var note in importedNotes)
                 {
                     note.Id = 0;
                     note.Local = true;
                     note.Synchronized = false;
-                });
+                }
 
                 Notes = CreateNoteCollection(Notes.Concat(importedNotes));
                 LocalDataManager.SaveNotes(Notes);

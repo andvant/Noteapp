@@ -5,7 +5,9 @@ let LocalDataManager = {
     loadUserInfoToMemory,
     getNotes,
     saveNotes,
-    deleteNotes
+    deleteNotes,
+    exportNotes,
+    importNotes
 }
 
 let _userInfo = null;
@@ -39,6 +41,25 @@ function saveNotes(notes) {
 
 function deleteNotes() {
     localStorage.removeItem('notes');
+}
+
+function exportNotes(notes) {
+    let notesJson = JSON.stringify(notes, null, 2);
+    let blob = new Blob([notesJson], {
+        type: "application/json"
+    });
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `ExportedNotes-${new Date().toLocaleDateString()}.json`;
+    a.click();
+}
+
+function importNotes(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(JSON.parse(reader.result));
+        reader.readAsText(file);
+    });
 }
 
 export default LocalDataManager;
