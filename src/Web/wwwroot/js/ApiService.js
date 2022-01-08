@@ -87,7 +87,7 @@ async function sendRequest(url, method, headers = {}, body = null) {
 
 function addAuthorizationHeader(headers) {
     let userInfo = LocalDataManager.getUserInfo();
-    if (userInfo != null) {
+    if (userInfo.access_token != null) {
         headers['Authorization'] = `Bearer ${userInfo.access_token}`;
     }
 }

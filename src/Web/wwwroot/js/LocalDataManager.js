@@ -18,11 +18,11 @@ function saveUserInfo(userInfo) {
 }
 
 function getUserInfo() {
-    return _userInfo;
+    return _userInfo ?? {};
 }
 
 function loadUserInfoToMemory() {
-    _userInfo = localStorage.getItem('userInfo');
+    _userInfo = JSON.parse(localStorage.getItem('userInfo'));
 }
 
 function deleteUserInfo() {

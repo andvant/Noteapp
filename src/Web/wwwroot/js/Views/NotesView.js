@@ -8,12 +8,18 @@ let _selectedNote = null;
 let _snapshots;
 let _showArchived = false;
 let _oldNoteText;
-let _sortByUpdatedDescending = false;
-let _sortByCreatedDescending = false;
-let _sortByTextDescending = false;
 
 const SAVE_DELAY_MS = 1000;
 let _notesCurrentlyBeingSaved = new Set();
+
+const NotesSorting = Object.freeze({
+    ByCreatedAscending: 0,
+    ByCreatedDescending: 1,
+    ByUpdatedAscending: 2,
+    ByUpdatedDescending: 3,
+    ByTextAscending: 4,
+    ByTextDescending: 5
+})
 
 async function render() {
     return /*html*/ `
@@ -159,8 +165,10 @@ async function init() {
 
     function getShownNotes() {
         let notes = _notes.slice();
+        notes = notes.filter(note => note.archived == _showArchived);
+        sortByChosenProperty(notes);
         notes.sort((noteLeft, noteRight) => noteLeft.pinned === noteRight.pinned ? 0 : noteLeft.pinned ? -1 : 1);
-        return notes.filter(note => note.archived == _showArchived);
+        return notes;
     }
 
     async function listNotes() {
@@ -287,10 +295,12 @@ async function init() {
 
     function addNoteElements() {
         let notes = getShownNotes();
+        let selectedNote = _selectedNote;
         notesListDiv.innerHTML = '';
         for (let note of notes) {
             notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
         }
+        selectNote(selectedNote);
     }
 
     function getNoteElement(note) {
@@ -313,7 +323,7 @@ async function init() {
 
     function selectNote(note) {
         getNoteElement(_selectedNote)?.classList.remove('note-selected');
-        getNoteElement(note).classList.add('note-selected');
+        getNoteElement(note)?.classList.add('note-selected');
         _selectedNote = note;
         updateSelectedNoteElements();
     }
@@ -434,30 +444,51 @@ async function init() {
     }
 
     function sortByCreated() {
-        _notes.sort((note1, note2) => new Date(note2.created) - new Date(note1.created));
-        if (_sortByCreatedDescending) _notes.reverse();
-        _sortByCreatedDescending = !_sortByCreatedDescending;
-        _sortByUpdatedDescending = false;
-        _sortByTextDescending = false;
-        addNoteElements();
+        sort(NotesSorting.ByCreatedAscending, NotesSorting.ByCreatedDescending);
     }
 
     function sortByUpdated() {
-        _notes.sort((note1, note2) => new Date(note2.updated) - new Date(note1.updated));
-        if (_sortByUpdatedDescending) _notes.reverse();
-        _sortByUpdatedDescending = !_sortByUpdatedDescending;
-        _sortByCreatedDescending = false;
-        _sortByTextDescending = false;
-        addNoteElements();
+        sort(NotesSorting.ByUpdatedAscending, NotesSorting.ByUpdatedDescending);
     }
 
     function sortByText() {
-        _notes.sort((note1, note2) => note1.text.localeCompare(note2.text));
-        if (_sortByTextDescending) _notes.reverse();
-        _sortByTextDescending = !_sortByTextDescending;
-        _sortByCreatedDescending = false;
-        _sortByUpdatedDescending = false;
+        sort(NotesSorting.ByTextAscending, NotesSorting.ByTextDescending);
+    }
+
+    function sort(sortingAscending, sortingDescending) {
+        let userInfo = LocalDataManager.getUserInfo();
+        userInfo.notesSorting = userInfo.notesSorting === sortingAscending ? sortingDescending : sortingAscending;
+        LocalDataManager.saveUserInfo(userInfo);
         addNoteElements();
+    }
+
+    function sortByChosenProperty(notes) {
+        let compareFn;
+        let sorting = LocalDataManager.getUserInfo().notesSorting;
+        switch (sorting) {
+            case NotesSorting.ByCreatedAscending:
+                compareFn = (note1, note2) => new Date(note1.created) - new Date(note2.created);
+                break;
+            case NotesSorting.ByCreatedDescending:
+                compareFn = (note1, note2) => new Date(note2.created) - new Date(note1.created);
+                break;
+            case NotesSorting.ByUpdatedAscending:
+                compareFn = (note1, note2) => new Date(note1.updated) - new Date(note2.updated);
+                break;
+            case NotesSorting.ByUpdatedDescending:
+                compareFn = (note1, note2) => new Date(note2.updated) - new Date(note1.updated);
+                break;
+            case NotesSorting.ByTextAscending:
+                compareFn = (note1, note2) => note1.text.localeCompare(note2.text);
+                break;
+            case NotesSorting.ByTextDescending:
+                compareFn = (note1, note2) => note2.text.localeCompare(note1.text);
+                break;
+            default:
+                compareFn = (note1, note2) => 0;
+                break;
+        }
+        notes.sort(compareFn);
     }
 
     async function exportNotes() {
