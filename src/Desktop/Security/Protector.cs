@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Noteapp.Desktop.LocalData;
+using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -8,7 +9,45 @@ namespace Noteapp.Desktop.Security
 {
     public static class Protector
     {
-        public static async Task<string> Encrypt(string text, string encryptionKey)
+        public static async Task<string> TryEncrypt(string text)
+        {
+            var userInfo = LocalDataManager.GetUserInfo();
+
+            if (userInfo is null || !userInfo.EncryptionEnabled)
+            {
+                return text;
+            }
+
+            return await Encrypt(text, userInfo.EncryptionKey);
+        }
+
+        public static async Task<string> TryDecrypt(string text)
+        {
+            var userInfo = LocalDataManager.GetUserInfo();
+
+            if (userInfo is null || !userInfo.EncryptionEnabled)
+            {
+                return text;
+            }
+
+            try
+            {
+                return await Decrypt(text, userInfo.EncryptionKey);
+            }
+            catch // text was not encrypted and thus could not be decrypted
+            {
+                return text;
+            }
+        }
+
+        public static string GenerateEncryptionKey(string password, string salt)
+        {
+            var pbkdf2 = new Rfc2898DeriveBytes(password, Encoding.UTF8.GetBytes(salt));
+            var encryptionKey = pbkdf2.GetBytes(32);
+            return Convert.ToBase64String(encryptionKey);
+        }
+
+        private static async Task<string> Encrypt(string text, string encryptionKey)
         {
             var aes = Aes.Create();
             aes.Key = Convert.FromBase64String(encryptionKey);
@@ -30,7 +69,7 @@ namespace Noteapp.Desktop.Security
             return Convert.ToBase64String(encryptedBytes);
         }
 
-        public static async Task<string> Decrypt(string cipher, string encryptionKey)
+        private static async Task<string> Decrypt(string cipher, string encryptionKey)
         {
             var aes = Aes.Create();
             aes.Key = Convert.FromBase64String(encryptionKey);
@@ -50,13 +89,6 @@ namespace Noteapp.Desktop.Security
                     }
                 }
             }
-        }
-
-        public static string GenerateEncryptionKey(string password, string salt)
-        {
-            var pbkdf2 = new Rfc2898DeriveBytes(password, Encoding.UTF8.GetBytes(salt));
-            var encryptionKey = pbkdf2.GetBytes(32);
-            return Convert.ToBase64String(encryptionKey);
         }
     }
 }

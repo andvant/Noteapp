@@ -40,7 +40,7 @@ namespace Noteapp.Desktop.Networking
             foreach (var note in notes)
             {
                 var noteRequest = new NoteRequest(note);
-                noteRequest.Text = await TryEncrypt(noteRequest.Text);
+                noteRequest.Text = await Protector.TryEncrypt(noteRequest.Text);
                 noteRequests.Add(noteRequest);
             }
 
@@ -126,13 +126,13 @@ namespace Noteapp.Desktop.Networking
         private async Task<Note> GetUpdatedNoteFromServer(HttpRequestMessage request, Note note)
         {
             var noteRequest = new NoteRequest(note);
-            noteRequest.Text = await TryEncrypt(noteRequest.Text);
+            noteRequest.Text = await Protector.TryEncrypt(noteRequest.Text);
             request.Content = JsonContent.Create(noteRequest);
             var response = await SendRequest(request);
 
             if (response == null) return null;
             var returnedNote = await response.Content.ReadFromJsonAsync<Note>();
-            returnedNote.Text = await TryDecrypt(returnedNote.Text);
+            returnedNote.Text = await Protector.TryDecrypt(returnedNote.Text);
             return returnedNote;
         }
 
@@ -142,7 +142,7 @@ namespace Noteapp.Desktop.Networking
             var notes = await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
             foreach (var note in notes)
             {
-                note.Text = await TryDecrypt(note.Text);
+                note.Text = await Protector.TryDecrypt(note.Text);
             }
             return notes;
         }
@@ -153,40 +153,9 @@ namespace Noteapp.Desktop.Networking
             var snapshots = await response.Content.ReadFromJsonAsync<IEnumerable<NoteSnapshot>>();
             foreach (var snapshot in snapshots)
             {
-                snapshot.Text = await TryDecrypt(snapshot.Text);
+                snapshot.Text = await Protector.TryDecrypt(snapshot.Text);
             }
             return snapshots;
-        }
-
-        private async Task<string> TryDecrypt(string text)
-        {
-            var userInfo = LocalDataManager.GetUserInfo();
-
-            if (userInfo is null || !userInfo.EncryptionEnabled)
-            {
-                return text;
-            }
-
-            try
-            {
-                return await Protector.Decrypt(text, userInfo.EncryptionKey);
-            }
-            catch // text was not encrypted and thus could not be decrypted
-            {
-                return text;
-            }
-        }
-
-        private async Task<string> TryEncrypt(string text)
-        {
-            var userInfo = LocalDataManager.GetUserInfo();
-
-            if (userInfo is null || !userInfo.EncryptionEnabled)
-            {
-                return text;
-            }
-
-            return await Protector.Encrypt(text, userInfo.EncryptionKey);
         }
     }
 }
