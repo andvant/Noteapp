@@ -1,10 +1,13 @@
-﻿namespace Noteapp.Desktop.Session
+﻿using Noteapp.Desktop.Models;
+
+namespace Noteapp.Desktop.Session
 {
     public class UserInfo
     {
+        public string Email { get; set; } = "Anonymous";
         public string AccessToken { get; set; }
-        public string Email { get; set; }
         public string EncryptionKey { get; set; }
-        public bool EncryptionEnabled { get; set; } = true;
+        public bool EncryptionEnabled { get; set; } = false;
+        public NotesSorting NotesSorting { get; set; } = NotesSorting.ByUpdatedAscending;
     }
 }

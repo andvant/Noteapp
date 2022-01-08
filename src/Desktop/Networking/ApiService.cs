@@ -117,7 +117,7 @@ namespace Noteapp.Desktop.Networking
         private void AddAuthorizationHeader(HttpRequestMessage request)
         {
             var userInfo = LocalDataManager.GetUserInfo();
-            if (!string.IsNullOrWhiteSpace(userInfo?.AccessToken))
+            if (!string.IsNullOrWhiteSpace(userInfo.AccessToken))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", userInfo.AccessToken);
             }

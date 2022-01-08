@@ -12,8 +12,8 @@ namespace Noteapp.Desktop.ViewModels
 
         private readonly ApiService _apiService;
 
-        public string Email => LocalDataManager.GetUserInfo()?.Email ?? "Anonymous";
-        public bool EncryptionEnabled => LocalDataManager.GetUserInfo()?.EncryptionEnabled ?? false;
+        public string Email => LocalDataManager.GetUserInfo().Email;
+        public bool EncryptionEnabled => LocalDataManager.GetUserInfo().EncryptionEnabled;
 
         public ICommand LogoutCommand { get; }
         public ICommand DeleteAccountCommand { get; }
@@ -48,7 +48,7 @@ namespace Noteapp.Desktop.ViewModels
         private async void ToggleEncryption()
         {
             var userInfo = LocalDataManager.GetUserInfo();
-            if (userInfo is null)
+            if (string.IsNullOrWhiteSpace(userInfo.EncryptionKey))
             {
                 MessageBox.Show("You have to be logged in to enable encryption!");
                 return;

@@ -1,4 +1,5 @@
-﻿using Noteapp.Desktop.LocalData;
+﻿using Noteapp.Desktop.Extensions;
+using Noteapp.Desktop.LocalData;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
@@ -17,9 +18,6 @@ namespace Noteapp.Desktop.ViewModels
         public string Name => PageNames.Notes;
 
         private readonly ApiService _apiService;
-        private bool _descendingUpdated;
-        private bool _descendingCreated;
-        private bool _descendingText;
         private string _webBaseUrl;
 
         private const int SAVE_DELAY_MS = 1000;
@@ -38,6 +36,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public IEnumerable<Note> ShownNotes => Notes
             .Where(note => note.Archived == ShowArchived)
+            .Sort(LocalDataManager.GetUserInfo().NotesSorting)
             .OrderBy(note => !note.Pinned);
 
         private Note _selectedNote;
@@ -179,7 +178,7 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(newLocalNote, newNote);
             }
 
-            LocalDataManager.SaveNotes(Notes);
+            await LocalDataManager.SaveNotes(Notes);
         }
 
         private async Task<bool> Save(Note note)
@@ -195,7 +194,7 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(note, updatedNote);
             }
 
-            LocalDataManager.SaveNotes(Notes);
+            await LocalDataManager.SaveNotes(Notes);
 
             return updatedNote != null;
         }
@@ -231,7 +230,7 @@ namespace Noteapp.Desktop.ViewModels
                 await _apiService.DeleteNote(note.Id);
             }
 
-            LocalDataManager.SaveNotes(Notes);
+            await LocalDataManager.SaveNotes(Notes);
         }
 
         private async void ToggleLocked()
@@ -267,7 +266,7 @@ namespace Noteapp.Desktop.ViewModels
             {
                 note.Published = !note.Published;
                 note.Synchronized = synchronizedBeforePublishing;
-                LocalDataManager.SaveNotes(Notes);
+                await LocalDataManager.SaveNotes(Notes);
             }
         }
 
@@ -283,47 +282,26 @@ namespace Noteapp.Desktop.ViewModels
             }
         }
 
-        private void SortByCreated()
+        private async void SortByCreated()
         {
-            var notes = new List<Note>(Notes);
-            Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note2.Created, note1.Created);
-            notes.Sort(comparison);
-
-            if (_descendingCreated) notes.Reverse();
-            _descendingCreated = !_descendingCreated;
-            _descendingText = false;
-            _descendingUpdated = false;
-
-            Notes = CreateNoteCollection(notes);
+            await Sort(NotesSorting.ByCreatedAscending, NotesSorting.ByCreatedDescending);
         }
 
-        private void SortByUpdated()
+        private async void SortByUpdated()
         {
-            var notes = new List<Note>(Notes);
-            Comparison<Note> comparison = (note1, note2) => DateTime.Compare(note2.Updated, note1.Updated);
-            notes.Sort(comparison);
-
-            if (_descendingUpdated) notes.Reverse();
-            _descendingUpdated = !_descendingUpdated;
-            _descendingCreated = false;
-            _descendingText = false;
-
-            Notes = CreateNoteCollection(notes);
+            await Sort(NotesSorting.ByUpdatedAscending, NotesSorting.ByUpdatedDescending);
         }
 
-        private void SortByText()
+        private async void SortByText()
         {
-            var notes = new List<Note>(Notes);
-            Comparison<Note> comparison = (note1, note2) => string.Compare(note1.Text, note2.Text,
-                StringComparison.CurrentCultureIgnoreCase);
-            notes.Sort(comparison);
-
-            if (_descendingText) notes.Reverse();
-            _descendingText = !_descendingText;
-            _descendingCreated = false;
-            _descendingUpdated = false;
-
-            Notes = CreateNoteCollection(notes);
+            await Sort(NotesSorting.ByTextAscending, NotesSorting.ByTextDescending);
+        }
+        private async Task Sort(NotesSorting sortingAscending, NotesSorting sortingDescending)
+        {
+            var userInfo = LocalDataManager.GetUserInfo();
+            userInfo.NotesSorting = userInfo.NotesSorting == sortingAscending ? sortingDescending : sortingAscending;
+            await LocalDataManager.SaveUserInfo(userInfo);
+            OnPropertyChanged(nameof(ShownNotes));
         }
 
         private bool CanSort()
@@ -331,14 +309,14 @@ namespace Noteapp.Desktop.ViewModels
             return ShownNotes?.Count() > 0;
         }
 
-        private void Export()
+        private async void Export()
         {
-            LocalDataManager.ExportNotes(Notes);
+            await LocalDataManager.ExportNotes(Notes);
         }
 
         private async void Import()
         {
-            var importedNotes = LocalDataManager.ImportNotes();
+            var importedNotes = await LocalDataManager.ImportNotes();
 
             if (importedNotes != null)
             {
@@ -350,7 +328,7 @@ namespace Noteapp.Desktop.ViewModels
                 }
 
                 Notes = CreateNoteCollection(Notes.Concat(importedNotes));
-                LocalDataManager.SaveNotes(Notes);
+                await LocalDataManager.SaveNotes(Notes);
 
                 if (await _apiService.BulkCreateNotes(importedNotes))
                 {
@@ -451,7 +429,7 @@ namespace Noteapp.Desktop.ViewModels
                 await SynchronizeLocalNote(localNote);
             }
 
-            LocalDataManager.SaveNotes(Notes);
+            await LocalDataManager.SaveNotes(Notes);
         }
 
         private async Task SynchronizeJoinedNote((Note local, Note fetched) note)

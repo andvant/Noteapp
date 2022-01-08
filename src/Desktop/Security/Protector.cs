@@ -12,20 +12,17 @@ namespace Noteapp.Desktop.Security
         public static async Task<string> TryEncrypt(string text)
         {
             var userInfo = LocalDataManager.GetUserInfo();
-
-            if (userInfo is null || !userInfo.EncryptionEnabled)
+            if (!userInfo.EncryptionEnabled)
             {
                 return text;
             }
-
             return await Encrypt(text, userInfo.EncryptionKey);
         }
 
         public static async Task<string> TryDecrypt(string text)
         {
             var userInfo = LocalDataManager.GetUserInfo();
-
-            if (userInfo is null || !userInfo.EncryptionEnabled)
+            if (!userInfo.EncryptionEnabled)
             {
                 return text;
             }

@@ -6,7 +6,6 @@ using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -26,7 +25,8 @@ namespace Noteapp.Desktop.LocalData
             {
                 AccessToken = userInfoDto.access_token,
                 Email = userInfoDto.email,
-                EncryptionKey = encryptionKey
+                EncryptionKey = encryptionKey,
+                EncryptionEnabled = true
             };
 
             await SaveUserInfo(userInfo);
@@ -40,15 +40,14 @@ namespace Noteapp.Desktop.LocalData
 
         public static UserInfo GetUserInfo()
         {
-            return Application.Current.Properties["userInfo"] as UserInfo;
+            return Application.Current.Properties["userInfo"] as UserInfo ?? new UserInfo();
         }
 
         private static UserInfo GetUserInfoFromFile()
         {
             try
             {
-                var userInfoJson = File.ReadAllText(_userInfoPath);
-                return userInfoJson.FromJson<UserInfo>();
+                return File.ReadAllText(_userInfoPath).FromJson<UserInfo>();
             }
             catch
             {
@@ -83,9 +82,9 @@ namespace Noteapp.Desktop.LocalData
             }
         }
 
-        public static void SaveNotes(IEnumerable<Note> notes)
+        public static async Task SaveNotes(IEnumerable<Note> notes)
         {
-            File.WriteAllText(_notesPath, notes.ToJson());
+            await File.WriteAllTextAsync(_notesPath, notes.ToJson());
         }
 
         public static void DeleteNotes()
@@ -96,7 +95,7 @@ namespace Noteapp.Desktop.LocalData
             }
         }
 
-        public static void ExportNotes(IEnumerable<Note> notes)
+        public static async Task ExportNotes(IEnumerable<Note> notes)
         {
             var saveDialog = new SaveFileDialog()
             {
@@ -106,11 +105,11 @@ namespace Noteapp.Desktop.LocalData
             var success = saveDialog.ShowDialog();
             if (success == true)
             {
-                File.WriteAllText(saveDialog.FileName, notes.ToJson());
+                await File.WriteAllTextAsync(saveDialog.FileName, notes.ToJson());
             }
         }
 
-        public static IEnumerable<Note> ImportNotes()
+        public static async Task<IEnumerable<Note>> ImportNotes()
         {
             var openDialog = new OpenFileDialog()
             {
@@ -119,8 +118,8 @@ namespace Noteapp.Desktop.LocalData
             var success = openDialog.ShowDialog();
             if (success == false) return null;
 
-            string notesJson = File.ReadAllText(openDialog.FileName);
-            return notesJson.FromJson<IEnumerable<Note>>().ToList();
+            string notesJson = await File.ReadAllTextAsync(openDialog.FileName);
+            return notesJson.FromJson<IEnumerable<Note>>();
         }
     }
 }
