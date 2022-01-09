@@ -1,6 +1,7 @@
 ﻿using Noteapp.Desktop.LocalData;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
+using System;
 using System.Windows;
 using System.Windows.Input;
 
@@ -14,6 +15,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public string Email => LocalDataManager.GetUserInfo().Email;
         public bool EncryptionEnabled => LocalDataManager.GetUserInfo().EncryptionEnabled;
+        public DateTime RegistrationDate => LocalDataManager.GetUserInfo().RegistrationDate;
 
         public ICommand LogoutCommand { get; }
         public ICommand DeleteAccountCommand { get; }

@@ -2,7 +2,6 @@
 using Noteapp.Desktop.Dtos;
 using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
-using Noteapp.Desktop.Session;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,8 +22,9 @@ namespace Noteapp.Desktop.LocalData
         {
             var userInfo = new UserInfo()
             {
-                AccessToken = userInfoDto.access_token,
                 Email = userInfoDto.email,
+                AccessToken = userInfoDto.access_token,
+                RegistrationDate = DateTime.Parse(userInfoDto.registration_date),
                 EncryptionKey = encryptionKey,
                 EncryptionEnabled = true
             };

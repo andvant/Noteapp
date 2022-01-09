@@ -1,5 +1,6 @@
 ﻿import ApiService from "../ApiService.js";
 import LocalDataManager from "../LocalDataManager.js";
+import Utils from "../Utils.js";
 
 let NotesView = { render, init }
 
@@ -336,7 +337,7 @@ async function init() {
     }
 
     function createNoteHtml(note) {
-        note.elementId = generateNoteElementId();
+        note.elementId = Utils.generateUniqueId();
         let textPreview = note.text == '' ? "New note..." : note.text?.split(/\r?\n/)[0]?.substring(0, 30);
 
         return /*html*/ `
@@ -348,28 +349,8 @@ async function init() {
                     <label class="note-published" style="display: ${note.published ? "inline-block" : "none"};">Published</label>
                 </div>
                 <div><strong>${textPreview}</strong></div>
-                <div>Updated: ${dateToLocaleString(note.updated)}</div>
+                <div>Updated: ${Utils.dateToLocaleString(note.updated)}</div>
             </div>`
-    }
-
-    function generateNoteElementId()
-    {
-        const ALPHABET = 'abcdef0123456789';
-        const ELEMENT_ID_LENGTH = 8;
-
-        let elementId = '';
-        for (let i = 0; i < ELEMENT_ID_LENGTH; i++)
-        {
-            let index = Math.floor((Math.random() * 1_000_000_000) % ALPHABET.length)
-            elementId += ALPHABET[index];
-        }
-
-        return elementId;
-    }
-
-    function dateToLocaleString(date) {
-        let options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-        return new Date(date).toLocaleString({}, options);
     }
 
     function updateSelectedNoteElements() {
@@ -432,7 +413,7 @@ async function init() {
     }
 
     function updateHistorySlider() {
-        snapshotDateDiv.textContent = dateToLocaleString(_snapshots[historySlider.value].created);
+        snapshotDateDiv.textContent = Utils.dateToLocaleString(_snapshots[historySlider.value].created);
         setTextElementValue(_snapshots[historySlider.value].text);
     }
 

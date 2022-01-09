@@ -30,13 +30,14 @@ namespace Noteapp.Api.Controllers
         [HttpPost("token")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
-            await _userService.ValidatePassword(request.Email, request.Password);
+            var user = await _userService.Get(request.Email, request.Password);
 
             return Ok(new UserInfoResponse
             (
-                access_token: await _tokenService.GenerateToken(request.Email),
-                email: request.Email,
-                encryption_salt: await _userService.GetEncryptionSalt(request.Email)
+                access_token: await _tokenService.GenerateToken(user.Email),
+                email: user.Email,
+                encryption_salt: user.EncryptionSalt,
+                registration_date: user.RegistrationDate
             ));
         }
 

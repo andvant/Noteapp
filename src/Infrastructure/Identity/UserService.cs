@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
@@ -32,13 +33,10 @@ namespace Noteapp.Infrastructure.Identity
             await _appUserService.Create(email);
         }
 
-        public async Task ValidatePassword(string email, string password)
+        public async Task<AppUser> Get(string email, string password)
         {
-            var userIdentity = await _userManager.FindByEmailAsync(email);
-            if (!await _userManager.CheckPasswordAsync(userIdentity, password))
-            {
-                throw new CredentialsNotValidException();
-            }
+            await ValidatePassword(email, password);
+            return await _appUserService.Get(email);
         }
 
         public async Task Delete(int userId)
@@ -50,10 +48,13 @@ namespace Noteapp.Infrastructure.Identity
             await _appUserService.Delete(userId);
         }
 
-        public async Task<string> GetEncryptionSalt(string email)
+        private async Task ValidatePassword(string email, string password)
         {
-            var user = await _appUserService.Get(email);
-            return user.EncryptionSalt;
+            var userIdentity = await _userManager.FindByEmailAsync(email);
+            if (!await _userManager.CheckPasswordAsync(userIdentity, password))
+            {
+                throw new CredentialsNotValidException();
+            }
         }
     }
 }

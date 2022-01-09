@@ -296,6 +296,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             await Sort(NotesSorting.ByTextAscending, NotesSorting.ByTextDescending);
         }
+
         private async Task Sort(NotesSorting sortingAscending, NotesSorting sortingDescending)
         {
             var userInfo = LocalDataManager.GetUserInfo();
