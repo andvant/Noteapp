@@ -35,7 +35,7 @@ namespace Noteapp.Desktop.ViewModels
         }
 
         public IEnumerable<Note> ShownNotes => Notes
-            .Where(note => note.Archived == ShowArchived)
+            .Where(note => (note.Archived == ShowArchived) && !note.Deleted)
             .Sort(LocalDataManager.GetUserInfo().NotesSorting)
             .OrderBy(note => !note.Pinned);
 
@@ -218,11 +218,21 @@ namespace Noteapp.Desktop.ViewModels
         private async void Delete()
         {
             var note = SelectedNote;
-            Notes.Remove(note);
-            SelectFirstNote();
-            if (!note.Local)
+
+            if (note.Local)
             {
-                await _apiService.DeleteNote(note.Id);
+                Notes.Remove(note);
+                SelectFirstNote();
+            }
+            else
+            {
+                note.Deleted = true;
+                note.Synchronized = true;
+                SelectFirstNote();
+                if (await _apiService.DeleteNote(note.Id))
+                {
+                    Notes.Remove(note);
+                }
             }
 
             await LocalDataManager.SaveNotes(Notes);
@@ -447,7 +457,14 @@ namespace Noteapp.Desktop.ViewModels
                 }
                 else
                 {
-                    // note is up-to-date with the server; do nothing
+                    // note is up-to-date with the server; resend delete request for locally deleted note
+                    if (note.local.Deleted)
+                    {
+                        if (await _apiService.DeleteNote(note.local.Id))
+                        {
+                            Notes.Remove(note.local);
+                        }
+                    }
                 }
             }
             else
@@ -478,7 +495,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private async Task SynchronizeLocalNote(Note localNote)
         {
-            if (localNote.Synchronized)
+            if (localNote.Synchronized || localNote.Deleted)
             {
                 // note was deleted on the server; remove local note
                 Notes.Remove(localNote);

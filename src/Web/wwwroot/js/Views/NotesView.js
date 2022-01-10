@@ -166,7 +166,7 @@ async function init() {
 
     function getShownNotes() {
         let notes = _notes.slice();
-        notes = notes.filter(note => note.archived == _showArchived);
+        notes = notes.filter(note => (note.archived == _showArchived) && !note.deleted);
         sortByChosenProperty(notes);
         notes.sort((noteLeft, noteRight) => noteLeft.pinned === noteRight.pinned ? 0 : noteLeft.pinned ? -1 : 1);
         return notes;
@@ -214,12 +214,19 @@ async function init() {
 
     async function deleteNote() {
         let note = _selectedNote;
-        removeNote(_selectedNote);
-        selectFirstNote();
-        actionMenu.classList.remove('show');
-
-        if (!note.local) {
-            await ApiService.deleteNote(note.id);
+        if (note.local) {
+            removeNote(note);
+            selectFirstNote();
+            actionMenu.classList.remove('show');
+        }
+        else {
+            note.deleted = true;
+            note.synchronized = true;
+            selectFirstNote();
+            actionMenu.classList.remove('show');
+            if (await ApiService.deleteNote(note.id)) {
+                removeNote(note);
+            }
         }
 
         LocalDataManager.saveNotes(_notes);
@@ -583,7 +590,12 @@ async function init() {
             }
             else
             {
-                // note is up-to-date with the server; do nothing
+                // note is up-to-date with the server; resend delete request for locally deleted note
+                if (note.local.deleted) {
+                    if (await ApiService.deleteNote(note.local.id)) {
+                        _notes.splice(_notes.indexOf(note.local), 1);
+                    }
+                }
             }
         }
         else
@@ -613,7 +625,7 @@ async function init() {
     }
 
     async function synchronizeLocalNote(localNote) {
-        if (localNote.synchronized)
+        if (localNote.synchronized || localNote.deleted)
         {
             // note was deleted on the server; remove local note
             _notes.splice(_notes.indexOf(localNote), 1);
@@ -650,6 +662,7 @@ async function init() {
         this.published = false;
         this.synchronized = false;
         this.local = true;
+        this.deleted = false;
     }
 
     async function createOrUpdateNote(note) {

@@ -71,6 +71,7 @@ namespace Noteapp.Desktop.Models
         public bool TextChanged { get; set; } = false;
         public bool Synchronized { get; set; } = true;
         public bool Local { get; set; } = false;
+        public bool Deleted { get; set; } = false;
 
         public static Note CreateLocalNote()
         {
