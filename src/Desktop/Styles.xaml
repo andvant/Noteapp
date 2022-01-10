@@ -25,7 +25,7 @@
         <Setter Property="FontSize" Value="18" />
     </Style>
 
-    <Style x:Key="SettingsLabel" TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Label}}">
+    <Style x:Key="BigLabel" TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Label}}">
         <Setter Property="FontSize" Value="22" />
     </Style>
 

@@ -15,6 +15,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+        public bool StaySignedIn { get; set; } = true;
 
         public ICommand LoginCommand { get; }
 
@@ -30,7 +31,7 @@ namespace Noteapp.Desktop.ViewModels
             if (userInfoResponse != null)
             {
                 var encryptionKey = Protector.GenerateEncryptionKey(Password, userInfoResponse.encryption_salt);
-                await LocalDataManager.SaveUserInfoResponse(userInfoResponse, encryptionKey);
+                await LocalDataManager.CreateAndSaveUserInfo(userInfoResponse, encryptionKey, StaySignedIn);
                 MessageBox.Show("Successfully logged in.");
             }
         }

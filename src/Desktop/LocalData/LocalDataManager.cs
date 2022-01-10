@@ -18,7 +18,9 @@ namespace Noteapp.Desktop.LocalData
 
         private static readonly string _notesPath = "notes.json";
 
-        public static async Task SaveUserInfoResponse(UserInfoResponse userInfoDto, string encryptionKey)
+        private static bool _isPersisted = true;
+
+        public static async Task CreateAndSaveUserInfo(UserInfoResponse userInfoDto, string encryptionKey, bool isPersisted)
         {
             var userInfo = new UserInfo()
             {
@@ -29,13 +31,17 @@ namespace Noteapp.Desktop.LocalData
                 EncryptionEnabled = true
             };
 
+            _isPersisted = isPersisted;
             await SaveUserInfo(userInfo);
         }
 
         public static async Task SaveUserInfo(UserInfo userInfo)
         {
             Application.Current.Properties["userInfo"] = userInfo;
-            await File.WriteAllTextAsync(_userInfoPath, userInfo.ToJson());
+            if (_isPersisted)
+            {
+                await File.WriteAllTextAsync(_userInfoPath, userInfo.ToJson());
+            }
         }
 
         public static UserInfo GetUserInfo()
@@ -84,7 +90,10 @@ namespace Noteapp.Desktop.LocalData
 
         public static async Task SaveNotes(IEnumerable<Note> notes)
         {
-            await File.WriteAllTextAsync(_notesPath, notes.ToJson());
+            if (_isPersisted)
+            {
+                await File.WriteAllTextAsync(_notesPath, notes.ToJson());
+            }
         }
 
         public static void DeleteNotes()

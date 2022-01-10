@@ -24,19 +24,19 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" Content="Email" Style="{StaticResource SettingsLabel}"
+                <Label Grid.Row="0" Grid.Column="0" Content="Email" Style="{StaticResource BigLabel}"
                        HorizontalAlignment="Left" Margin="0,40" />
-                <Label Grid.Row="0" Grid.Column="1" Content="{Binding Email}" Style="{StaticResource SettingsLabel}"
+                <Label Grid.Row="0" Grid.Column="1" Content="{Binding Email}" Style="{StaticResource BigLabel}"
                        HorizontalAlignment="Right" />
 
-                <Label Grid.Row="1" Grid.Column="0" Content="Enable encryption" Style="{StaticResource SettingsLabel}"
+                <Label Grid.Row="1" Grid.Column="0" Content="Enable encryption" Style="{StaticResource BigLabel}"
                        HorizontalAlignment="Left" />
                 <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding EncryptionEnabled, Mode=OneWay}" 
                           Command="{Binding ToggleEncryptionCommand}" HorizontalAlignment="Right"/>
 
-                <Label Grid.Row="2" Grid.Column="0" Content="Registration date" Style="{StaticResource SettingsLabel}"
+                <Label Grid.Row="2" Grid.Column="0" Content="Registration date" Style="{StaticResource BigLabel}"
                        HorizontalAlignment="Left"/>
-                <Label Grid.Row="2" Grid.Column="1" Content="{Binding RegistrationDate, Converter={StaticResource DateTimeConverter}}" Style="{StaticResource SettingsLabel}"
+                <Label Grid.Row="2" Grid.Column="1" Content="{Binding RegistrationDate, Converter={StaticResource DateTimeConverter}}" Style="{StaticResource BigLabel}"
                        HorizontalAlignment="Right" />
             </Grid>
 

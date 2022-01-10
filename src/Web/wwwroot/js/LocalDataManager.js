@@ -1,4 +1,5 @@
 let LocalDataManager = {
+    createAndSaveUserInfo,
     saveUserInfo,
     getUserInfo,
     deleteUserInfo,
@@ -11,10 +12,18 @@ let LocalDataManager = {
 }
 
 let _userInfo = null;
+let _isPersisted = true;
+
+function createAndSaveUserInfo(userInfoResponse, isPersisted) {
+    _isPersisted = isPersisted
+    saveUserInfo(userInfoResponse);
+}
 
 function saveUserInfo(userInfo) {
     _userInfo = userInfo;
-    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+    if (_isPersisted) {
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+    }
 }
 
 function getUserInfo() {
@@ -36,7 +45,9 @@ function getNotes() {
 }
 
 function saveNotes(notes) {
-    localStorage.setItem('notes', JSON.stringify(notes));
+    if (_isPersisted) {
+        localStorage.setItem('notes', JSON.stringify(notes));
+    }
 }
 
 function deleteNotes() {
