@@ -4,6 +4,7 @@ using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,6 +20,8 @@ namespace Noteapp.Desktop.LocalData
         private static readonly string _notesPath = "notes.json";
 
         private static bool _isPersisted = true;
+
+        public static ObservableCollection<Note> Notes { get; set; }
 
         public static async Task CreateAndSaveUserInfo(UserInfoResponse userInfoDto, string encryptionKey, bool isPersisted)
         {
@@ -76,7 +79,7 @@ namespace Noteapp.Desktop.LocalData
             }
         }
 
-        public static IEnumerable<Note> GetNotes()
+        public static IEnumerable<Note> ReadNotes()
         {
             try
             {
@@ -88,23 +91,24 @@ namespace Noteapp.Desktop.LocalData
             }
         }
 
-        public static async Task SaveNotes(IEnumerable<Note> notes)
+        public static async Task SaveNotes()
         {
             if (_isPersisted)
             {
-                await File.WriteAllTextAsync(_notesPath, notes.ToJson());
+                await File.WriteAllTextAsync(_notesPath, Notes.ToJson());
             }
         }
 
         public static void DeleteNotes()
         {
+            Notes.Clear();
             if (File.Exists(_notesPath))
             {
                 File.Delete(_notesPath);
             }
         }
 
-        public static async Task ExportNotes(IEnumerable<Note> notes)
+        public static async Task ExportNotes()
         {
             var saveDialog = new SaveFileDialog()
             {
@@ -114,7 +118,7 @@ namespace Noteapp.Desktop.LocalData
             var success = saveDialog.ShowDialog();
             if (success == true)
             {
-                await File.WriteAllTextAsync(saveDialog.FileName, notes.ToJson());
+                await File.WriteAllTextAsync(saveDialog.FileName, Notes.ToJson());
             }
         }
 

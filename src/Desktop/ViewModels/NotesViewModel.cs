@@ -23,16 +23,17 @@ namespace Noteapp.Desktop.ViewModels
         private const int SAVE_DELAY_MS = 1000;
         private HashSet<Note> _notesCurrentlyBeingSaved = new();
 
-        private ObservableCollection<Note> _notes;
         public ObservableCollection<Note> Notes
         {
-            get => _notes;
+            get => LocalDataManager.Notes;
             set
             {
-                Set(ref _notes, value);
+                LocalDataManager.Notes = value;
+                OnPropertyChanged(nameof(Notes));
                 OnPropertyChanged(nameof(ShownNotes));
             }
         }
+            
 
         public IEnumerable<Note> ShownNotes => Notes
             .Where(note => (note.Archived == ShowArchived) && !note.Deleted)
@@ -147,7 +148,7 @@ namespace Noteapp.Desktop.ViewModels
             ToggleShowArchivedCommand = new RelayCommand(ToggleShowArchived);
             SaveAfterDelayCommand = new RelayCommand(SaveAfterDelay);
 
-            Notes = CreateNoteCollection(LocalDataManager.GetNotes());
+            Notes = CreateNoteCollection(LocalDataManager.ReadNotes());
 
             ListCommand.Execute(null);
         }
@@ -178,7 +179,7 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(newLocalNote, newNote);
             }
 
-            await LocalDataManager.SaveNotes(Notes);
+            await LocalDataManager.SaveNotes();
         }
 
         private async Task Save(Note note)
@@ -191,7 +192,7 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(note, updatedNote);
             }
 
-            await LocalDataManager.SaveNotes(Notes);
+            await LocalDataManager.SaveNotes();
         }
 
         private async void SaveAfterDelay()
@@ -235,7 +236,7 @@ namespace Noteapp.Desktop.ViewModels
                 }
             }
 
-            await LocalDataManager.SaveNotes(Notes);
+            await LocalDataManager.SaveNotes();
         }
 
         private async void ToggleLocked()
@@ -272,7 +273,7 @@ namespace Noteapp.Desktop.ViewModels
             if (updatedNote != null)
             {
                 ChangeNote(note, updatedNote);
-                await LocalDataManager.SaveNotes(Notes);
+                await LocalDataManager.SaveNotes();
             }
         }
 
@@ -318,7 +319,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void Export()
         {
-            await LocalDataManager.ExportNotes(Notes);
+            await LocalDataManager.ExportNotes();
         }
 
         private async void Import()
@@ -335,7 +336,7 @@ namespace Noteapp.Desktop.ViewModels
                 }
 
                 Notes = CreateNoteCollection(Notes.Concat(importedNotes));
-                await LocalDataManager.SaveNotes(Notes);
+                await LocalDataManager.SaveNotes();
 
                 if (await _apiService.BulkCreateNotes(importedNotes))
                 {
@@ -443,7 +444,7 @@ namespace Noteapp.Desktop.ViewModels
                 await SynchronizeLocalNote(localNote);
             }
 
-            await LocalDataManager.SaveNotes(Notes);
+            await LocalDataManager.SaveNotes();
         }
 
         private async Task SynchronizeJoinedNote((Note local, Note fetched) note)
