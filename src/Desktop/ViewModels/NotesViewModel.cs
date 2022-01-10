@@ -181,22 +181,17 @@ namespace Noteapp.Desktop.ViewModels
             await LocalDataManager.SaveNotes(Notes);
         }
 
-        private async Task<bool> Save(Note note)
+        private async Task Save(Note note)
         {
             note.Synchronized = false;
 
-            var updatedNote = note.Local
-                ? await _apiService.CreateNote(note)
-                : await _apiService.UpdateNote(note);
-
+            var updatedNote = await CreateOrUpdateNote(note);
             if (updatedNote != null)
             {
                 ChangeNote(note, updatedNote);
             }
 
             await LocalDataManager.SaveNotes(Notes);
-
-            return updatedNote != null;
         }
 
         private async void SaveAfterDelay()
@@ -243,6 +238,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             SelectedNote.Pinned = !SelectedNote.Pinned;
             await Save(SelectedNote);
+            OnPropertyChanged(nameof(ShownNotes));
         }
 
         private async void ToggleArchived()
@@ -257,15 +253,15 @@ namespace Noteapp.Desktop.ViewModels
         private async void TogglePublished()
         {
             var note = SelectedNote;
-            var synchronizedBeforePublishing = SelectedNote.Synchronized;
+            var noteCopy = note.ToJson().FromJson<Note>();
 
-            SelectedNote.Published = !SelectedNote.Published;
-            var success = await Save(SelectedNote);
+            noteCopy.Published = !noteCopy.Published;
 
-            if (!success)
+            var updatedNote = await CreateOrUpdateNote(noteCopy);
+
+            if (updatedNote != null)
             {
-                note.Published = !note.Published;
-                note.Synchronized = synchronizedBeforePublishing;
+                ChangeNote(note, updatedNote);
                 await LocalDataManager.SaveNotes(Notes);
             }
         }
@@ -401,6 +397,13 @@ namespace Noteapp.Desktop.ViewModels
             var noteCollection = new ObservableCollection<Note>(notes);
             noteCollection.CollectionChanged += (o, e) => OnPropertyChanged(nameof(ShownNotes));
             return noteCollection;
+        }
+
+        private async Task<Note> CreateOrUpdateNote(Note note)
+        {
+            return note.Local
+                ? await _apiService.CreateNote(note)
+                : await _apiService.UpdateNote(note);
         }
 
         private async Task SynchronizeNotes(IEnumerable<Note> fetchedNotes)

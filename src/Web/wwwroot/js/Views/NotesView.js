@@ -203,16 +203,12 @@ async function init() {
         note.synchronized = false;
         updateNote(note, note);
 
-        let updatedNote = note.local
-            ? await ApiService.createNote(note)
-            : await ApiService.updateNote(note);
-
+        let updatedNote = await createOrUpdateNote(note);
         if (updatedNote != null) {
             updateNote(note, updatedNote);
         }
 
         LocalDataManager.saveNotes(_notes);
-
         return updatedNote;
     }
 
@@ -252,15 +248,12 @@ async function init() {
 
     async function togglePublished() {
         let note = _selectedNote;
-        let synchronizedBeforePublishing = _selectedNote.synchronized;
+        let noteCopy = JSON.parse(JSON.stringify(note));
+        noteCopy.published = !noteCopy.published;
 
-        _selectedNote.published = !_selectedNote.published;
-        let updatedNote = await saveNote(_selectedNote);
-
-        if (updatedNote == null)
-        {
-            note.published = !note.published;
-            note.synchronized = synchronizedBeforePublishing;
+        let updatedNote = await createOrUpdateNote(noteCopy);
+        if (updatedNote != null) {
+            updateNote(note, updatedNote);
             LocalDataManager.saveNotes(_notes);
         }
     }
@@ -657,6 +650,10 @@ async function init() {
         this.published = false;
         this.synchronized = false;
         this.local = true;
+    }
+
+    async function createOrUpdateNote(note) {
+        return note.local ? await ApiService.createNote(note) : await ApiService.updateNote(note);
     }
 }
 
