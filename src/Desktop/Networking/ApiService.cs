@@ -1,5 +1,5 @@
-﻿using Noteapp.Desktop.Dtos;
-using Noteapp.Desktop.LocalData;
+﻿using Noteapp.Desktop.Data;
+using Noteapp.Desktop.Dtos;
 using Noteapp.Desktop.Logging;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.Security;
@@ -116,10 +116,9 @@ namespace Noteapp.Desktop.Networking
 
         private void AddAuthorizationHeader(HttpRequestMessage request)
         {
-            var userInfo = LocalDataManager.GetUserInfo();
-            if (!string.IsNullOrWhiteSpace(userInfo.AccessToken))
+            if (!string.IsNullOrWhiteSpace(AppData.UserInfo.AccessToken))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", userInfo.AccessToken);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AppData.UserInfo.AccessToken);
             }
         }
 

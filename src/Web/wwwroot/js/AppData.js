@@ -1,44 +1,41 @@
-let Notes = [];
-
-let LocalDataManager = {
+let AppData = {
     createAndSaveUserInfo,
-    saveUserInfo,
     getUserInfo,
+    saveUserInfo,
     deleteUserInfo,
     loadUserInfoToMemory,
     readNotes,
     saveNotes,
     deleteNotes,
     exportNotes,
-    importNotes,
-    Notes
+    importNotes
 }
 
-let _userInfo = null;
+let _userInfo = {};
 let _isPersisted = true;
 
+function getUserInfo() {
+    return _userInfo;
+}
+
 function createAndSaveUserInfo(userInfoResponse, isPersisted) {
-    _isPersisted = isPersisted
+    _isPersisted = isPersisted;
     saveUserInfo(userInfoResponse);
 }
 
 function saveUserInfo(userInfo) {
     _userInfo = userInfo;
     if (_isPersisted) {
-        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+        localStorage.setItem('userInfo', JSON.stringify(_userInfo));
     }
 }
 
-function getUserInfo() {
-    return _userInfo ?? {};
-}
-
 function loadUserInfoToMemory() {
-    _userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    _userInfo = JSON.parse(localStorage.getItem('userInfo')) ?? {};
 }
 
 function deleteUserInfo() {
-    _userInfo = null;
+    _userInfo = {};
     localStorage.removeItem('userInfo');
 }
 
@@ -47,19 +44,18 @@ function readNotes() {
     return notesJson != null ? JSON.parse(notesJson) : [];
 }
 
-function saveNotes() {
+function saveNotes(notes) {
     if (_isPersisted) {
-        localStorage.setItem('notes', JSON.stringify(Notes));
+        localStorage.setItem('notes', JSON.stringify(notes));
     }
 }
 
 function deleteNotes() {
-    Notes = [];
     localStorage.removeItem('notes');
 }
 
-function exportNotes() {
-    let notesJson = JSON.stringify(Notes, null, 2);
+function exportNotes(notes) {
+    let notesJson = JSON.stringify(notes, null, 2);
     let blob = new Blob([notesJson], {
         type: "application/json"
     });
@@ -77,4 +73,4 @@ function importNotes(file) {
     });
 }
 
-export default LocalDataManager;
+export default AppData;

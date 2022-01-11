@@ -1,11 +1,11 @@
 ﻿import ApiService from "../ApiService.js"
-import LocalDataManager from "../LocalDataManager.js";
+import AppData from "../AppData.js";
 import Utils from "../Utils.js";
 
 let SettingsView = { render, init }
 
 async function render() {
-    let userInfo = LocalDataManager.getUserInfo();
+    let userInfo = AppData.getUserInfo();
     let email = userInfo.email ?? "Anonymous";
     let registrationDate = Utils.dateToLocaleString(userInfo.registration_date) ?? "";
 
@@ -27,8 +27,8 @@ async function init() {
     deleteAccountButton.addEventListener('click', deleteAccount);
 
     function logout() {
-        LocalDataManager.deleteUserInfo();
-        LocalDataManager.deleteNotes();
+        AppData.deleteUserInfo();
+        AppData.deleteNotes();
         alert('Successfully logged out.');
     }
 

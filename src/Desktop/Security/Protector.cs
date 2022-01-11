@@ -1,4 +1,4 @@
-﻿using Noteapp.Desktop.LocalData;
+﻿using Noteapp.Desktop.Data;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -11,25 +11,23 @@ namespace Noteapp.Desktop.Security
     {
         public static async Task<string> TryEncrypt(string text)
         {
-            var userInfo = LocalDataManager.GetUserInfo();
-            if (!userInfo.EncryptionEnabled)
+            if (!AppData.UserInfo.EncryptionEnabled)
             {
                 return text;
             }
-            return await Encrypt(text, userInfo.EncryptionKey);
+            return await Encrypt(text, AppData.UserInfo.EncryptionKey);
         }
 
         public static async Task<string> TryDecrypt(string text)
         {
-            var userInfo = LocalDataManager.GetUserInfo();
-            if (!userInfo.EncryptionEnabled)
+            if (!AppData.UserInfo.EncryptionEnabled)
             {
                 return text;
             }
 
             try
             {
-                return await Decrypt(text, userInfo.EncryptionKey);
+                return await Decrypt(text, AppData.UserInfo.EncryptionKey);
             }
             catch // text was not encrypted and thus could not be decrypted
             {

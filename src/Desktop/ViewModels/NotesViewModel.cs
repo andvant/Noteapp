@@ -1,5 +1,5 @@
-﻿using Noteapp.Desktop.Extensions;
-using Noteapp.Desktop.LocalData;
+﻿using Noteapp.Desktop.Data;
+using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
@@ -25,19 +25,19 @@ namespace Noteapp.Desktop.ViewModels
 
         public ObservableCollection<Note> Notes
         {
-            get => LocalDataManager.Notes;
+            get => AppData.Notes;
             set
             {
-                LocalDataManager.Notes = value;
+                AppData.Notes = value;
                 OnPropertyChanged(nameof(Notes));
                 OnPropertyChanged(nameof(ShownNotes));
             }
         }
-            
+
 
         public IEnumerable<Note> ShownNotes => Notes
             .Where(note => (note.Archived == ShowArchived) && !note.Deleted)
-            .Sort(LocalDataManager.GetUserInfo().NotesSorting)
+            .Sort(AppData.UserInfo.NotesSorting)
             .OrderBy(note => !note.Pinned);
 
         private Note _selectedNote;
@@ -148,7 +148,7 @@ namespace Noteapp.Desktop.ViewModels
             ToggleShowArchivedCommand = new RelayCommand(ToggleShowArchived);
             SaveAfterDelayCommand = new RelayCommand(SaveAfterDelay);
 
-            Notes = CreateNoteCollection(LocalDataManager.ReadNotes());
+            Notes = CreateNoteCollection(AppData.ReadNotes());
 
             ListCommand.Execute(null);
         }
@@ -179,7 +179,7 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(newLocalNote, newNote);
             }
 
-            await LocalDataManager.SaveNotes();
+            await AppData.SaveNotes();
         }
 
         private async Task Save(Note note)
@@ -192,7 +192,7 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(note, updatedNote);
             }
 
-            await LocalDataManager.SaveNotes();
+            await AppData.SaveNotes();
         }
 
         private async void SaveAfterDelay()
@@ -236,7 +236,7 @@ namespace Noteapp.Desktop.ViewModels
                 }
             }
 
-            await LocalDataManager.SaveNotes();
+            await AppData.SaveNotes();
         }
 
         private async void ToggleLocked()
@@ -273,7 +273,7 @@ namespace Noteapp.Desktop.ViewModels
             if (updatedNote != null)
             {
                 ChangeNote(note, updatedNote);
-                await LocalDataManager.SaveNotes();
+                await AppData.SaveNotes();
             }
         }
 
@@ -306,9 +306,9 @@ namespace Noteapp.Desktop.ViewModels
 
         private async Task Sort(NotesSorting sortingAscending, NotesSorting sortingDescending)
         {
-            var userInfo = LocalDataManager.GetUserInfo();
-            userInfo.NotesSorting = userInfo.NotesSorting == sortingAscending ? sortingDescending : sortingAscending;
-            await LocalDataManager.SaveUserInfo(userInfo);
+            AppData.UserInfo.NotesSorting = AppData.UserInfo.NotesSorting == sortingAscending
+                ? sortingDescending : sortingAscending;
+            await AppData.SaveUserInfo();
             OnPropertyChanged(nameof(ShownNotes));
         }
 
@@ -319,12 +319,12 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void Export()
         {
-            await LocalDataManager.ExportNotes();
+            await AppData.ExportNotes();
         }
 
         private async void Import()
         {
-            var importedNotes = await LocalDataManager.ImportNotes();
+            var importedNotes = await AppData.ImportNotes();
 
             if (importedNotes != null)
             {
@@ -336,7 +336,7 @@ namespace Noteapp.Desktop.ViewModels
                 }
 
                 Notes = CreateNoteCollection(Notes.Concat(importedNotes));
-                await LocalDataManager.SaveNotes();
+                await AppData.SaveNotes();
 
                 if (await _apiService.BulkCreateNotes(importedNotes))
                 {
@@ -444,7 +444,7 @@ namespace Noteapp.Desktop.ViewModels
                 await SynchronizeLocalNote(localNote);
             }
 
-            await LocalDataManager.SaveNotes();
+            await AppData.SaveNotes();
         }
 
         private async Task SynchronizeJoinedNote((Note local, Note fetched) note)

@@ -1,5 +1,5 @@
 ﻿import ApiService from "../ApiService.js";
-import LocalDataManager from "../LocalDataManager.js";
+import AppData from "../AppData.js";
 
 let LoginView = { render, init }
 
@@ -24,11 +24,11 @@ async function init() {
         let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
         let staySignedIn = document.getElementById('stay-signed-in').checked;
-        
-        let userInfo = await ApiService.login(email, password);
 
-        if (userInfo != null) {
-            LocalDataManager.createAndSaveUserInfo(userInfo, staySignedIn);
+        let userInfoResponse = await ApiService.login(email, password);
+
+        if (userInfoResponse != null) {
+            AppData.createAndSaveUserInfo(userInfoResponse, staySignedIn);
             alert('Successfully logged in.')
         }
     }

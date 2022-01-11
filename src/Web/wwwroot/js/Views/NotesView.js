@@ -1,9 +1,10 @@
 ﻿import ApiService from "../ApiService.js";
-import LocalDataManager from "../LocalDataManager.js";
+import AppData from "../AppData.js";
 import Utils from "../Utils.js";
 
 let NotesView = { render, init }
 
+let _notes = [];
 let _selectedNote = null;
 let _snapshots;
 let _showArchived = false;
@@ -127,7 +128,7 @@ async function init() {
     const actionMenu = document.getElementById('action-menu');
 
     addListeners();
-    setNotes(LocalDataManager.readNotes());
+    setNotes(AppData.readNotes());
     await listNotes();
 
     function addListeners() {
@@ -164,7 +165,7 @@ async function init() {
     }
 
     function getShownNotes() {
-        let notes = LocalDataManager.Notes.slice();
+        let notes = _notes.slice();
         notes = notes.filter(note => (note.archived == _showArchived) && !note.deleted);
         sortByChosenProperty(notes);
         notes.sort((noteLeft, noteRight) => noteLeft.pinned === noteRight.pinned ? 0 : noteLeft.pinned ? -1 : 1);
@@ -195,7 +196,7 @@ async function init() {
             updateNote(newLocalNote, newNote);
         }
 
-        LocalDataManager.saveNotes();
+        AppData.saveNotes(_notes);
     }
 
     async function saveNote(note) {
@@ -207,7 +208,7 @@ async function init() {
             updateNote(note, updatedNote);
         }
 
-        LocalDataManager.saveNotes();
+        AppData.saveNotes(_notes);
         return updatedNote;
     }
 
@@ -228,7 +229,7 @@ async function init() {
             }
         }
 
-        LocalDataManager.saveNotes();
+        AppData.saveNotes(_notes);
     }
 
     async function toggleLocked() {
@@ -260,23 +261,23 @@ async function init() {
         let updatedNote = await createOrUpdateNote(noteCopy);
         if (updatedNote != null) {
             updateNote(note, updatedNote);
-            LocalDataManager.saveNotes();
+            AppData.saveNotes(_notes);
         }
     }
 
     function addNote(note) {
-        LocalDataManager.Notes.push(note);
+        _notes.push(note);
         notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
     }
 
     function setNotes(notes) {
-        LocalDataManager.Notes = notes;
+        _notes = notes;
         addNoteElements();
         updateSelectedNoteElements();
     }
 
     function removeNote(note) {
-        LocalDataManager.Notes.splice(LocalDataManager.Notes.indexOf(note), 1);
+        _notes.splice(_notes.indexOf(note), 1);
         removeNoteElement(note);
     }
 
@@ -359,13 +360,13 @@ async function init() {
     }
 
     function getNote(noteElement) {
-        return LocalDataManager.Notes.find(note => note.elementId === getNoteElementId(noteElement));
+        return _notes.find(note => note.elementId === getNoteElementId(noteElement));
     }
 
     function changeNote(oldNote, newNote) {
         newNote.elementId = oldNote.elementId;
-        let noteIndex = LocalDataManager.Notes.indexOf(oldNote);
-        LocalDataManager.Notes[noteIndex] = newNote;
+        let noteIndex = _notes.indexOf(oldNote);
+        _notes[noteIndex] = newNote;
     }
 
     function selectFirstNote() {
@@ -436,15 +437,16 @@ async function init() {
     }
 
     function sort(sortingAscending, sortingDescending) {
-        let userInfo = LocalDataManager.getUserInfo();
-        userInfo.notesSorting = userInfo.notesSorting === sortingAscending ? sortingDescending : sortingAscending;
-        LocalDataManager.saveUserInfo(userInfo);
+        let userInfo = AppData.getUserInfo();
+        userInfo.notesSorting = userInfo.notesSorting === sortingAscending
+            ? sortingDescending : sortingAscending;
+        AppData.saveUserInfo(userInfo);
         addNoteElements();
     }
 
     function sortByChosenProperty(notes) {
         let compareFn;
-        let sorting = LocalDataManager.getUserInfo().notesSorting;
+        let sorting = AppData.getUserInfo().notesSorting;
         switch (sorting) {
             case NotesSorting.ByCreatedAscending:
                 compareFn = (note1, note2) => new Date(note1.created) - new Date(note2.created);
@@ -472,11 +474,11 @@ async function init() {
     }
 
     async function exportNotes() {
-        LocalDataManager.exportNotes();
+        AppData.exportNotes();
     }
 
     async function importNotes() {
-        let importedNotes = await LocalDataManager.importNotes(importInput.files[0]);
+        let importedNotes = await AppData.importNotes(importInput.files[0]);
 
         if (importedNotes != null) {
             importedNotes.forEach(note => {
@@ -484,8 +486,8 @@ async function init() {
                 note.synchronized = false;
             })
 
-            setNotes(LocalDataManager.Notes.concat(importedNotes));
-            LocalDataManager.saveNotes();
+            setNotes(_notes.concat(importedNotes));
+            AppData.saveNotes(_notes);
 
             if (await ApiService.bulkCreateNotes(importedNotes)) {
                 await listNotes();
@@ -552,7 +554,7 @@ async function init() {
     }
 
     async function synchronizeNotes(fetchedNotes) {
-        let localNotes = LocalDataManager.Notes.slice();
+        let localNotes = _notes.slice();
         let joinedNotes = [];
         for (let fetchedNote of fetchedNotes) {
             let localNote = localNotes.find(local => local.id == fetchedNote.id);
@@ -568,7 +570,7 @@ async function init() {
 
         // process notes that were fetched from the server but don't exist locally
         for (let fetchedNote of getFetchedOnlyNotes(fetchedNotes, joinedNotes)) {
-            LocalDataManager.Notes.push(fetchedNote);
+            _notes.push(fetchedNote);
         }
 
         // process notes that exist locally but were not fetched from the server
@@ -576,7 +578,7 @@ async function init() {
             await synchronizeLocalNote(localNote);
         }
 
-        LocalDataManager.saveNotes();
+        AppData.saveNotes(_notes);
     }
 
     async function synchronizeJoinedNote(note) {
@@ -592,7 +594,7 @@ async function init() {
                 // note is up-to-date with the server; resend delete request for locally deleted note
                 if (note.local.deleted) {
                     if (await ApiService.deleteNote(note.local.id)) {
-                        LocalDataManager.Notes.splice(LocalDataManager.Notes.indexOf(note.local), 1);
+                        _notes.splice(_notes.indexOf(note.local), 1);
                     }
                 }
             }
@@ -616,7 +618,7 @@ async function init() {
 
                 if (newNote != null)
                 {
-                    LocalDataManager.Notes.push(newNote);
+                    _notes.push(newNote);
                     changeNote(note.local, note.fetched);
                 }
             }
@@ -627,7 +629,7 @@ async function init() {
         if (localNote.synchronized || localNote.deleted)
         {
             // note was deleted on the server; remove local note
-            LocalDataManager.Notes.splice(LocalDataManager.Notes.indexOf(localNote), 1);
+            _notes.splice(_notes.indexOf(localNote), 1);
         }
         else
         {

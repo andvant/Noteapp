@@ -1,4 +1,4 @@
-﻿using Noteapp.Desktop.LocalData;
+﻿using Noteapp.Desktop.Data;
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
 using System;
@@ -13,9 +13,9 @@ namespace Noteapp.Desktop.ViewModels
 
         private readonly ApiService _apiService;
 
-        public string Email => LocalDataManager.GetUserInfo().Email;
-        public bool EncryptionEnabled => LocalDataManager.GetUserInfo().EncryptionEnabled;
-        public DateTime RegistrationDate => LocalDataManager.GetUserInfo().RegistrationDate;
+        public string Email => AppData.UserInfo.Email;
+        public bool EncryptionEnabled => AppData.UserInfo.EncryptionEnabled;
+        public DateTime RegistrationDate => AppData.UserInfo.RegistrationDate;
 
         public ICommand LogoutCommand { get; }
         public ICommand DeleteAccountCommand { get; }
@@ -31,8 +31,8 @@ namespace Noteapp.Desktop.ViewModels
 
         private void Logout()
         {
-            LocalDataManager.DeleteUserInfo();
-            LocalDataManager.DeleteNotes();
+            AppData.DeleteUserInfo();
+            AppData.DeleteNotes();
             MessageBox.Show("Successfully logged out.");
             OnPropertyChanged(nameof(Email));
             OnPropertyChanged(nameof(EncryptionEnabled));
@@ -49,14 +49,13 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void ToggleEncryption()
         {
-            var userInfo = LocalDataManager.GetUserInfo();
-            if (string.IsNullOrWhiteSpace(userInfo.EncryptionKey))
+            if (string.IsNullOrWhiteSpace(AppData.UserInfo.EncryptionKey))
             {
                 MessageBox.Show("You have to be logged in to enable encryption!");
                 return;
             }
-            userInfo.EncryptionEnabled = !userInfo.EncryptionEnabled;
-            await LocalDataManager.SaveUserInfo(userInfo);
+            AppData.UserInfo.EncryptionEnabled = !AppData.UserInfo.EncryptionEnabled;
+            await AppData.SaveUserInfo();
         }
     }
 }

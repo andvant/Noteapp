@@ -1,4 +1,4 @@
-﻿import LocalDataManager from "./LocalDataManager.js";
+﻿import AppData from "./AppData.js";
 
 let ApiService = {
     getNotes,
@@ -86,7 +86,7 @@ async function sendRequest(url, method, headers = {}, body = null) {
 }
 
 function addAuthorizationHeader(headers) {
-    let userInfo = LocalDataManager.getUserInfo();
+    let userInfo = AppData.getUserInfo();
     if (userInfo.access_token != null) {
         headers['Authorization'] = `Bearer ${userInfo.access_token}`;
     }

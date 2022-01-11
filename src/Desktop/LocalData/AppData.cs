@@ -1,17 +1,17 @@
 ﻿using Microsoft.Win32;
 using Noteapp.Desktop.Dtos;
 using Noteapp.Desktop.Extensions;
+using Noteapp.Desktop.LocalData;
 using Noteapp.Desktop.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
 
-namespace Noteapp.Desktop.LocalData
+namespace Noteapp.Desktop.Data
 {
-    public static class LocalDataManager
+    public static class AppData
     {
         private static readonly string _userInfoPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -22,6 +22,7 @@ namespace Noteapp.Desktop.LocalData
         private static bool _isPersisted = true;
 
         public static ObservableCollection<Note> Notes { get; set; }
+        public static UserInfo UserInfo { get; set; }
 
         public static async Task CreateAndSaveUserInfo(UserInfoResponse userInfoDto, string encryptionKey, bool isPersisted)
         {
@@ -35,44 +36,26 @@ namespace Noteapp.Desktop.LocalData
             };
 
             _isPersisted = isPersisted;
-            await SaveUserInfo(userInfo);
+            UserInfo = userInfo;
+            await SaveUserInfo();
         }
 
-        public static async Task SaveUserInfo(UserInfo userInfo)
+        public static async Task SaveUserInfo()
         {
-            Application.Current.Properties["userInfo"] = userInfo;
             if (_isPersisted)
             {
-                await File.WriteAllTextAsync(_userInfoPath, userInfo.ToJson());
-            }
-        }
-
-        public static UserInfo GetUserInfo()
-        {
-            return Application.Current.Properties["userInfo"] as UserInfo ?? new UserInfo();
-        }
-
-        private static UserInfo GetUserInfoFromFile()
-        {
-            try
-            {
-                return File.ReadAllText(_userInfoPath).FromJson<UserInfo>();
-            }
-            catch
-            {
-                return null;
+                await File.WriteAllTextAsync(_userInfoPath, UserInfo.ToJson());
             }
         }
 
         public static void LoadUserInfoToMemory()
         {
-            Application.Current.Properties["userInfo"] = GetUserInfoFromFile();
+            UserInfo = ReadUserInfoFromFile();
         }
 
         public static void DeleteUserInfo()
         {
-            Application.Current.Properties["userInfo"] = null;
-
+            UserInfo = new UserInfo();
             if (File.Exists(_userInfoPath))
             {
                 File.Delete(_userInfoPath);
@@ -133,6 +116,18 @@ namespace Noteapp.Desktop.LocalData
 
             string notesJson = await File.ReadAllTextAsync(openDialog.FileName);
             return notesJson.FromJson<IEnumerable<Note>>();
+        }
+
+        private static UserInfo ReadUserInfoFromFile()
+        {
+            try
+            {
+                return File.ReadAllText(_userInfoPath).FromJson<UserInfo>();
+            }
+            catch
+            {
+                return new UserInfo();
+            }
         }
     }
 }
