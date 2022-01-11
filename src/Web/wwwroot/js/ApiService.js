@@ -1,4 +1,5 @@
 ﻿import AppData from "./AppData.js";
+import Config from "./Config.js";
 
 let ApiService = {
     getNotes,
@@ -11,8 +12,6 @@ let ApiService = {
     register,
     deleteAccount
 }
-
-const API_BASE_URL = "http://localhost:5000/api/";
 
 async function getNotes() {
     let response = await sendRequest("notes", "GET");
@@ -70,7 +69,7 @@ async function sendRequest(url, method, headers = {}, body = null) {
 
     let response;
     try {
-        response = await fetch(`${API_BASE_URL}${url}`, { method, headers, body });
+        response = await fetch(`${Config.API_BASE_URL}${url}`, { method, headers, body });
     }
     catch {
         console.log('Failed to connect to the server.');

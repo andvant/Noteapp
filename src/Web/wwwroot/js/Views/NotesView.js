@@ -1,6 +1,7 @@
 ﻿import ApiService from "../ApiService.js";
 import AppData from "../AppData.js";
 import Utils from "../Utils.js";
+import Config from "../Config.js";
 
 let NotesView = { render, init }
 
@@ -542,7 +543,7 @@ async function init() {
 
             _notesCurrentlyBeingSaved.add(note);
 
-            await delay(SAVE_DELAY_MS);
+            await delay(Config.SAVE_DELAY_MS);
             await saveNote(note);
 
             _notesCurrentlyBeingSaved.delete(note);
