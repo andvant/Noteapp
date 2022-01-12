@@ -104,6 +104,7 @@ async function getNoteFromResponse(response) {
 
     let note = await response.json();
     note.synchronized = true;
+    note.updatedLocal = note.updated;
     return note;
 }
 
@@ -111,7 +112,10 @@ async function getNotesFromResponse(response) {
     if (response == null) return null;
 
     let notes = await response.json();
-    notes.forEach(note => note.synchronized = true);
+    notes.forEach(note => {
+        note.synchronized = true;
+        note.updatedLocal = note.updated;
+    });
     return notes;
 }
 

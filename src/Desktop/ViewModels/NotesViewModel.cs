@@ -167,8 +167,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void Create()
         {
-            var newLocalNote = Note.CreateLocalNote();
-            newLocalNote.Archived = ShowArchived;
+            var newLocalNote = Note.CreateLocalNote(ShowArchived);
 
             Notes.Add(newLocalNote);
             SelectedNote = newLocalNote;
@@ -185,6 +184,7 @@ namespace Noteapp.Desktop.ViewModels
         private async Task Save(Note note)
         {
             note.Synchronized = false;
+            note.UpdatedLocal = DateTime.Now;
 
             var updatedNote = await CreateOrUpdateNote(note);
             if (updatedNote != null)
@@ -229,6 +229,7 @@ namespace Noteapp.Desktop.ViewModels
             {
                 note.Deleted = true;
                 note.Synchronized = true;
+                OnPropertyChanged(nameof(ShownNotes));
                 SelectFirstNote();
                 if (await _apiService.DeleteNote(note.Id))
                 {

@@ -33,6 +33,13 @@ namespace Noteapp.Desktop.Models
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
 
+        private DateTime? _updatedLocal;
+        public DateTime UpdatedLocal
+        {
+            get => _updatedLocal ?? Updated;
+            set => Set(ref _updatedLocal, value);
+        }
+
         private bool _locked;
         public bool Locked
         {
@@ -73,13 +80,15 @@ namespace Noteapp.Desktop.Models
         public bool Local { get; set; } = false;
         public bool Deleted { get; set; } = false;
 
-        public static Note CreateLocalNote()
+        public static Note CreateLocalNote(bool archived)
         {
             return new Note()
             {
                 Id = 0,
                 Synchronized = false,
                 Local = true,
+                Archived = archived,
+                UpdatedLocal = DateTime.Now,
                 Text = string.Empty
             };
         }

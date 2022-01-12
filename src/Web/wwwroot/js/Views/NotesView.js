@@ -10,8 +10,6 @@ let _selectedNote = null;
 let _snapshots;
 let _showArchived = false;
 let _oldNoteText;
-
-const SAVE_DELAY_MS = 1000;
 let _notesCurrentlyBeingSaved = new Set();
 
 const NotesSorting = Object.freeze({
@@ -177,8 +175,7 @@ async function init() {
         selectFirstNote();
         let notes = await ApiService.getNotes();
         if (notes != null) {
-            notes.forEach(note => note.synchronized = false);
-            synchronizeNotes(notes);
+            await synchronizeNotes(notes);
             addNoteElements();
             selectFirstNote();
         }
@@ -202,6 +199,7 @@ async function init() {
 
     async function saveNote(note) {
         note.synchronized = false;
+        note.updatedLocal = new Date();
         updateNote(note, note);
 
         let updatedNote = await createOrUpdateNote(note);
@@ -225,6 +223,7 @@ async function init() {
             note.synchronized = true;
             selectFirstNote();
             actionMenu.classList.remove('show');
+            removeNoteElement(note);
             if (await ApiService.deleteNote(note.id)) {
                 removeNote(note);
             }
@@ -350,7 +349,7 @@ async function init() {
                     <label class="note-published" style="display: ${note.published ? "inline-block" : "none"};">Published</label>
                 </div>
                 <div><strong>${textPreview}</strong></div>
-                <div>Updated: ${Utils.dateToLocaleString(note.updated)}</div>
+                <div>Updated: ${Utils.dateToLocaleString(note.updatedLocal)}</div>
             </div>`
     }
 
@@ -456,10 +455,10 @@ async function init() {
                 compareFn = (note1, note2) => new Date(note2.created) - new Date(note1.created);
                 break;
             case NotesSorting.ByUpdatedAscending:
-                compareFn = (note1, note2) => new Date(note1.updated) - new Date(note2.updated);
+                compareFn = (note1, note2) => new Date(note1.updatedLocal) - new Date(note2.updatedLocal);
                 break;
             case NotesSorting.ByUpdatedDescending:
-                compareFn = (note1, note2) => new Date(note2.updated) - new Date(note1.updated);
+                compareFn = (note1, note2) => new Date(note2.updatedLocal) - new Date(note1.updatedLocal);
                 break;
             case NotesSorting.ByTextAscending:
                 compareFn = (note1, note2) => note1.text.localeCompare(note2.text);
@@ -665,6 +664,7 @@ async function init() {
         this.synchronized = false;
         this.local = true;
         this.deleted = false;
+        this.updatedLocal = new Date();
     }
 
     async function createOrUpdateNote(note) {

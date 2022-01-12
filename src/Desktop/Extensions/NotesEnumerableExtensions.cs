@@ -12,8 +12,8 @@ namespace Noteapp.Desktop.Extensions
             {
                 NotesSorting.ByCreatedAscending => (note1, note2) => DateTime.Compare(note1.Created, note2.Created),
                 NotesSorting.ByCreatedDescending => (note1, note2) => DateTime.Compare(note2.Created, note1.Created),
-                NotesSorting.ByUpdatedAscending => (note1, note2) => DateTime.Compare(note1.Updated, note2.Updated),
-                NotesSorting.ByUpdatedDescending => (note1, note2) => DateTime.Compare(note2.Updated, note1.Updated),
+                NotesSorting.ByUpdatedAscending => (note1, note2) => DateTime.Compare(note1.UpdatedLocal, note2.UpdatedLocal),
+                NotesSorting.ByUpdatedDescending => (note1, note2) => DateTime.Compare(note2.UpdatedLocal, note1.UpdatedLocal),
                 NotesSorting.ByTextAscending => (note1, note2) => string.Compare(note1.Text, note2.Text,
                     StringComparison.CurrentCultureIgnoreCase),
                 NotesSorting.ByTextDescending => (note1, note2) => string.Compare(note2.Text, note1.Text,

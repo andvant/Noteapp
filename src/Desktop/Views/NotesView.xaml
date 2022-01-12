@@ -62,7 +62,7 @@
                                            Visibility="{Binding Published, Converter={StaticResource VisibilityConverter}}"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding TextPreview}" FontSize="17" FontWeight="Bold"/>
-                                <TextBlock Text="{Binding Updated, StringFormat=Updated: {0}, 
+                                <TextBlock Text="{Binding UpdatedLocal, StringFormat=Updated: {0}, 
                                     Converter={StaticResource DateTimeConverter}}" FontSize="17"/>
                             </StackPanel>
                         </ContentControl>
