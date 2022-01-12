@@ -13,6 +13,13 @@ using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
 {
+    public enum SyncStatus
+    {
+        Synchronizing,
+        Synchronized,
+        NotSynchronized
+    }
+
     public class NotesViewModel : NotifyPropertyChanged, IPage
     {
         public string Name => PageNames.Notes;
@@ -54,6 +61,9 @@ namespace Noteapp.Desktop.ViewModels
                 Set(ref _selectedNote, value);
             }
         }
+
+        public SyncStatus SyncStatus => _notesCurrentlyBeingSaved.Any() ? SyncStatus.Synchronizing
+            : Notes.Any(note => !note.Synchronized) ? SyncStatus.NotSynchronized : SyncStatus.Synchronized;
 
         private bool _showArchived;
         public bool ShowArchived
@@ -185,6 +195,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             note.Synchronized = false;
             note.UpdatedLocal = DateTime.Now;
+            OnPropertyChanged(nameof(SyncStatus));
 
             var updatedNote = await CreateOrUpdateNote(note);
             if (updatedNote != null)
@@ -202,11 +213,13 @@ namespace Noteapp.Desktop.ViewModels
                 var note = SelectedNote;
 
                 _notesCurrentlyBeingSaved.Add(note);
+                OnPropertyChanged(nameof(SyncStatus));
 
                 await Task.Delay(SAVE_DELAY_MS);
                 await Save(note);
 
                 _notesCurrentlyBeingSaved.Remove(note);
+                OnPropertyChanged(nameof(SyncStatus));
             }
         }
 

@@ -19,7 +19,13 @@ const NotesSorting = Object.freeze({
     ByUpdatedDescending: 3,
     ByTextAscending: 4,
     ByTextDescending: 5
-})
+});
+
+const SyncStatus = Object.freeze({
+    Synchronizing: 0,
+    Synchronized: 1,
+    NotSynchronized: 2
+});
 
 async function render() {
     return /*html*/ `
@@ -47,7 +53,8 @@ async function render() {
                 <div id="selected-note">
                     <div id="selected-note-actions">
                         <div id="save-button-div">
-                            <div id="save-button" class="btn">Save</div>
+                            <div id="sync-status"></div>
+                            <!--<div id="save-button" class="btn">Save</div>-->
                         </div>
 
                         <div id="selected-note-menu">
@@ -99,7 +106,7 @@ async function init() {
 
     const listButton = document.getElementById('list-button');
     const newButton = document.getElementById('new-button');
-    const saveButton = document.getElementById('save-button');
+    //const saveButton = document.getElementById('save-button');
     const deleteButton = document.getElementById('delete-button');
     const pinButton = document.getElementById('pin-button');
     const lockButton = document.getElementById('lock-button');
@@ -125,6 +132,7 @@ async function init() {
 
     const actionMenuButton = document.getElementById('action-menu-button');
     const actionMenu = document.getElementById('action-menu');
+    const syncStatus = document.getElementById('sync-status');
 
     addListeners();
     setNotes(AppData.readNotes());
@@ -133,7 +141,7 @@ async function init() {
     function addListeners() {
         listButton.addEventListener('click', listNotes);
         newButton.addEventListener('click', createNote);
-        saveButton.addEventListener('click', async () => { if (canSave()) await saveNote(_selectedNote); });
+        //saveButton.addEventListener('click', async () => { if (canSave()) await saveNote(_selectedNote); });
         deleteButton.addEventListener('click', deleteNote);
         lockButton.addEventListener('change', toggleLocked);
         archiveButton.addEventListener('change', toggleArchived);
@@ -209,6 +217,30 @@ async function init() {
 
         AppData.saveNotes(_notes);
         return updatedNote;
+    }
+
+    async function saveAfterDelay() {
+        if (canSave()) {
+            let note = _selectedNote;
+
+            _notesCurrentlyBeingSaved.add(note);
+            updateSyncStatus();
+
+            await delay(Config.SAVE_DELAY_MS);
+            await saveNote(note);
+
+            _notesCurrentlyBeingSaved.delete(note);
+            updateSyncStatus();
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    }
+
+    function canSave() {
+        return _selectedNote != null && !_selectedNote.locked && !historyVisible() &&
+            !_notesCurrentlyBeingSaved.has(_selectedNote);
     }
 
     async function deleteNote() {
@@ -292,6 +324,7 @@ async function init() {
             selectNote(newNote);
         }
         updateSelectedNoteElements();
+        updateSyncStatus();
     }
 
     function addNoteElements() {
@@ -319,7 +352,20 @@ async function init() {
 
     function makeSelectedNoteReadOnly() {
         noteTextElement.readOnly = _selectedNote?.locked ?? false;
-        saveButton.disabled = _selectedNote?.locked ?? false;
+        //saveButton.disabled = _selectedNote?.locked ?? false;
+    }
+
+    function updateSyncStatus() {
+        let status;
+        switch (getSyncStatus()) {
+            case SyncStatus.Synchronizing:
+                status = 'Synchronizing...'; break;
+            case SyncStatus.Synchronized:
+                status = 'All notes are synchronized'; break;
+            case SyncStatus.NotSynchronized:
+                status = 'Synchronization failed (changes saved locally)'; break;
+        }
+        syncStatus.textContent = status;
     }
 
     function selectNote(note) {
@@ -449,26 +495,19 @@ async function init() {
         let sorting = AppData.getUserInfo().notesSorting;
         switch (sorting) {
             case NotesSorting.ByCreatedAscending:
-                compareFn = (note1, note2) => new Date(note1.created) - new Date(note2.created);
-                break;
+                compareFn = (note1, note2) => new Date(note1.created) - new Date(note2.created); break;
             case NotesSorting.ByCreatedDescending:
-                compareFn = (note1, note2) => new Date(note2.created) - new Date(note1.created);
-                break;
+                compareFn = (note1, note2) => new Date(note2.created) - new Date(note1.created); break;
             case NotesSorting.ByUpdatedAscending:
-                compareFn = (note1, note2) => new Date(note1.updatedLocal) - new Date(note2.updatedLocal);
-                break;
+                compareFn = (note1, note2) => new Date(note1.updatedLocal) - new Date(note2.updatedLocal); break;
             case NotesSorting.ByUpdatedDescending:
-                compareFn = (note1, note2) => new Date(note2.updatedLocal) - new Date(note1.updatedLocal);
-                break;
+                compareFn = (note1, note2) => new Date(note2.updatedLocal) - new Date(note1.updatedLocal); break;
             case NotesSorting.ByTextAscending:
-                compareFn = (note1, note2) => note1.text.localeCompare(note2.text);
-                break;
+                compareFn = (note1, note2) => note1.text.localeCompare(note2.text); break;
             case NotesSorting.ByTextDescending:
-                compareFn = (note1, note2) => note2.text.localeCompare(note1.text);
-                break;
+                compareFn = (note1, note2) => note2.text.localeCompare(note1.text); break;
             default:
-                compareFn = (note1, note2) => 0;
-                break;
+                compareFn = (note1, note2) => 0; break;
         }
         notes.sort(compareFn);
     }
@@ -529,28 +568,6 @@ async function init() {
 
     function updateSelectedNoteText() {
         _selectedNote.text = noteTextElement.value;
-    }
-
-    function canSave() {
-        return _selectedNote != null && !_selectedNote.locked && !historyVisible() &&
-            !_notesCurrentlyBeingSaved.has(_selectedNote);
-    }
-
-    async function saveAfterDelay() {
-        if (canSave()) {
-            let note = _selectedNote;
-
-            _notesCurrentlyBeingSaved.add(note);
-
-            await delay(Config.SAVE_DELAY_MS);
-            await saveNote(note);
-
-            _notesCurrentlyBeingSaved.delete(note);
-        }
-
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
     }
 
     async function synchronizeNotes(fetchedNotes) {
@@ -669,6 +686,11 @@ async function init() {
 
     async function createOrUpdateNote(note) {
         return note.local ? await ApiService.createNote(note) : await ApiService.updateNote(note);
+    }
+
+    function getSyncStatus() {
+        return _notesCurrentlyBeingSaved.size > 0 ? SyncStatus.Synchronizing
+            : _notes.some(note => !note.synchronized) ? SyncStatus.NotSynchronized : SyncStatus.Synchronized;
     }
 }
 
