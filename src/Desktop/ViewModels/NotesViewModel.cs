@@ -159,19 +159,23 @@ namespace Noteapp.Desktop.ViewModels
             SaveAfterDelayCommand = new RelayCommand(SaveAfterDelay);
 
             Notes = CreateNoteCollection(AppData.ReadNotes());
+            SelectFirstNote();
+
+            //var timer = new System.Timers.Timer(5000);
+            //timer.Elapsed += (s, e) => ListCommand.Execute(null);
+            //timer.AutoReset = true;
+            //timer.Enabled = true;
 
             ListCommand.Execute(null);
         }
 
         private async Task List()
         {
-            SelectedNote ??= ShownNotes.FirstOrDefault();
-
             var notes = await _apiService.GetNotes();
             if (notes != null)
             {
                 await SynchronizeNotes(notes);
-                SelectedNote ??= ShownNotes.FirstOrDefault();
+                SelectFirstNote();
             }
         }
 
@@ -414,7 +418,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private void SelectFirstNote()
         {
-            SelectedNote = ShownNotes.FirstOrDefault();
+            SelectedNote ??= ShownNotes.FirstOrDefault();
         }
 
         private ObservableCollection<Note> CreateNoteCollection(IEnumerable<Note> notes)

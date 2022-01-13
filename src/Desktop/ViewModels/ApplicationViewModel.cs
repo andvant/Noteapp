@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Timers;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -35,12 +36,15 @@ namespace Noteapp.Desktop.ViewModels
 
             var apiService = new ApiService(httpClient);
 
-            Pages.Add(new RegisterViewModel(apiService));
-            Pages.Add(new LoginViewModel(apiService));
-            Pages.Add(new NotesViewModel(apiService, configuration["WebBaseUrl"]));
-            Pages.Add(new SettingsViewModel(apiService));
+            var registerVM = new RegisterViewModel(apiService);
+            var loginVM = new LoginViewModel(apiService);
+            var notesVM = new NotesViewModel(apiService, configuration["WebBaseUrl"]);
+            var settingsVM = new SettingsViewModel(apiService);
 
-            CurrentPage = Pages.Find(vm => vm.Name == PageNames.Notes);
+            EnableAutomaticRelisting(notesVM, 5000);
+
+            Pages.AddRange(new IPage[] { registerVM, loginVM, notesVM, settingsVM });
+            CurrentPage = notesVM;
 
             ChangePageCommand = new RelayCommand(ChangePage);
         }
@@ -61,6 +65,14 @@ namespace Noteapp.Desktop.ViewModels
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", false)
                 .Build();
+        }
+
+        private void EnableAutomaticRelisting(NotesViewModel notesVM, int ms)
+        {
+            var timer = new Timer(ms);
+            timer.Elapsed += (s, e) => notesVM.ListCommand.Execute(null);
+            timer.AutoReset = true;
+            timer.Enabled = true;
         }
     }
 }
