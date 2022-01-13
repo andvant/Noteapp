@@ -3,5 +3,6 @@
     public interface IPage
     {
         string Name { get; }
+        void RefreshPage();
     }
 }

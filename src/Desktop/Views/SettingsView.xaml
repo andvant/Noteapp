@@ -42,6 +42,8 @@
 
             <Button Content="Log out" Command="{Binding LogoutCommand}" Style="{StaticResource BigButton}" Margin="0,40"/>
             <Button Content="Delete account" Command="{Binding DeleteAccountCommand}" Style="{StaticResource BigButton}" Margin="0,40"/>
+
+            <Label Content="{Binding OutputMessage}" />
         </StackPanel>
     </ContentControl>
 </UserControl>

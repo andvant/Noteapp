@@ -41,6 +41,8 @@
             </Grid>
 
             <Button Command="{Binding RegisterCommand}" Content="Register" Style="{StaticResource BigButton}" Margin="0,45" />
+
+            <Label Content="{Binding OutputMessage}" />
         </StackPanel>
     </ContentControl>
 </UserControl>

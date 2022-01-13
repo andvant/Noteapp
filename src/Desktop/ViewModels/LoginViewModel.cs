@@ -17,6 +17,13 @@ namespace Noteapp.Desktop.ViewModels
         public string Password { get; set; } = string.Empty;
         public bool StaySignedIn { get; set; } = true;
 
+        private string _loginResult;
+        public string OutputMessage
+        {
+            get => _loginResult;
+            set => Set(ref _loginResult, value);
+        }
+
         public ICommand LoginCommand { get; }
 
         public LoginViewModel(ApiService apiService)
@@ -27,13 +34,23 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void Login()
         {
+            OutputMessage = string.Empty;
             var userInfoResponse = await _apiService.Login(Email, Password);
             if (userInfoResponse != null)
             {
                 var encryptionKey = Protector.GenerateEncryptionKey(Password, userInfoResponse.encryption_salt);
                 await AppData.CreateAndSaveUserInfo(userInfoResponse, encryptionKey, StaySignedIn);
-                MessageBox.Show("Successfully logged in.");
+                OutputMessage = "Successfully logged in";
             }
+            else
+            {
+                OutputMessage = "Failed to log in";
+            }
+        }
+
+        public void RefreshPage()
+        {
+            OutputMessage = string.Empty;
         }
     }
 }

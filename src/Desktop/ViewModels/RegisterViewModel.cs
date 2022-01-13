@@ -14,6 +14,13 @@ namespace Noteapp.Desktop.ViewModels
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
 
+        private string _registerResult;
+        public string OutputMessage
+        {
+            get => _registerResult;
+            set => Set(ref _registerResult, value);
+        }
+
         public ICommand RegisterCommand { get; }
 
         public RegisterViewModel(ApiService apiService)
@@ -24,10 +31,14 @@ namespace Noteapp.Desktop.ViewModels
 
         private async void Register()
         {
-            if (await _apiService.Register(Email, Password))
-            {
-                MessageBox.Show("Successfully registered.");
-            }
+            OutputMessage = string.Empty;
+            OutputMessage = await _apiService.Register(Email, Password) 
+                ? "Successfully registered" : "Failed to register";
+        }
+
+        public void RefreshPage()
+        {
+            OutputMessage = string.Empty;
         }
     }
 }

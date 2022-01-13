@@ -160,6 +160,11 @@ namespace Noteapp.Desktop.ViewModels
 
             Notes = CreateNoteCollection(AppData.ReadNotes());
 
+            RefreshPage();
+        }
+
+        public void RefreshPage()
+        {
             ListCommand.Execute(null);
         }
 
@@ -194,7 +199,6 @@ namespace Noteapp.Desktop.ViewModels
         {
             note.Synchronized = false;
             note.UpdatedLocal = DateTime.Now;
-            OnPropertyChanged(nameof(SyncStatus));
 
             var updatedNote = await CreateOrUpdateNote(note);
             if (updatedNote != null)
@@ -202,6 +206,7 @@ namespace Noteapp.Desktop.ViewModels
                 ChangeNote(note, updatedNote);
             }
 
+            OnPropertyChanged(nameof(SyncStatus));
             await AppData.SaveNotes();
         }
 
@@ -295,10 +300,6 @@ namespace Noteapp.Desktop.ViewModels
             if (SelectedNote?.PublicUrl != null)
             {
                 Clipboard.SetText($"{_webBaseUrl}p/{SelectedNote.PublicUrl}");
-            }
-            else
-            {
-                MessageBox.Show("Note is not published!");
             }
         }
 

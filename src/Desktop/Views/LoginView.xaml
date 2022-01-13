@@ -46,6 +46,8 @@
             </StackPanel>
             
             <Button Command="{Binding LoginCommand}" Content="Log in" Margin="0,45" Style="{StaticResource BigButton}"/>
+
+            <Label Content="{Binding OutputMessage}" />
         </StackPanel>
     </ContentControl>
 </UserControl>

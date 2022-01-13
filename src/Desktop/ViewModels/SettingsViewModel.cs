@@ -17,6 +17,13 @@ namespace Noteapp.Desktop.ViewModels
         public bool EncryptionEnabled => AppData.UserInfo.EncryptionEnabled;
         public DateTime RegistrationDate => AppData.UserInfo.RegistrationDate;
 
+        private string _output;
+        public string OutputMessage
+        {
+            get => _output;
+            set => Set(ref _output, value);
+        }
+
         public ICommand LogoutCommand { get; }
         public ICommand DeleteAccountCommand { get; }
         public ICommand ToggleEncryptionCommand { get; }
@@ -33,7 +40,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             AppData.DeleteUserInfo();
             AppData.DeleteNotes();
-            MessageBox.Show("Successfully logged out.");
+            OutputMessage = "Successfully logged out";
             OnPropertyChanged(nameof(Email));
             OnPropertyChanged(nameof(EncryptionEnabled));
         }
@@ -42,8 +49,12 @@ namespace Noteapp.Desktop.ViewModels
         {
             if (await _apiService.DeleteAccount())
             {
-                MessageBox.Show("Account successfully deleted.");
+                OutputMessage = "Account successfully deleted";
                 Logout();
+            }
+            else
+            {
+                OutputMessage = "Failed to delete account";
             }
         }
 
@@ -51,11 +62,16 @@ namespace Noteapp.Desktop.ViewModels
         {
             if (string.IsNullOrWhiteSpace(AppData.UserInfo.EncryptionKey))
             {
-                MessageBox.Show("You have to be logged in to enable encryption!");
+                OutputMessage = "You have to be logged in to enable encryption!";
                 return;
             }
             AppData.UserInfo.EncryptionEnabled = !AppData.UserInfo.EncryptionEnabled;
             await AppData.SaveUserInfo();
+        }
+
+        public void RefreshPage()
+        {
+            OutputMessage = string.Empty;
         }
     }
 }

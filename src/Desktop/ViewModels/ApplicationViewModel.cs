@@ -49,14 +49,11 @@ namespace Noteapp.Desktop.ViewModels
             ChangePageCommand = new RelayCommand(ChangePage);
         }
 
-        private void ChangePage(object page)
+        private void ChangePage(object parameter)
         {
-            CurrentPage = (IPage)page;
-
-            if (page is NotesViewModel notesVM)
-            {
-                notesVM.ListCommand.Execute(null);
-            }
+            var page = (IPage)parameter;
+            CurrentPage = page;
+            page.RefreshPage();
         }
 
         private IConfiguration CreateConfiguration()
