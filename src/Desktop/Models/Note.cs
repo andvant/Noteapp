@@ -92,5 +92,14 @@ namespace Noteapp.Desktop.Models
                 Text = string.Empty
             };
         }
+
+        public static bool InSync(Note noteLeft, Note noteRight)
+        {
+            return noteLeft.Updated == noteRight.Updated
+                && noteLeft.Pinned == noteRight.Pinned
+                && noteLeft.Locked == noteRight.Locked
+                && noteLeft.Archived == noteRight.Archived
+                && noteLeft.PublicUrl == noteRight.PublicUrl;
+        }
     }
 }

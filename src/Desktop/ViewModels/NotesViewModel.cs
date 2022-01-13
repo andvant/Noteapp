@@ -159,18 +159,13 @@ namespace Noteapp.Desktop.ViewModels
             SaveAfterDelayCommand = new RelayCommand(SaveAfterDelay);
 
             Notes = CreateNoteCollection(AppData.ReadNotes());
-            SelectFirstNote();
-
-            //var timer = new System.Timers.Timer(5000);
-            //timer.Elapsed += (s, e) => ListCommand.Execute(null);
-            //timer.AutoReset = true;
-            //timer.Enabled = true;
 
             ListCommand.Execute(null);
         }
 
         private async Task List()
         {
+            SelectFirstNote();
             var notes = await _apiService.GetNotes();
             if (notes != null)
             {
@@ -463,13 +458,14 @@ namespace Noteapp.Desktop.ViewModels
             }
 
             await AppData.SaveNotes();
+            OnPropertyChanged(nameof(ShownNotes));
         }
 
         private async Task SynchronizeJoinedNote((Note local, Note fetched) note)
         {
             if (note.local.Synchronized)
             {
-                if (note.fetched.Updated != note.local.Updated)
+                if (!Note.InSync(note.fetched, note.local))
                 {
                     // fetched note is newer than local copy; update local note
                     ChangeNote(note.local, note.fetched);
@@ -488,7 +484,7 @@ namespace Noteapp.Desktop.ViewModels
             }
             else
             {
-                if (note.fetched.Updated == note.local.Updated)
+                if (Note.InSync(note.fetched, note.local))
                 {
                     // synchronizing local note with the server
                     var updatedNote = await _apiService.UpdateNote(note.local);

@@ -136,7 +136,6 @@ async function init() {
 
     addListeners();
     setNotes(AppData.readNotes());
-    selectFirstNote();
     await listNotes();
 
     setInterval(listNotes, 5000);
@@ -176,13 +175,14 @@ async function init() {
 
     function getShownNotes() {
         let notes = _notes.slice();
-        notes = notes.filter(note => (note.archived == _showArchived) && !note.deleted);
+        notes = notes.filter(note => (note.archived === _showArchived) && !note.deleted);
         sortByChosenProperty(notes);
         notes.sort((noteLeft, noteRight) => noteLeft.pinned === noteRight.pinned ? 0 : noteLeft.pinned ? -1 : 1);
         return notes;
     }
 
     async function listNotes() {
+        selectFirstNote();
         let notes = await ApiService.getNotes();
         if (notes != null) {
             await synchronizeNotes(notes);
@@ -321,7 +321,10 @@ async function init() {
 
     function updateNote(oldNote, newNote) {
         changeNote(oldNote, newNote);
-        getNoteElement(newNote).outerHTML = createNoteHtml(newNote);
+        let noteElement = getNoteElement(newNote);
+        if (noteElement != null) {
+            noteElement.outerHTML = createNoteHtml(newNote);
+        }
         if (_selectedNote == oldNote) {
             selectNote(newNote);
         }
@@ -418,9 +421,10 @@ async function init() {
     }
 
     function selectFirstNote() {
-        if (getShownNotes().includes(_selectedNote)) return;
-        if (notesListDiv.childElementCount > 0) {
-            selectNote(getNote(notesListDiv.firstElementChild))
+        let shownNotes = getShownNotes();
+        if (shownNotes.includes(_selectedNote)) return;
+        if (shownNotes.length > 0) {
+            selectNote(shownNotes[0]);
         }
         else {
             _selectedNote = null;
@@ -604,7 +608,7 @@ async function init() {
     async function synchronizeJoinedNote(note) {
         if (note.local.synchronized)
         {
-            if (note.fetched.updated != note.local.updated)
+            if (!notesInSync(note.fetched, note.local))
             {
                 // fetched note is newer than local copy; update local note
                 updateNote(note.local, note.fetched);
@@ -621,7 +625,7 @@ async function init() {
         }
         else
         {
-            if (note.fetched.updated == note.local.updated)
+            if (notesInSync(note.fetched, note.local))
             {
                 // synchronizing local note with the server
                 let updatedNote = await ApiService.updateNote(note.local);
@@ -685,6 +689,14 @@ async function init() {
         this.local = true;
         this.deleted = false;
         this.updatedLocal = new Date();
+    }
+
+    function notesInSync(noteLeft, noteRight) {
+        return noteLeft.updated == noteRight.updated &&
+            noteLeft.pinned == noteRight.pinned &&
+            noteLeft.locked == noteRight.locked &&
+            noteLeft.archived == noteRight.archived &&
+            noteLeft.publicUrl == noteRight.publicUrl
     }
 
     async function createOrUpdateNote(note) {
