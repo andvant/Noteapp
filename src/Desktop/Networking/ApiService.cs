@@ -87,7 +87,7 @@ namespace Noteapp.Desktop.Networking
 
             var loginResult = new LoginResult();
             loginResult.ErrorMessage = response.ErrorMessage;
-            loginResult.UserInfoResponse = response.IsSuccess ? 
+            loginResult.UserInfoResponse = response.IsSuccess ?
                 await response.Content.ReadFromJsonAsync<UserInfoResponse>() : null;
             return loginResult;
         }

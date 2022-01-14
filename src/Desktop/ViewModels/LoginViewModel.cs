@@ -2,7 +2,6 @@
 using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
 using Noteapp.Desktop.Security;
-using System.Windows;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
