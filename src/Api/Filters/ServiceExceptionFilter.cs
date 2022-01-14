@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Noteapp.Api.Dtos;
 using Noteapp.Core.Exceptions;
 using System.Net;
 
@@ -9,7 +10,7 @@ namespace Noteapp.Api.Filters
     {
         public void OnException(ExceptionContext context)
         {
-            var error = new { Error = context.Exception.Message };
+            var error = new ErrorResponse(context.Exception.Message);
 
             switch (context.Exception)
             {
