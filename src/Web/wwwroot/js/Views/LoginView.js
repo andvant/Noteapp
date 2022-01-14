@@ -22,7 +22,7 @@ async function init() {
 
     loginButton.addEventListener('click', login);
 
-    async function login() {
+    async function loginX() {
         let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
         let staySignedIn = document.getElementById('stay-signed-in').checked;
@@ -36,6 +36,24 @@ async function init() {
         }
         else {
             outputMessageDiv.textContent = 'Failed to log in';
+        }
+    }
+
+    async function login() {
+        let email = document.getElementById('email').value;
+        let password = document.getElementById('password').value;
+        let staySignedIn = document.getElementById('stay-signed-in').checked;
+        
+        outputMessageDiv.textContent = '';
+        let result = await ApiService.login(email, password);
+        
+        if (result.isSuccess()) {
+            let userInfoResponse = result.content;
+            AppData.createAndSaveUserInfo(userInfoResponse, staySignedIn);
+            outputMessageDiv.textContent = 'Successfully logged in';
+        }
+        else {
+            outputMessageDiv.textContent = `Failed to log in: ${result.errorMessage}`;
         }
     }
 }

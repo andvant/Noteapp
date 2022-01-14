@@ -23,11 +23,13 @@ async function init() {
         let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
 
-        if (await ApiService.register(email, password)) {
-            outputMessageDiv = 'Successfully registered';
+        let result = await ApiService.register(email, password);
+
+        if (result.isSuccess()) {
+            outputMessageDiv.textContent = 'Successfully registered';
         }
         else {
-            outputMessageDiv = 'Failed to register';
+            outputMessageDiv.textContent = `Failed to register: ${result.errorMessage}`;
         }
     }
 }

@@ -187,8 +187,6 @@ async function init() {
         if (notes != null) {
             await synchronizeNotes(notes);
             selectFirstNote();
-            // addNoteElements();
-            // selectFirstNote();
         }
     }
 
@@ -217,6 +215,7 @@ async function init() {
             updateNote(note, updatedNote);
         }
 
+        console.log('from save method, notes:\n' + JSON.stringify(_notes));
         AppData.saveNotes(_notes);
         return updatedNote;
     }
@@ -670,25 +669,12 @@ async function init() {
 
     function getFetchedOnlyNotes(fetchedNotes, joinedNotes) {
         return fetchedNotes.filter(fetchedNote =>
-            joinedNotes.find(note => note.fetched.id == fetchedNote.id) == undefined)
+            joinedNotes.find(note => note.fetched.id == fetchedNote.id) == undefined);
     }
 
     function getLocalOnlyNotes(localNotes, joinedNotes) {
         return localNotes.filter(localNote =>
-            (joinedNotes.find(note => note.local.id == localNote.id) == undefined) || localNote.local)
-    }
-
-    function Note(archived) {
-        this.id = 0;
-        this.text = '';
-        this.pinned = false;
-        this.locked = false;
-        this.archived = archived;
-        this.published = false;
-        this.synchronized = false;
-        this.local = true;
-        this.deleted = false;
-        this.updatedLocal = new Date();
+            (joinedNotes.find(note => note.local.id == localNote.id) == undefined) || localNote.local);
     }
 
     function notesInSync(noteLeft, noteRight) {
@@ -706,6 +692,19 @@ async function init() {
     function getSyncStatus() {
         return _notesCurrentlyBeingSaved.size > 0 ? SyncStatus.Synchronizing
             : _notes.some(note => !note.synchronized) ? SyncStatus.NotSynchronized : SyncStatus.Synchronized;
+    }
+
+    function Note(archived) {
+        this.id = 0;
+        this.text = '';
+        this.pinned = false;
+        this.locked = false;
+        this.archived = archived;
+        this.published = false;
+        this.synchronized = false;
+        this.local = true;
+        this.deleted = false;
+        this.updatedLocal = new Date();
     }
 }
 
