@@ -11,12 +11,14 @@ async function render() {
             <label for="stay-signed-in">Stay signed in</label>
             <input type="checkbox" placeholder="Password" id="stay-signed-in" checked/>
             <div id="login-button" class="btn btn-lg">Log in</div>
+            <div id="output-message"></div>
         </div>`
 }
 
 async function init() {
 
     const loginButton = document.getElementById('login-button');
+    const outputMessageDiv = document.getElementById('output-message');
 
     loginButton.addEventListener('click', login);
 
@@ -24,12 +26,16 @@ async function init() {
         let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
         let staySignedIn = document.getElementById('stay-signed-in').checked;
-
+        
+        outputMessageDiv.textContent = '';
         let userInfoResponse = await ApiService.login(email, password);
 
         if (userInfoResponse != null) {
             AppData.createAndSaveUserInfo(userInfoResponse, staySignedIn);
-            alert('Successfully logged in.')
+            outputMessageDiv.textContent = 'Successfully logged in';
+        }
+        else {
+            outputMessageDiv.textContent = 'Failed to log in';
         }
     }
 }

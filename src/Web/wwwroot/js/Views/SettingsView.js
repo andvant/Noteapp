@@ -15,6 +15,7 @@ async function render() {
             <label>Registration date: ${registrationDate}</label>
             <div id="logout-button" class="btn btn-lg">Log out</div>
             <div id="delete-account-button" class="btn btn-lg">Delete account</div>
+            <div id="output-message"></div>
         </div>`
 }
 
@@ -22,6 +23,7 @@ async function init() {
 
     const logoutButton = document.getElementById('logout-button');
     const deleteAccountButton = document.getElementById('delete-account-button');
+    const outputMessageDiv = document.getElementById('output-message');
 
     logoutButton.addEventListener('click', logout);
     deleteAccountButton.addEventListener('click', deleteAccount);
@@ -29,13 +31,16 @@ async function init() {
     function logout() {
         AppData.deleteUserInfo();
         AppData.deleteNotes();
-        alert('Successfully logged out.');
+        outputMessageDiv.textContent = 'Successfully logged out';
     }
 
     async function deleteAccount() {
         if (await ApiService.deleteAccount()) {
-            alert('Account successfully deleted.');
+            outputMessageDiv.textContent = 'Account successfully deleted';
             logout();
+        }
+        else {
+            outputMessageDiv.textContent = 'Failed to delete account';
         }
     }
 }
