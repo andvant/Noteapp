@@ -32,8 +32,15 @@ namespace Noteapp.Desktop.ViewModels
         private async void Register()
         {
             OutputMessage = string.Empty;
-            OutputMessage = await _apiService.Register(Email, Password) 
-                ? "Successfully registered" : "Failed to register";
+            var registerResult = await _apiService.Register(Email, Password);
+            if (registerResult.IsSuccess)
+            {
+                OutputMessage = "Successfully registered";
+            }
+            else
+            {
+                OutputMessage = $"Failed to register: {registerResult.ErrorMessage}";
+            }
         }
 
         public void RefreshPage()

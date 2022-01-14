@@ -24,13 +24,13 @@ namespace Noteapp.Desktop.Networking
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "notes");
             var response = await SendRequest(request);
-            return await GetNotesFromResponse(response);
+            return await ReadNotesFromResponse(response);
         }
 
         public async Task<Note> CreateNote(Note note)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "notes");
-            return await GetUpdatedNoteFromServer(request, note);
+            return await SendRequestAndReadNoteFromResponse(request, note);
         }
 
         public async Task<bool> BulkCreateNotes(IEnumerable<Note> notes)
@@ -46,54 +46,64 @@ namespace Noteapp.Desktop.Networking
 
             var request = new HttpRequestMessage(HttpMethod.Post, "notes/bulk");
             request.Content = JsonContent.Create(noteRequests);
-            return await SendRequest(request) != null;
+            return (await SendRequest(request)).IsSuccess;
         }
 
         public async Task<Note> UpdateNote(Note note)
         {
             var request = new HttpRequestMessage(HttpMethod.Put, $"notes/{note.Id}");
-            return await GetUpdatedNoteFromServer(request, note);
+            return await SendRequestAndReadNoteFromResponse(request, note);
         }
 
         public async Task<bool> DeleteNote(int noteId)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"notes/{noteId}");
-            return await SendRequest(request) != null;
+            return (await SendRequest(request)).IsSuccess;
         }
 
         public async Task<IEnumerable<NoteSnapshot>> GetAllSnapshots(int noteId)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"notes/{noteId}/snapshots");
             var response = await SendRequest(request);
-            return await GetSnapshotsFromResponse(response);
+            return await ReadSnapshotsFromResponse(response);
         }
 
-        public async Task<bool> Register(string email, string password)
+        public async Task<RegisterResult> Register(string email, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "account/register");
             request.Content = JsonContent.Create(new { email, password });
-            return await SendRequest(request) != null;
+            var response = await SendRequest(request, false);
+
+            var registerResult = new RegisterResult();
+            registerResult.ErrorMessage = response.ErrorMessage;
+            return registerResult;
         }
 
-        public async Task<UserInfoResponse> Login(string email, string password)
+        public async Task<LoginResult> Login(string email, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "account/token");
             request.Content = JsonContent.Create(new { email, password });
-            var response = await SendRequest(request);
-            return response != null ? await response.Content.ReadFromJsonAsync<UserInfoResponse>() : null;
+            var response = await SendRequest(request, false);
+
+            var loginResult = new LoginResult();
+            loginResult.ErrorMessage = response.ErrorMessage;
+            loginResult.UserInfoResponse = response.IsSuccess ? 
+                await response.Content.ReadFromJsonAsync<UserInfoResponse>() : null;
+            return loginResult;
         }
 
         public async Task<bool> DeleteAccount()
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, "account/delete");
-            return await SendRequest(request) != null;
+            return (await SendRequest(request)).IsSuccess;
         }
 
-        private async Task<HttpResponseMessage> SendRequest(HttpRequestMessage request)
+        private async Task<ApiResponse> SendRequest(HttpRequestMessage request, bool authorized = true)
         {
-            AddAuthorizationHeader(request);
+            if (authorized) AddAuthorizationHeader(request);
 
             HttpResponseMessage response;
+            var apiResponse = new ApiResponse();
             try
             {
                 response = await _httpClient.SendAsync(request);
@@ -101,43 +111,49 @@ namespace Noteapp.Desktop.Networking
             catch (HttpRequestException ex)
             {
                 Logger.Log(ex.Message);
-                return null;
+                apiResponse.ErrorMessage = "Failed to connect to the server";
+                return apiResponse;
             }
 
-            if (!response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
-                var errorMessage = $"{response.ReasonPhrase}\n{await response.Content.ReadAsStringAsync()}";
-                Logger.Log(errorMessage);
-                return null;
+                apiResponse.Content = response.Content;
+            }
+            else
+            {
+                var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+                Logger.Log(error.ErrorMessage);
+                apiResponse.ErrorMessage = error.ErrorMessage ?? "ERROR";
             }
 
-            return response;
+            return apiResponse;
         }
 
         private void AddAuthorizationHeader(HttpRequestMessage request)
         {
-            if (!string.IsNullOrWhiteSpace(AppData.UserInfo.AccessToken))
+            var accessToken = AppData.UserInfo.AccessToken;
+            if (!string.IsNullOrWhiteSpace(accessToken))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AppData.UserInfo.AccessToken);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             }
         }
 
-        private async Task<Note> GetUpdatedNoteFromServer(HttpRequestMessage request, Note note)
+        private async Task<Note> SendRequestAndReadNoteFromResponse(HttpRequestMessage request, Note note)
         {
             var noteRequest = new NoteRequest(note);
             noteRequest.Text = await Protector.TryEncrypt(noteRequest.Text);
             request.Content = JsonContent.Create(noteRequest);
             var response = await SendRequest(request);
 
-            if (response == null) return null;
-            var returnedNote = await response.Content.ReadFromJsonAsync<Note>();
-            returnedNote.Text = await Protector.TryDecrypt(returnedNote.Text);
-            return returnedNote;
+            if (!response.IsSuccess) return null;
+            var updatedNote = await response.Content.ReadFromJsonAsync<Note>();
+            updatedNote.Text = await Protector.TryDecrypt(updatedNote.Text);
+            return updatedNote;
         }
 
-        private async Task<IEnumerable<Note>> GetNotesFromResponse(HttpResponseMessage response)
+        private async Task<IEnumerable<Note>> ReadNotesFromResponse(ApiResponse response)
         {
-            if (response == null) return null;
+            if (!response.IsSuccess) return null;
             var notes = await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
             foreach (var note in notes)
             {
@@ -146,9 +162,9 @@ namespace Noteapp.Desktop.Networking
             return notes;
         }
 
-        private async Task<IEnumerable<NoteSnapshot>> GetSnapshotsFromResponse(HttpResponseMessage response)
+        private async Task<IEnumerable<NoteSnapshot>> ReadSnapshotsFromResponse(ApiResponse response)
         {
-            if (response == null) return null;
+            if (!response.IsSuccess) return null;
             var snapshots = await response.Content.ReadFromJsonAsync<IEnumerable<NoteSnapshot>>();
             foreach (var snapshot in snapshots)
             {
