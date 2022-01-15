@@ -14,8 +14,8 @@ namespace Noteapp.Desktop.ViewModels
     public class ApplicationViewModel : NotifyPropertyChanged
     {
         public List<IPage> Pages { get; } = new();
-        private IPage _currentPage;
 
+        private IPage _currentPage;
         public IPage CurrentPage
         {
             get => _currentPage;

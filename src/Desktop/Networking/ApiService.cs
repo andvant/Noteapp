@@ -1,5 +1,6 @@
 ﻿using Noteapp.Desktop.Data;
 using Noteapp.Desktop.Dtos;
+using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.Security;
 using System.Collections.Generic;
@@ -87,7 +88,7 @@ namespace Noteapp.Desktop.Networking
             var loginResult = new LoginResult();
             loginResult.ErrorMessage = response.ErrorMessage;
             loginResult.UserInfoResponse = response.IsSuccess ?
-                await response.Content.ReadFromJsonAsync<UserInfoResponse>() : null;
+                response.Content.FromJson<UserInfoResponse>() : null;
             return loginResult;
         }
 
@@ -113,14 +114,15 @@ namespace Noteapp.Desktop.Networking
                 return apiResponse;
             }
 
+            var content = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
-                apiResponse.Content = response.Content;
+                apiResponse.Content = content;
             }
             else
             {
-                var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-                apiResponse.ErrorMessage = error.ErrorMessage ?? "ERROR";
+                apiResponse.ErrorMessage = !string.IsNullOrWhiteSpace(content)
+                    ? content.FromJson<ErrorResponse>().ErrorMessage : "ERROR";
             }
 
             return apiResponse;
@@ -143,7 +145,7 @@ namespace Noteapp.Desktop.Networking
             var response = await SendRequest(request);
 
             if (!response.IsSuccess) return null;
-            var updatedNote = await response.Content.ReadFromJsonAsync<Note>();
+            var updatedNote = response.Content.FromJson<Note>();
             updatedNote.Text = await Protector.TryDecrypt(updatedNote.Text);
             return updatedNote;
         }
@@ -151,7 +153,7 @@ namespace Noteapp.Desktop.Networking
         private async Task<IEnumerable<Note>> ReadNotesFromResponse(ApiResponse response)
         {
             if (!response.IsSuccess) return null;
-            var notes = await response.Content.ReadFromJsonAsync<IEnumerable<Note>>();
+            var notes = response.Content.FromJson<IEnumerable<Note>>();
             foreach (var note in notes)
             {
                 note.Text = await Protector.TryDecrypt(note.Text);
@@ -162,7 +164,7 @@ namespace Noteapp.Desktop.Networking
         private async Task<IEnumerable<NoteSnapshot>> ReadSnapshotsFromResponse(ApiResponse response)
         {
             if (!response.IsSuccess) return null;
-            var snapshots = await response.Content.ReadFromJsonAsync<IEnumerable<NoteSnapshot>>();
+            var snapshots = response.Content.FromJson<IEnumerable<NoteSnapshot>>();
             foreach (var snapshot in snapshots)
             {
                 snapshot.Text = await Protector.TryDecrypt(snapshot.Text);

@@ -79,21 +79,17 @@ async function sendRequest(url, method, headers = {}, body = null, authorized = 
         response = await fetch(`${Config.API_BASE_URL}${url}`, { method, headers, body });
     }
     catch {
-        console.log('Failed to connect to the server');
         apiResponse.errorMessage = 'Failed to connect to the server';
         return apiResponse;
     }
 
+    let content = await response.text();
     if (response.ok) {
-        let text = await response.text();
-        if (text.length > 0) {
-            apiResponse.content = JSON.parse(text);
-        }
+        apiResponse.content = content.length > 0 ? JSON.parse(content) : null;
     }
     else {
-        let error = await response.json();
-        console.log(error.errorMessage);
-        apiResponse.errorMessage = error.errorMessage;
+        apiResponse.errorMessage = content.length > 0 ?
+            JSON.parse(content).errorMessage : "ERROR";
     }
     return apiResponse;
 }

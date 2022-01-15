@@ -61,10 +61,13 @@ namespace Noteapp.Desktop.ViewModels
             if (string.IsNullOrWhiteSpace(AppData.UserInfo.EncryptionKey))
             {
                 OutputMessage = "You have to be logged in to enable encryption!";
-                return;
             }
-            AppData.UserInfo.EncryptionEnabled = !AppData.UserInfo.EncryptionEnabled;
-            await AppData.SaveUserInfo();
+            else
+            {
+                AppData.UserInfo.EncryptionEnabled = !AppData.UserInfo.EncryptionEnabled;
+                await AppData.SaveUserInfo();
+            }
+            OnPropertyChanged(nameof(EncryptionEnabled));
         }
 
         public void RefreshPage()

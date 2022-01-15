@@ -47,7 +47,6 @@ namespace Noteapp.Api.Controllers
         {
             int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             await _userService.Delete(userId);
-
             return NoContent();
         }
     }

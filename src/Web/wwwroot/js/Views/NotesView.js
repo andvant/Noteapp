@@ -214,8 +214,7 @@ async function init() {
         if (updatedNote != null) {
             updateNote(note, updatedNote);
         }
-
-        console.log('from save method, notes:\n' + JSON.stringify(_notes));
+        
         AppData.saveNotes(_notes);
         return updatedNote;
     }

@@ -36,8 +36,9 @@
 
                 <Label Grid.Row="2" Grid.Column="0" Content="Registration date" Style="{StaticResource BigLabel}"
                        HorizontalAlignment="Left"/>
-                <Label Grid.Row="2" Grid.Column="1" Content="{Binding RegistrationDate, Converter={StaticResource DateTimeConverter}}" Style="{StaticResource BigLabel}"
-                       HorizontalAlignment="Right" />
+                <Label Grid.Row="2" Grid.Column="1" Content="{Binding RegistrationDate, 
+                    Converter={StaticResource DateTimeConverter}}" Style="{StaticResource BigLabel}"
+                    HorizontalAlignment="Right" />
             </Grid>
 
             <Button Content="Log out" Command="{Binding LogoutCommand}" Style="{StaticResource BigButton}" Margin="0,40"/>
