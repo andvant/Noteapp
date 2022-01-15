@@ -95,7 +95,12 @@ namespace Noteapp.Desktop.Data
             var success = saveDialog.ShowDialog();
             if (success == true)
             {
-                await File.WriteAllTextAsync(saveDialog.FileName, Notes.ToJson());
+                var exportedNotes = new List<ExportedNote>();
+                foreach (var note in Notes)
+                {
+                    exportedNotes.Add(new ExportedNote(note));
+                }
+                await File.WriteAllTextAsync(saveDialog.FileName, exportedNotes.ToJson());
             }
         }
 

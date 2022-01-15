@@ -299,7 +299,9 @@ async function init() {
 
     function addNote(note) {
         _notes.push(note);
-        notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
+        if (note.archived === _showArchived) {
+            notesListDiv.insertAdjacentHTML('beforeend', createNoteHtml(note));
+        }
     }
 
     function setNotes(notes) {

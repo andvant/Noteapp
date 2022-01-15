@@ -350,11 +350,7 @@ namespace Noteapp.Desktop.ViewModels
 
                 Notes = CreateNoteCollection(Notes.Concat(importedNotes));
                 await AppData.SaveNotes();
-
-                if (await _apiService.BulkCreateNotes(importedNotes))
-                {
-                    await List();
-                }
+                await List();
             }
         }
 

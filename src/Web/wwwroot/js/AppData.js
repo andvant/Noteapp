@@ -45,7 +45,11 @@ function saveNotes(notes) {
 }
 
 function exportNotes(notes) {
-    let notesJson = JSON.stringify(notes, null, 2);
+    let exportedNotes = [];
+    for (let note of notes) {
+        exportedNotes.push(new ExportedNote(note));
+    }
+    let notesJson = JSON.stringify(exportedNotes, null, 2);
     let blob = new Blob([notesJson], {
         type: "application/json"
     });
@@ -67,6 +71,17 @@ function deleteLocalData() {
     _userInfo = {};
     localStorage.removeItem('userInfo');
     localStorage.removeItem('notes');
+}
+
+function ExportedNote(note) {
+    this.id = note.id;
+    this.created = note.created;
+    this.updated = note.updatedLocal;
+    this.text = note.text;
+    this.locked = note.locked;
+    this.archived = note.archived;
+    this.pinned = note.pinned;
+    this.published = note.published;
 }
 
 export default AppData;

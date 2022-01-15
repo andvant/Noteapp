@@ -121,9 +121,9 @@ class ApiResponse {
 
 function NoteRequest(note) {
     this.text = note.text;
-    this.pinned = note.pinned;
     this.locked = note.locked;
     this.archived = note.archived;
+    this.pinned = note.pinned;
     this.published = note.published;
 }
 
