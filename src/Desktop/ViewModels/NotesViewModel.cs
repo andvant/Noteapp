@@ -41,7 +41,6 @@ namespace Noteapp.Desktop.ViewModels
             }
         }
 
-
         public IEnumerable<Note> ShownNotes => Notes
             .Where(note => (note.Archived == ShowArchived) && !note.Deleted)
             .Sort(AppData.UserInfo.NotesSorting)

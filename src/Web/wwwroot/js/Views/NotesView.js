@@ -518,7 +518,7 @@ async function init() {
     }
 
     async function exportNotes() {
-        AppData.exportNotes();
+        AppData.exportNotes(_notes);
     }
 
     async function importNotes() {
@@ -526,6 +526,7 @@ async function init() {
 
         if (importedNotes != null) {
             importedNotes.forEach(note => {
+                note.id = 0;
                 note.local = true;
                 note.synchronized = false;
             })

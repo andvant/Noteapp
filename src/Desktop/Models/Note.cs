@@ -1,5 +1,6 @@
 ﻿using Noteapp.Desktop.MVVM;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Noteapp.Desktop.Models
 {
@@ -75,6 +76,7 @@ namespace Noteapp.Desktop.Models
             get => _published;
             set => Set(ref _published, value);
         }
+        [JsonIgnore]
         public bool TextChanged { get; set; } = false;
         public bool Synchronized { get; set; } = true;
         public bool Local { get; set; } = false;
