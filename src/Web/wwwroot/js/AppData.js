@@ -2,13 +2,12 @@ let AppData = {
     createAndSaveUserInfo,
     getUserInfo,
     saveUserInfo,
-    deleteUserInfo,
     loadUserInfoToMemory,
     readNotes,
     saveNotes,
-    deleteNotes,
     exportNotes,
-    importNotes
+    importNotes,
+    deleteLocalData
 }
 
 let _userInfo = {};
@@ -34,11 +33,6 @@ function loadUserInfoToMemory() {
     _userInfo = JSON.parse(localStorage.getItem('userInfo')) ?? {};
 }
 
-function deleteUserInfo() {
-    _userInfo = {};
-    localStorage.removeItem('userInfo');
-}
-
 function readNotes() {
     let notesJson = localStorage.getItem('notes');
     return notesJson != null ? JSON.parse(notesJson) : [];
@@ -48,10 +42,6 @@ function saveNotes(notes) {
     if (_isPersisted) {
         localStorage.setItem('notes', JSON.stringify(notes));
     }
-}
-
-function deleteNotes() {
-    localStorage.removeItem('notes');
 }
 
 function exportNotes(notes) {
@@ -71,6 +61,12 @@ function importNotes(file) {
         reader.onloadend = () => resolve(JSON.parse(reader.result));
         reader.readAsText(file);
     });
+}
+
+function deleteLocalData() {
+    _userInfo = {};
+    localStorage.removeItem('userInfo');
+    localStorage.removeItem('notes');
 }
 
 export default AppData;

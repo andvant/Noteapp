@@ -53,12 +53,15 @@ namespace Noteapp.Desktop.Data
             UserInfo = ReadUserInfoFromFile();
         }
 
-        public static void DeleteUserInfo()
+        private static UserInfo ReadUserInfoFromFile()
         {
-            UserInfo = new UserInfo();
-            if (File.Exists(_userInfoPath))
+            try
             {
-                File.Delete(_userInfoPath);
+                return File.ReadAllText(_userInfoPath).FromJson<UserInfo>();
+            }
+            catch
+            {
+                return new UserInfo();
             }
         }
 
@@ -79,15 +82,6 @@ namespace Noteapp.Desktop.Data
             if (_isPersisted)
             {
                 await File.WriteAllTextAsync(_notesPath, Notes.ToJson());
-            }
-        }
-
-        public static void DeleteNotes()
-        {
-            Notes.Clear();
-            if (File.Exists(_notesPath))
-            {
-                File.Delete(_notesPath);
             }
         }
 
@@ -118,16 +112,12 @@ namespace Noteapp.Desktop.Data
             return notesJson.FromJson<IEnumerable<Note>>();
         }
 
-        private static UserInfo ReadUserInfoFromFile()
+        public static void DeleteLocalData()
         {
-            try
-            {
-                return File.ReadAllText(_userInfoPath).FromJson<UserInfo>();
-            }
-            catch
-            {
-                return new UserInfo();
-            }
+            UserInfo = new UserInfo();
+            Notes.Clear();
+            if (File.Exists(_userInfoPath)) File.Delete(_userInfoPath);
+            if (File.Exists(_notesPath)) File.Delete(_notesPath);
         }
     }
 }

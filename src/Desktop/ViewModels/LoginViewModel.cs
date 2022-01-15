@@ -37,6 +37,7 @@ namespace Noteapp.Desktop.ViewModels
             var loginResult = await _apiService.Login(Email, Password);
             if (loginResult.IsSuccess)
             {
+                AppData.DeleteLocalData();
                 var userInfoResponse = loginResult.UserInfoResponse;
                 var encryptionKey = Protector.GenerateEncryptionKey(Password, userInfoResponse.encryption_salt);
                 await AppData.CreateAndSaveUserInfo(userInfoResponse, encryptionKey, StaySignedIn);

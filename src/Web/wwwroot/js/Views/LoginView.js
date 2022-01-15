@@ -48,6 +48,7 @@ async function init() {
         let result = await ApiService.login(email, password);
         
         if (result.isSuccess()) {
+            AppData.deleteLocalData();
             let userInfoResponse = result.content;
             AppData.createAndSaveUserInfo(userInfoResponse, staySignedIn);
             outputMessageDiv.textContent = 'Successfully logged in';

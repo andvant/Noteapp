@@ -37,8 +37,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private void Logout()
         {
-            AppData.DeleteUserInfo();
-            AppData.DeleteNotes();
+            AppData.DeleteLocalData();
             OutputMessage = "Successfully logged out";
             OnPropertyChanged(nameof(Email));
             OnPropertyChanged(nameof(EncryptionEnabled));

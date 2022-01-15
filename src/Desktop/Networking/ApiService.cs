@@ -1,6 +1,5 @@
 ﻿using Noteapp.Desktop.Data;
 using Noteapp.Desktop.Dtos;
-using Noteapp.Desktop.Logging;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.Security;
 using System.Collections.Generic;
@@ -108,9 +107,8 @@ namespace Noteapp.Desktop.Networking
             {
                 response = await _httpClient.SendAsync(request);
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
             {
-                Logger.Log(ex.Message);
                 apiResponse.ErrorMessage = "Failed to connect to the server";
                 return apiResponse;
             }
@@ -122,7 +120,6 @@ namespace Noteapp.Desktop.Networking
             else
             {
                 var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-                Logger.Log(error.ErrorMessage);
                 apiResponse.ErrorMessage = error.ErrorMessage ?? "ERROR";
             }
 

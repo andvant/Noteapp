@@ -29,8 +29,7 @@ async function init() {
     deleteAccountButton.addEventListener('click', deleteAccount);
 
     function logout() {
-        AppData.deleteUserInfo();
-        AppData.deleteNotes();
+        AppData.deleteLocalData();
         outputMessageDiv.textContent = 'Successfully logged out';
     }
 
