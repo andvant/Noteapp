@@ -3,6 +3,7 @@ using Noteapp.Desktop.Dtos;
 using Noteapp.Desktop.Extensions;
 using Noteapp.Desktop.Models;
 using Noteapp.Desktop.Security;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -17,7 +18,7 @@ namespace Noteapp.Desktop.Networking
 
         public ApiService(HttpClient httpClient)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
         public async Task<IEnumerable<Note>> GetNotes()

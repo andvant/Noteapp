@@ -29,7 +29,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public SettingsViewModel(ApiService apiService)
         {
-            _apiService = apiService;
+            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
             LogoutCommand = new RelayCommand(Logout);
             DeleteAccountCommand = new RelayCommand(DeleteAccount);
             ToggleEncryptionCommand = new RelayCommand(ToggleEncryption);

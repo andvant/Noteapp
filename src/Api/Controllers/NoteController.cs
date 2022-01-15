@@ -2,6 +2,7 @@
 using Noteapp.Api.Dtos;
 using Noteapp.Core.Dtos;
 using Noteapp.Core.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -18,7 +19,7 @@ namespace Noteapp.Api.Controllers
 
         public NoteController(NoteService noteService)
         {
-            _noteService = noteService;
+            _noteService = noteService ?? throw new ArgumentNullException(nameof(noteService));
         }
 
         [HttpGet("{id:int}")]

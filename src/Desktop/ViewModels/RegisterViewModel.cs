@@ -1,5 +1,6 @@
 ﻿using Noteapp.Desktop.MVVM;
 using Noteapp.Desktop.Networking;
+using System;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -24,7 +25,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public RegisterViewModel(ApiService apiService)
         {
-            _apiService = apiService;
+            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
             RegisterCommand = new RelayCommand(Register);
         }
 

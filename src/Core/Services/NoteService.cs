@@ -17,8 +17,8 @@ namespace Noteapp.Core.Services
 
         public NoteService(INoteRepository repository, IDateTimeProvider dateTimeProvider)
         {
-            _repository = repository;
-            _dateTimeProvider = dateTimeProvider;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         }
 
         public async Task<Note> Get(int userId, int noteId)

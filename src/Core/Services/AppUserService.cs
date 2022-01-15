@@ -15,8 +15,8 @@ namespace Noteapp.Core.Services
 
         public AppUserService(IAppUserRepository repository, IDateTimeProvider dateTimeProvider)
         {
-            _repository = repository;
-            _dateTimeProvider = dateTimeProvider;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         }
 
         public async Task<AppUser> Create(string email)

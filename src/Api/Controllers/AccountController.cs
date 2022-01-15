@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Noteapp.Api.Dtos;
 using Noteapp.Core.Interfaces;
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -16,8 +17,8 @@ namespace Noteapp.Api.Controllers
 
         public AccountController(IUserService userService, ITokenService tokenService)
         {
-            _userService = userService;
-            _tokenService = tokenService;
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
         }
 
         [HttpPost("register")]

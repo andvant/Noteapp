@@ -134,7 +134,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public NotesViewModel(ApiService apiService, string webBaseUrl)
         {
-            _apiService = apiService;
+            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
             _webBaseUrl = webBaseUrl;
 
             ListCommand = new RelayCommand(async () => await List());
