@@ -96,8 +96,8 @@ async function sendRequest(url, method, headers = {}, body = null, authorized = 
 
 function addAuthorizationHeader(headers) {
     let userInfo = AppData.getUserInfo();
-    if (userInfo.access_token != null) {
-        headers['Authorization'] = `Bearer ${userInfo.access_token}`;
+    if (userInfo.accessToken != null) {
+        headers['Authorization'] = `Bearer ${userInfo.accessToken}`;
     }
 }
 

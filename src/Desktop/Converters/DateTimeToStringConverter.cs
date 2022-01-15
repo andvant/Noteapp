@@ -8,7 +8,8 @@ namespace Noteapp.Desktop.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return ((DateTime?)value)?.ToLocalTime().ToString("f");
+            var date = (DateTime?)value;
+            return date.HasValue ? date?.ToLocalTime().ToString("f") : "-";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

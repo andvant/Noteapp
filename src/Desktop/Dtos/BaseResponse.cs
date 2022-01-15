@@ -1,4 +1,4 @@
-﻿namespace Noteapp.Desktop.Networking
+﻿namespace Noteapp.Desktop.Dtos
 {
     public abstract class BaseResponse
     {

@@ -19,8 +19,12 @@ function generateUniqueId()
 }
 
 function dateToLocaleString(date) {
-    let options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-    return new Date(date).toLocaleString({}, options);
+    let datetime = new Date(date);
+    if (datetime instanceof Date && !isNaN(datetime)) {
+        let options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+        return datetime.toLocaleString({}, options);
+    }
+    return "-";
 }
 
 export default Utils;

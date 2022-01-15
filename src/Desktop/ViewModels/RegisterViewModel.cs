@@ -31,14 +31,14 @@ namespace Noteapp.Desktop.ViewModels
         private async void Register()
         {
             OutputMessage = string.Empty;
-            var registerResult = await _apiService.Register(Email, Password);
-            if (registerResult.IsSuccess)
+            var result = await _apiService.Register(Email, Password);
+            if (result.IsSuccess)
             {
                 OutputMessage = "Successfully registered";
             }
             else
             {
-                OutputMessage = $"Failed to register: {registerResult.ErrorMessage}";
+                OutputMessage = $"Failed to register: {result.ErrorMessage}";
             }
         }
 

@@ -28,9 +28,9 @@ namespace Noteapp.Desktop.Data
         {
             var userInfo = new UserInfo()
             {
-                Email = userInfoDto.email,
-                AccessToken = userInfoDto.access_token,
-                RegistrationDate = DateTime.Parse(userInfoDto.registration_date),
+                Email = userInfoDto.Email,
+                AccessToken = userInfoDto.AccessToken,
+                RegistrationDate = userInfoDto.RegistrationDate,
                 EncryptionKey = encryptionKey,
                 EncryptionEnabled = true
             };

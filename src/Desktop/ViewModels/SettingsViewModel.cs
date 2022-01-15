@@ -14,7 +14,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public string Email => AppData.UserInfo.Email;
         public bool EncryptionEnabled => AppData.UserInfo.EncryptionEnabled;
-        public DateTime RegistrationDate => AppData.UserInfo.RegistrationDate;
+        public DateTime? RegistrationDate => AppData.UserInfo.RegistrationDate;
 
         private string _output;
         public string OutputMessage

@@ -74,9 +74,9 @@ namespace Noteapp.Desktop.Networking
             request.Content = JsonContent.Create(new { email, password });
             var response = await SendRequest(request, false);
 
-            var registerResult = new RegisterResult();
-            registerResult.ErrorMessage = response.ErrorMessage;
-            return registerResult;
+            var result = new RegisterResult();
+            result.ErrorMessage = response.ErrorMessage;
+            return result;
         }
 
         public async Task<LoginResult> Login(string email, string password)
@@ -85,11 +85,11 @@ namespace Noteapp.Desktop.Networking
             request.Content = JsonContent.Create(new { email, password });
             var response = await SendRequest(request, false);
 
-            var loginResult = new LoginResult();
-            loginResult.ErrorMessage = response.ErrorMessage;
-            loginResult.UserInfoResponse = response.IsSuccess ?
+            var result = new LoginResult();
+            result.ErrorMessage = response.ErrorMessage;
+            result.UserInfoResponse = response.IsSuccess ?
                 response.Content.FromJson<UserInfoResponse>() : null;
-            return loginResult;
+            return result;
         }
 
         public async Task<bool> DeleteAccount()

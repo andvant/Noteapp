@@ -7,7 +7,7 @@ let SettingsView = { render, init }
 async function render() {
     let userInfo = AppData.getUserInfo();
     let email = userInfo.email ?? "Anonymous";
-    let registrationDate = Utils.dateToLocaleString(userInfo.registration_date) ?? "";
+    let registrationDate = Utils.dateToLocaleString(userInfo.registrationDate);
 
     return /*html*/ `
         <div class="secondary-view">

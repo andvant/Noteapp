@@ -1,6 +1,4 @@
-﻿using Noteapp.Desktop.Dtos;
-
-namespace Noteapp.Desktop.Networking
+﻿namespace Noteapp.Desktop.Dtos
 {
     public class LoginResult : BaseResponse
     {

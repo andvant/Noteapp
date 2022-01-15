@@ -1,4 +1,6 @@
-﻿namespace Noteapp.Desktop.Dtos
+﻿using System;
+
+namespace Noteapp.Desktop.Dtos
 {
-    public record UserInfoResponse(string access_token, string email, string encryption_salt, string registration_date);
+    public record UserInfoResponse(string AccessToken, string Email, string EncryptionSalt, DateTime RegistrationDate);
 }

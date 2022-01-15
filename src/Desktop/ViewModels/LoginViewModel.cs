@@ -34,18 +34,18 @@ namespace Noteapp.Desktop.ViewModels
         private async void Login()
         {
             OutputMessage = string.Empty;
-            var loginResult = await _apiService.Login(Email, Password);
-            if (loginResult.IsSuccess)
+            var result = await _apiService.Login(Email, Password);
+            if (result.IsSuccess)
             {
                 AppData.DeleteLocalData();
-                var userInfoResponse = loginResult.UserInfoResponse;
-                var encryptionKey = Protector.GenerateEncryptionKey(Password, userInfoResponse.encryption_salt);
+                var userInfoResponse = result.UserInfoResponse;
+                var encryptionKey = Protector.GenerateEncryptionKey(Password, userInfoResponse.EncryptionSalt);
                 await AppData.CreateAndSaveUserInfo(userInfoResponse, encryptionKey, StaySignedIn);
                 OutputMessage = "Successfully logged in";
             }
             else
             {
-                OutputMessage = $"Failed to log in: {loginResult.ErrorMessage}";
+                OutputMessage = $"Failed to log in: {result.ErrorMessage}";
             }
         }
 

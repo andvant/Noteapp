@@ -34,10 +34,10 @@ namespace Noteapp.Api.Controllers
 
             return Ok(new UserInfoResponse
             (
-                access_token: await _tokenService.GenerateToken(user.Email),
-                email: user.Email,
-                encryption_salt: user.EncryptionSalt,
-                registration_date: user.RegistrationDate
+                AccessToken: await _tokenService.GenerateToken(user.Email),
+                Email: user.Email,
+                EncryptionSalt: user.EncryptionSalt,
+                RegistrationDate: user.RegistrationDate
             ));
         }
 
