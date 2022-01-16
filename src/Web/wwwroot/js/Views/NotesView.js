@@ -135,10 +135,10 @@ async function init() {
     const syncStatus = document.getElementById('sync-status');
 
     addListeners();
+
     setNotes(AppData.readNotes());
     await listNotes();
-
-    setInterval(listNotes, Config.AUTO_RELISTING_MS);
+    enableAutoRelisting(Config.AUTO_RELISTING_MS);
 
     function addListeners() {
         listButton.addEventListener('click', listNotes);
@@ -214,7 +214,7 @@ async function init() {
         if (updatedNote != null) {
             updateNote(note, updatedNote);
         }
-        
+
         AppData.saveNotes(_notes);
         return updatedNote;
     }
@@ -694,6 +694,11 @@ async function init() {
     function getSyncStatus() {
         return _notesCurrentlyBeingSaved.size > 0 ? SyncStatus.Synchronizing
             : _notes.some(note => !note.synchronized) ? SyncStatus.NotSynchronized : SyncStatus.Synchronized;
+    }
+
+    function enableAutoRelisting(ms) {
+        clearInterval(window.autoRelistingInterval);
+        window.autoRelistingInterval = setInterval(listNotes, ms);
     }
 
     function Note(archived) {

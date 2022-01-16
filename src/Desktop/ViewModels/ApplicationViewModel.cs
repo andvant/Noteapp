@@ -41,8 +41,6 @@ namespace Noteapp.Desktop.ViewModels
             var notesVM = new NotesViewModel(apiService, configuration);
             var settingsVM = new SettingsViewModel(apiService);
 
-            EnableAutomaticRelisting(notesVM, configuration.AutoRelistingMs);
-
             Pages.AddRange(new IPage[] { registerVM, loginVM, notesVM, settingsVM });
             CurrentPage = notesVM;
 
@@ -62,14 +60,6 @@ namespace Noteapp.Desktop.ViewModels
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", false)
                 .Build();
-        }
-
-        private void EnableAutomaticRelisting(NotesViewModel notesVM, int ms)
-        {
-            var timer = new Timer(ms);
-            timer.Elapsed += (s, e) => notesVM.ListCommand.Execute(null);
-            timer.AutoReset = true;
-            timer.Enabled = true;
         }
     }
 }

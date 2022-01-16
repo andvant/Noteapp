@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 
@@ -26,6 +27,7 @@ namespace Noteapp.Desktop.ViewModels
 
         private readonly ApiService _apiService;
         private readonly Configuration _configuration;
+        private Timer _timer;
 
         private HashSet<Note> _notesCurrentlyBeingSaved = new();
 
@@ -159,6 +161,7 @@ namespace Noteapp.Desktop.ViewModels
             Notes = CreateNoteCollection(AppData.ReadNotes());
 
             RefreshPage();
+            EnableAutoRelisting(_configuration.AutoRelistingMs);
         }
 
         public void RefreshPage()
@@ -521,6 +524,14 @@ namespace Noteapp.Desktop.ViewModels
                     ChangeNote(localNote, newNote);
                 }
             }
+        }
+
+        private void EnableAutoRelisting(int ms)
+        {
+            _timer = new Timer(ms);
+            _timer.Elapsed += (s, e) => ListCommand.Execute(null);
+            _timer.AutoReset = true;
+            _timer.Enabled = true;
         }
     }
 }
