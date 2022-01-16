@@ -1,4 +1,4 @@
-﻿using Noteapp.Desktop.ViewModels;
+﻿using Noteapp.Desktop.Models;
 using System;
 using System.Globalization;
 using System.Windows.Data;

@@ -14,13 +14,6 @@ using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
 {
-    public enum SyncStatus
-    {
-        Synchronizing,
-        Synchronized,
-        NotSynchronized
-    }
-
     public class NotesViewModel : NotifyPropertyChanged, IPage
     {
         public string Name => PageNames.Notes;

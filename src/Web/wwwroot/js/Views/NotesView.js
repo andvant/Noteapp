@@ -20,7 +20,6 @@ const NotesSorting = Object.freeze({
     ByTextAscending: 4,
     ByTextDescending: 5
 });
-
 const SyncStatus = Object.freeze({
     Synchronizing: 0,
     Synchronized: 1,

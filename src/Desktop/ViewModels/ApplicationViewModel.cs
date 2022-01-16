@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Timers;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
