@@ -42,15 +42,11 @@ namespace Noteapp.Api
             services.AddDbContext<ApplicationContext>(options =>
             {
                 options.UseSqlite(Configuration.GetConnectionString("App"));
-                //options.UseInMemoryDatabase("App");
-                //// to allow using in-memory database which doesn't support transactions:
-                //options.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             });
 
             services.AddDbContext<IdentityContext>(options =>
             {
                 options.UseSqlite(Configuration.GetConnectionString("Identity"));
-                //options.UseInMemoryDatabase("Identity");
             });
 
             services.AddIdentity<AppUserIdentity, IdentityRole>(options =>
@@ -64,13 +60,14 @@ namespace Noteapp.Api
             })
                 .AddEntityFrameworkStores<IdentityContext>();
 
-            services.AddTransient<IDateTimeProvider, DateTimeProvider>();
-            services.AddTransient<INoteRepository, EfNoteRepository>();
-            services.AddTransient<IAppUserRepository, EfAppUserRepository>();
-            services.AddTransient<NoteService>();
-            services.AddTransient<AppUserService>();
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<ITokenService, TokenService>();
+            // adding core services
+            services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+            services.AddScoped<INoteRepository, EfNoteRepository>();
+            services.AddScoped<IAppUserRepository, EfAppUserRepository>();
+            services.AddScoped<NoteService>();
+            services.AddScoped<AppUserService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITokenService, TokenService>();
 
             services.Configure<JwtSettings>(Configuration.GetSection(nameof(JwtSettings)));
 
@@ -115,8 +112,6 @@ namespace Noteapp.Api
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Noteapp.Api v1"));
             }
-
-            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
