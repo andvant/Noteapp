@@ -25,9 +25,8 @@ namespace Noteapp.Desktop.ViewModels
         public string Name => PageNames.Notes;
 
         private readonly ApiService _apiService;
-        private string _webBaseUrl;
+        private readonly Configuration _configuration;
 
-        private const int SAVE_DELAY_MS = 1000;
         private HashSet<Note> _notesCurrentlyBeingSaved = new();
 
         public ObservableCollection<Note> Notes
@@ -132,10 +131,10 @@ namespace Noteapp.Desktop.ViewModels
         public ICommand ToggleShowArchivedCommand { get; }
         public ICommand SaveAfterDelayCommand { get; }
 
-        public NotesViewModel(ApiService apiService, string webBaseUrl)
+        public NotesViewModel(ApiService apiService, Configuration configuration)
         {
             _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
-            _webBaseUrl = webBaseUrl;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
             ListCommand = new RelayCommand(async () => await List());
             CreateCommand = new RelayCommand(Create);
@@ -218,7 +217,7 @@ namespace Noteapp.Desktop.ViewModels
                 _notesCurrentlyBeingSaved.Add(note);
                 OnPropertyChanged(nameof(SyncStatus));
 
-                await Task.Delay(SAVE_DELAY_MS);
+                await Task.Delay(_configuration.SaveDelayMs);
                 await Save(note);
 
                 _notesCurrentlyBeingSaved.Remove(note);
@@ -298,7 +297,7 @@ namespace Noteapp.Desktop.ViewModels
         {
             if (SelectedNote?.PublicUrl != null)
             {
-                Clipboard.SetText($"{_webBaseUrl}p/{SelectedNote.PublicUrl}");
+                Clipboard.SetText($"{_configuration.WebBaseUrl}p/{SelectedNote.PublicUrl}");
             }
         }
 

@@ -1,7 +1,6 @@
-﻿using Noteapp.Desktop.Models;
-using System;
+﻿using System;
 
-namespace Noteapp.Desktop.LocalData
+namespace Noteapp.Desktop.Models
 {
     public class UserInfo
     {

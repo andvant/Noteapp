@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using Noteapp.Desktop.Dtos;
 using Noteapp.Desktop.Extensions;
-using Noteapp.Desktop.LocalData;
 using Noteapp.Desktop.Models;
 using System;
 using System.Collections.Generic;
@@ -13,12 +12,8 @@ namespace Noteapp.Desktop.Data
 {
     public static class AppData
     {
-        private static readonly string _userInfoPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            "noteapp_userinfo.json");
-
-        private static readonly string _notesPath = "notes.json";
-
+        private const string _userInfoPath = "userinfo.json";
+        private const string _notesPath = "notes.json";
         private static bool _isPersisted = true;
 
         public static ObservableCollection<Note> Notes { get; set; }

@@ -138,7 +138,7 @@ async function init() {
     setNotes(AppData.readNotes());
     await listNotes();
 
-    setInterval(listNotes, 5000);
+    setInterval(listNotes, Config.AUTO_RELISTING_MS);
 
     function addListeners() {
         listButton.addEventListener('click', listNotes);

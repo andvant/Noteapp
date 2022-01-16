@@ -27,21 +27,21 @@ namespace Noteapp.Desktop.ViewModels
         public ApplicationViewModel()
         {
             AppData.LoadUserInfoToMemory();
-            var configuration = CreateConfiguration();
+            var configuration = CreateConfiguration().Get<Configuration>();
 
             var httpClient = new HttpClient()
             {
-                BaseAddress = new Uri(configuration["ApiBaseUrl"])
+                BaseAddress = new Uri(configuration.ApiBaseUrl)
             };
 
             var apiService = new ApiService(httpClient);
 
             var registerVM = new RegisterViewModel(apiService);
             var loginVM = new LoginViewModel(apiService);
-            var notesVM = new NotesViewModel(apiService, configuration["WebBaseUrl"]);
+            var notesVM = new NotesViewModel(apiService, configuration);
             var settingsVM = new SettingsViewModel(apiService);
 
-            EnableAutomaticRelisting(notesVM, 5000);
+            EnableAutomaticRelisting(notesVM, configuration.AutoRelistingMs);
 
             Pages.AddRange(new IPage[] { registerVM, loginVM, notesVM, settingsVM });
             CurrentPage = notesVM;
