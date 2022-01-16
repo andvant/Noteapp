@@ -159,6 +159,7 @@ namespace Noteapp.Desktop.ViewModels
 
         public void RefreshPage()
         {
+            SelectedNote = null;
             ListCommand.Execute(null);
         }
 
@@ -169,6 +170,8 @@ namespace Noteapp.Desktop.ViewModels
             if (notes != null)
             {
                 await SynchronizeNotes(notes);
+                OnPropertyChanged(nameof(ShownNotes));
+                OnPropertyChanged(nameof(SyncStatus));
                 SelectFirstNote();
             }
         }
@@ -449,7 +452,6 @@ namespace Noteapp.Desktop.ViewModels
             }
 
             await AppData.SaveNotes();
-            OnPropertyChanged(nameof(ShownNotes));
         }
 
         private async Task SynchronizeJoinedNote((Note local, Note fetched) note)

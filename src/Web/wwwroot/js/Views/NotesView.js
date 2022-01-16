@@ -185,6 +185,7 @@ async function init() {
         let notes = await ApiService.getNotes();
         if (notes != null) {
             await synchronizeNotes(notes);
+            updateSyncStatus();
             selectFirstNote();
         }
     }
