@@ -354,16 +354,24 @@ async function init() {
     }
 
     function updateSyncStatus() {
-        let status;
+        let text;
+        let color;
         switch (getSyncStatus()) {
             case SyncStatus.Synchronizing:
-                status = 'Synchronizing...'; break;
+                text = 'Synchronizing...';
+                color = '#555';
+                break;
             case SyncStatus.Synchronized:
-                status = 'All notes are synchronized'; break;
+                text = 'All notes synchronized';
+                color = '#4a4';
+                break;
             case SyncStatus.NotSynchronized:
-                status = 'Synchronization failed (changes saved locally)'; break;
+                text = 'Synchronization failed (changes saved locally)';
+                color = '#e44';
+                break;
         }
-        syncStatus.textContent = status;
+        syncStatus.style.color = color;
+        syncStatus.textContent = text;
     }
 
     function setSelectedNoteCheckboxes() {

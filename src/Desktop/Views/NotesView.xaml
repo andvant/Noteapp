@@ -3,16 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Noteapp.Desktop.Views"
         xmlns:converters="clr-namespace:Noteapp.Desktop.Converters"
-        xmlns:vm="clr-namespace:Noteapp.Desktop.ViewModels"
         xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d">
     <UserControl.Resources>
         <converters:DateTimeToStringConverter x:Key="DateTimeConverter" />
         <converters:BoolToVisibilityConverter x:Key="VisibilityConverter" />
         <converters:ArchivedButtonStyleConverter x:Key="ArchivedButtonStyleConverter" />
-        <converters:SyncStatusConverter x:Key="SyncStatusConverter" />
+        <converters:SyncStatusStyleConverter x:Key="SyncStatusStyleConverter" />
     </UserControl.Resources>
 
     <DockPanel>
@@ -81,7 +79,8 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="47" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding SyncStatus, Converter={StaticResource SyncStatusConverter}}"/>
+                <TextBlock Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,25,0"
+                           Style="{Binding SyncStatus, Converter={StaticResource SyncStatusStyleConverter}}" />
                 <Menu Grid.Column="1" Margin="0,10,10,0">
                     <MenuItem Style="{StaticResource ActionMenu}">
                         <MenuItem.Header>

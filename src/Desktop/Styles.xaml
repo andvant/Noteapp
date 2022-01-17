@@ -14,6 +14,9 @@
     <SolidColorBrush x:Key="NoteLockedFlagColor" Color="#f6a200" />
     <SolidColorBrush x:Key="NoteArchivedFlagColor" Color="#989898" />
     <SolidColorBrush x:Key="NotePublishedFlagColor" Color="#de0231" />
+    <SolidColorBrush x:Key="SynchronizingColor" Color="#555" />
+    <SolidColorBrush x:Key="SynchronizedColor" Color="#4a4" />
+    <SolidColorBrush x:Key="NotSynchronizedColor" Color="#e44" />
 
     <Style x:Key="BaseStyle" TargetType="{x:Type Control}">
         <Setter Property="FontFamily" Value="Cambria" />
@@ -129,6 +132,23 @@
     </Style>
 
     <Style x:Key="ArchivedButtonNormal" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}" />
+
+    <Style x:Key="SyncStatusBaseStyle" TargetType="{x:Type TextBlock}" >
+        <Setter Property="FontFamily" Value="Cambria" />
+        <Setter Property="FontSize" Value="17" />
+    </Style>
+    <Style x:Key="SyncStatusSynchronizing" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SyncStatusBaseStyle}">
+        <Setter Property="Text" Value="Synchronizing..." />
+        <Setter Property="Foreground" Value="{StaticResource SynchronizingColor}" />
+    </Style>
+    <Style x:Key="SyncStatusSynchronized" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SyncStatusBaseStyle}">
+        <Setter Property="Text" Value="All notes synchronized" />
+        <Setter Property="Foreground" Value="{StaticResource SynchronizedColor}" />
+    </Style>
+    <Style x:Key="SyncStatusNotSynchronized" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SyncStatusBaseStyle}">
+        <Setter Property="Text" Value="Synchronization failed (changes saved locally)" />
+        <Setter Property="Foreground" Value="{StaticResource NotSynchronizedColor}" />
+    </Style>
 
     <Style x:Key="BigButton" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Width"  Value="190" />
