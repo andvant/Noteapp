@@ -27,6 +27,7 @@
 
     <Style x:Key="BigLabel" TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Label}}">
         <Setter Property="FontSize" Value="22" />
+        <Setter Property="Margin" Value="0,20" />
     </Style>
 
     <Style x:Key="NoteFlag" TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Label}}">
@@ -47,7 +48,7 @@
     <Style x:Key="CredentialsInput" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
         <Setter Property="Width" Value="420" />
         <Setter Property="Height" Value="50" />
-        <Setter Property="Margin" Value="0,45" />
+        <Setter Property="Margin" Value="0,20" />
         <Setter Property="Padding" Value="6" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
@@ -133,6 +134,7 @@
         <Setter Property="Width"  Value="190" />
         <Setter Property="Height" Value="48" />
         <Setter Property="FontSize" Value="24" />
+        <Setter Property="Margin" Value="0,20" />
     </Style>
 
     <Style x:Key="ActionMenu" TargetType="{x:Type MenuItem}" BasedOn="{StaticResource BaseStyle}">

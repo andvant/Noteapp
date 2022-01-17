@@ -77,7 +77,9 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 60px;
-    justify-content: space-around;
+    justify-content: space-between;
+    padding-left: 30px;
+    padding-right: 30px;
     background-color: var(--app-bg-color);
     border-bottom: var(--border);
 }
@@ -314,11 +316,11 @@ body {
 /* Login, Register & Settings views */
 .secondary-view {
     margin: auto;
-    width: 30%;
+    width: 400px;
     height: 70%;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
     background-color: var(--app-bg-color);
 }
@@ -328,11 +330,28 @@ body {
 }
 
 .secondary-view * {
-    font-size: 26px;
+    font-size: 24px;
     padding: 8px;
+}
+
+.secondary-view>* {
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .btn-lg {
     width: 200px;
     height: 50px;
+}
+
+#stay-signed-in {
+    width: 18px;
+    height: 18px;
+}
+
+.settings-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
 }

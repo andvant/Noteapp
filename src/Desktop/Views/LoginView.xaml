@@ -40,14 +40,14 @@
                 </TextBlock>
             </Grid>
 
-            <StackPanel Orientation="Horizontal" Margin="0,40" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Label Content="Stay signed in" HorizontalAlignment="Left" Style="{StaticResource BigLabel}"/>
                 <CheckBox IsChecked="{Binding StaySignedIn}" HorizontalAlignment="Right"/>
             </StackPanel>
             
-            <Button Command="{Binding LoginCommand}" Content="Log in" Margin="0,45" Style="{StaticResource BigButton}"/>
+            <Button Command="{Binding LoginCommand}" Content="Log in" Style="{StaticResource BigButton}"/>
 
-            <Label Content="{Binding OutputMessage}" />
+            <Label Content="{Binding OutputMessage}" Style="{StaticResource BigLabel}"/>
         </StackPanel>
     </ContentControl>
 </UserControl>

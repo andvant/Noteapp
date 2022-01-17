@@ -11,8 +11,12 @@ async function render() {
 
     return /*html*/ `
         <div class="secondary-view">
-            <label>Email: ${email}</label>
-            <label>Registration date: ${registrationDate}</label>
+            <div class="settings-row">
+                <label>Email</label><label>${email}</label>
+            </div>
+            <div class="settings-row">
+                <label>Registration date</label><label>${registrationDate}</label>
+            </div>
             <div id="logout-button" class="btn btn-lg">Log out</div>
             <div id="delete-account-button" class="btn btn-lg">Delete account</div>
             <div id="output-message"></div>

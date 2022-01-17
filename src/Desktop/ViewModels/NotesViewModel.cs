@@ -155,12 +155,6 @@ namespace Noteapp.Desktop.ViewModels
             EnableAutoRelisting(_configuration.AutoRelistingMs);
         }
 
-        public void RefreshPage()
-        {
-            SelectedNote = null;
-            ListCommand.Execute(null);
-        }
-
         private async Task List()
         {
             SelectFirstNote();
@@ -519,10 +513,16 @@ namespace Noteapp.Desktop.ViewModels
             }
         }
 
+        public void RefreshPage()
+        {
+            SelectedNote = null;
+            List();
+        }
+
         private void EnableAutoRelisting(int ms)
         {
             _timer = new Timer(ms);
-            _timer.Elapsed += (s, e) => ListCommand.Execute(null);
+            _timer.Elapsed += (s, e) => List();
             _timer.AutoReset = true;
             _timer.Enabled = true;
         }

@@ -40,9 +40,9 @@
                 </TextBlock>
             </Grid>
 
-            <Button Command="{Binding RegisterCommand}" Content="Register" Style="{StaticResource BigButton}" Margin="0,45" />
+            <Button Command="{Binding RegisterCommand}" Content="Register" Style="{StaticResource BigButton}" />
 
-            <Label Content="{Binding OutputMessage}" />
+            <Label Content="{Binding OutputMessage}" Style="{StaticResource BigLabel}"/>
         </StackPanel>
     </ContentControl>
 </UserControl>

@@ -20,9 +20,10 @@
             <!--Note commands-->
             <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" DockPanel.Dock="Top">
                 <StackPanel Orientation="Horizontal" Height="60" HorizontalAlignment="Center">
-                    <Button Content="Archived" Command="{Binding ToggleShowArchivedCommand}" Margin="12, 0"
+                    <Button Content="Archived" Command="{Binding ToggleShowArchivedCommand}"
                             Style="{Binding ShowArchived, Converter={StaticResource ArchivedButtonStyleConverter}}"/>
-                    <Button Command="{Binding CreateCommand}" Content="+" Margin="12, 0"/>
+                    <Separator Width="120" Background="Transparent"/>
+                    <Button Command="{Binding CreateCommand}" Content="+" />
                 </StackPanel>
             </Border>
 

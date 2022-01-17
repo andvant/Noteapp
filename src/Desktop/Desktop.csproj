@@ -8,6 +8,7 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Version>0.1.0</Version>
     <AssemblyName>Noteapp</AssemblyName>
+    <NoWarn>CS4014</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

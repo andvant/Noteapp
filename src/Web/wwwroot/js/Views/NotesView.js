@@ -82,7 +82,7 @@ async function render() {
                     </div>
 
                     <div id="selected-note-text">
-                        <textarea id="note-text" placeholder="New note..."></textarea>
+                        <textarea id="note-text" placeholder="New note..." spellcheck="false"></textarea>
                     </div>
 
                 </div>
@@ -464,7 +464,7 @@ async function init() {
     }
 
     async function restoreSnapshot() {
-        setTextElementValue(_snapshots[historySlider.value].text);
+        updateSelectedNoteText();
         await saveNote(_selectedNote);
         historyDiv.classList.remove('show');
         _oldNoteText = null;
