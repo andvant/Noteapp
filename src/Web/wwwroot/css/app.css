@@ -146,17 +146,12 @@ body {
     border-bottom: var(--border);
 }
 
-#save-button-div {
+#sync-status-div {
     display: flex;
     flex-grow: 1;
     justify-content: center;
     align-items: center;
     flex-basis: 100px;
-}
-
-#save-button {
-    width: 120px;
-    height: 35px;
 }
 
 #selected-note-menu {

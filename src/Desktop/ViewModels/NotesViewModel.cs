@@ -131,9 +131,7 @@ namespace Noteapp.Desktop.ViewModels
             _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
-            ListCommand = new RelayCommand(async () => await List());
             CreateCommand = new RelayCommand(Create);
-            SaveCommand = new RelayCommand(async () => await Save(SelectedNote), CanSave);
             DeleteCommand = new RelayCommand(Delete);
             ToggleLockedCommand = new RelayCommand(ToggleLocked);
             ToggleArchivedCommand = new RelayCommand(ToggleArchived);

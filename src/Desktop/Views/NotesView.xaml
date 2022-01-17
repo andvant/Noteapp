@@ -23,7 +23,6 @@
                     <Button Content="Archived" Command="{Binding ToggleShowArchivedCommand}" Margin="12, 0"
                             Style="{Binding ShowArchived, Converter={StaticResource ArchivedButtonStyleConverter}}"/>
                     <Button Command="{Binding CreateCommand}" Content="+" Margin="12, 0"/>
-                    <Button Command="{Binding ListCommand}" Content="List" Margin="12, 0"/>
                 </StackPanel>
             </Border>
 

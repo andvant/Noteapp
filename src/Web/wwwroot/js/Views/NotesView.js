@@ -34,7 +34,6 @@ async function render() {
                 <div id="notes-actions">
                     <div id="toggle-show-archived-button" class="btn">Archived</div>
                     <div id="new-button" class="btn">+</div>
-                    <div id="list-button" class="btn">List</div>
                 </div>
 
                 <div id="notes-sort">
@@ -51,9 +50,8 @@ async function render() {
 
                 <div id="selected-note">
                     <div id="selected-note-actions">
-                        <div id="save-button-div">
+                        <div id="sync-status-div">
                             <div id="sync-status"></div>
-                            <!--<div id="save-button" class="btn">Save</div>-->
                         </div>
 
                         <div id="selected-note-menu">
@@ -103,9 +101,7 @@ async function render() {
 
 async function init() {
 
-    const listButton = document.getElementById('list-button');
     const newButton = document.getElementById('new-button');
-    //const saveButton = document.getElementById('save-button');
     const deleteButton = document.getElementById('delete-button');
     const pinButton = document.getElementById('pin-button');
     const lockButton = document.getElementById('lock-button');
@@ -140,9 +136,7 @@ async function init() {
     enableAutoRelisting(Config.AUTO_RELISTING_MS);
 
     function addListeners() {
-        listButton.addEventListener('click', listNotes);
         newButton.addEventListener('click', createNote);
-        //saveButton.addEventListener('click', async () => { if (canSave()) await saveNote(_selectedNote); });
         deleteButton.addEventListener('click', deleteNote);
         lockButton.addEventListener('change', toggleLocked);
         archiveButton.addEventListener('change', toggleArchived);
@@ -357,7 +351,6 @@ async function init() {
 
     function makeSelectedNoteReadOnly() {
         noteTextElement.readOnly = _selectedNote?.locked ?? false;
-        //saveButton.disabled = _selectedNote?.locked ?? false;
     }
 
     function updateSyncStatus() {
