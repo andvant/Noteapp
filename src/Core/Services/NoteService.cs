@@ -87,7 +87,7 @@ namespace Noteapp.Core.Services
         public async Task<string> GetPublishedNoteText(string url)
         {
             var note = await _repository.FindByPublicUrl(url);
-            return note?.Text ?? throw new NoteNotFoundException(url);
+            return note?.Text ?? throw new NoteNotFoundException();
         }
 
         public async Task<IEnumerable<NoteSnapshot>> GetAllSnapshots(int userId, int noteId)

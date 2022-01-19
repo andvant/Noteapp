@@ -14,7 +14,7 @@ namespace Noteapp.Api.Filters
 
             switch (context.Exception)
             {
-                case NoteNotFoundException or SnapshotNotFoundException:
+                case NoteNotFoundException:
                     context.Result = new NotFoundObjectResult(error);
                     break;
                 case NoteLockedException:

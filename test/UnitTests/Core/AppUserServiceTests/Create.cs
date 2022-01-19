@@ -38,7 +38,7 @@ namespace Noteapp.UnitTests.Core.AppUserServiceTests
         }
 
         [Fact]
-        public async Task ThrowGivenInvalidEmail()
+        public async Task ThrowsGivenInvalidEmail()
         {
             // Arrange
             var appUserService = new AppUserService(_mock.Object, _dateTimeProvider);
@@ -52,7 +52,7 @@ namespace Noteapp.UnitTests.Core.AppUserServiceTests
         }
 
         [Fact]
-        public async Task ThrowGivenTakenEmail()
+        public async Task ThrowsGivenTakenEmail()
         {
             // Arrange
             _mock.Setup(repo => repo.FindByEmail("taken@email.com")).ReturnsAsync(new AppUser());

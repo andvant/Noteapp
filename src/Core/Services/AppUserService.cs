@@ -55,12 +55,12 @@ namespace Noteapp.Core.Services
         {
             if (!new EmailAddressAttribute().IsValid(email))
             {
-                throw new UserRegistrationException("Provided email is invalid.");
+                throw new UserRegistrationException("Provided email is invalid");
             }
 
             if (await _repository.FindByEmail(email) != null)
             {
-                throw new UserRegistrationException("Provided email is already taken.");
+                throw new UserRegistrationException("Provided email is already taken");
             }
         }
 

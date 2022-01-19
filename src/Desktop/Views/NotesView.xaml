@@ -70,7 +70,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </DockPanel>
-        
+
         <!--Selected note-->
         <DockPanel>
             <!--Note menu-->
@@ -98,7 +98,7 @@
                     </MenuItem>
                 </Menu>
             </Grid>
-            
+
             <!--Note history-->
             <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}" 
                     DockPanel.Dock="Bottom" Height="200"
@@ -115,10 +115,10 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
-            
+
 
             <!--Note text-->
-            <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}"> 
+            <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderColor}">
                 <TextBox Text="{Binding SelectedNote.Text, UpdateSourceTrigger=PropertyChanged}"
                          IsReadOnly="{Binding SelectedNote.Locked}" Style="{StaticResource SelectedNoteText}">
                     <behaviors:Interaction.Triggers>
@@ -128,10 +128,7 @@
                     </behaviors:Interaction.Triggers>
                 </TextBox>
             </Border>
-            
+
         </DockPanel>
     </DockPanel>
-
-
-
 </UserControl>

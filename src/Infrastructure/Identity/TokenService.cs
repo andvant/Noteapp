@@ -19,9 +19,9 @@ namespace Noteapp.Infrastructure.Identity
         public TokenService(AppUserService appUserService, IOptions<JwtSettings> jwtSettings,
             IDateTimeProvider dateTimeProvider)
         {
-            _appUserService = appUserService;
+            _appUserService = appUserService ?? throw new ArgumentNullException(nameof(appUserService));
+            _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
             _jwtSettings = jwtSettings.Value;
-            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<string> GenerateToken(string userEmail)

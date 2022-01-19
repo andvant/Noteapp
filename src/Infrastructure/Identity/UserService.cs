@@ -3,6 +3,7 @@ using Noteapp.Core.Entities;
 using Noteapp.Core.Exceptions;
 using Noteapp.Core.Interfaces;
 using Noteapp.Core.Services;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,8 +16,8 @@ namespace Noteapp.Infrastructure.Identity
 
         public UserService(AppUserService appUserService, UserManager<AppUserIdentity> userManager)
         {
-            _appUserService = appUserService;
-            _userManager = userManager;
+            _appUserService = appUserService ?? throw new ArgumentNullException(nameof(appUserService));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         // Creates both AppUserIdentity (only identity-related functionality) and AppUser (domain entity) with the same email

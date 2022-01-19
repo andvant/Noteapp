@@ -2,7 +2,7 @@
 {
     public class CredentialsNotValidException : NoteappException
     {
-        public CredentialsNotValidException() : base($"Credentials not valid.")
+        public CredentialsNotValidException() : base($"Credentials not valid")
         {
         }
     }
