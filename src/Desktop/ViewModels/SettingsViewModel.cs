@@ -16,11 +16,11 @@ namespace Noteapp.Desktop.ViewModels
         public bool EncryptionEnabled => AppData.UserInfo.EncryptionEnabled;
         public DateTime? RegistrationDate => AppData.UserInfo.RegistrationDate;
 
-        private string _output;
+        private string _outputMessage;
         public string OutputMessage
         {
-            get => _output;
-            set => Set(ref _output, value);
+            get => _outputMessage;
+            set => Set(ref _outputMessage, value);
         }
 
         public ICommand LogoutCommand { get; }

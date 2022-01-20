@@ -14,11 +14,11 @@ namespace Noteapp.Desktop.ViewModels
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
 
-        private string _registerResult;
+        private string _outputMessage;
         public string OutputMessage
         {
-            get => _registerResult;
-            set => Set(ref _registerResult, value);
+            get => _outputMessage;
+            set => Set(ref _outputMessage, value);
         }
 
         public ICommand RegisterCommand { get; }
@@ -46,6 +46,8 @@ namespace Noteapp.Desktop.ViewModels
         public void RefreshPage()
         {
             OutputMessage = string.Empty;
+            Email = string.Empty;
+            Password = string.Empty;
         }
     }
 }

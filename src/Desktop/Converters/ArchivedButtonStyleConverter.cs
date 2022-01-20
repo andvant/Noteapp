@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace Noteapp.Desktop.Converters
 {
-    internal class ArchivedButtonStyleConverter : IValueConverter
+    public class ArchivedButtonStyleConverter : IValueConverter
     {
         public object Convert(object showArchived, Type targetType, object parameter, CultureInfo culture)
         {

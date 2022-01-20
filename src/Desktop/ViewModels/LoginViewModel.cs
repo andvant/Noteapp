@@ -17,11 +17,11 @@ namespace Noteapp.Desktop.ViewModels
         public string Password { get; set; } = string.Empty;
         public bool StaySignedIn { get; set; } = true;
 
-        private string _loginResult;
+        private string _outputMessage;
         public string OutputMessage
         {
-            get => _loginResult;
-            set => Set(ref _loginResult, value);
+            get => _outputMessage;
+            set => Set(ref _outputMessage, value);
         }
 
         public ICommand LoginCommand { get; }
@@ -55,6 +55,8 @@ namespace Noteapp.Desktop.ViewModels
         public void RefreshPage()
         {
             OutputMessage = string.Empty;
+            Email = string.Empty;
+            Password = string.Empty;
         }
     }
 }

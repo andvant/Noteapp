@@ -6,7 +6,7 @@ using System.Windows.Data;
 
 namespace Noteapp.Desktop.Converters
 {
-    internal class SyncStatusStyleConverter : IValueConverter
+    public class SyncStatusStyleConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

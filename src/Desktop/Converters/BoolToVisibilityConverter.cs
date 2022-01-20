@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace Noteapp.Desktop.Converters
 {
-    internal class BoolToVisibilityConverter : IValueConverter
+    public class BoolToVisibilityConverter : IValueConverter
     {
         public object Convert(object visible, Type targetType, object parameter, CultureInfo culture)
         {
