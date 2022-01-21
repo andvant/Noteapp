@@ -6,7 +6,6 @@ let ApiService = {
     createNote,
     updateNote,
     deleteNote,
-    bulkCreateNotes,
     getAllSnapshots,
     login,
     register,
@@ -30,12 +29,6 @@ async function createNote(note) {
     let body = JSON.stringify(new NoteRequest(note));
     let response = await sendRequest("notes", "POST", headers, body);
     return await getNoteFromResponse(response);
-}
-
-async function bulkCreateNotes(notes) {
-    let headers = { "Content-Type": "application/json" };
-    let body = JSON.stringify(notes.map(note => new NoteRequest(note)));
-    return (await sendRequest("notes/bulk", "POST", headers, body)).isSuccess();
 }
 
 async function updateNote(note) {

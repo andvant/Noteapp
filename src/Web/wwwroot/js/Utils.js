@@ -1,6 +1,7 @@
 let Utils = {
     generateUniqueId,
-    dateToLocaleString
+    dateToLocaleString,
+    delay
 }
 
 function generateUniqueId()
@@ -25,6 +26,10 @@ function dateToLocaleString(date) {
         return datetime.toLocaleString({}, options);
     }
     return "-";
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export default Utils;

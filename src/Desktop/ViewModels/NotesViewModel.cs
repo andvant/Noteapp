@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 
@@ -20,7 +19,6 @@ namespace Noteapp.Desktop.ViewModels
 
         private readonly ApiService _apiService;
         private readonly Configuration _configuration;
-        private Timer _timer;
 
         private HashSet<Note> _notesCurrentlyBeingSaved = new();
 
@@ -106,9 +104,7 @@ namespace Noteapp.Desktop.ViewModels
         public string CurrentSnapshotText => Snapshots?[CurrentSnapshotIndex]?.Text;
         public DateTime? CurrentSnapshotDate => Snapshots?[CurrentSnapshotIndex]?.Created;
 
-        public ICommand ListCommand { get; }
         public ICommand CreateCommand { get; }
-        public ICommand SaveCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand ToggleLockedCommand { get; }
         public ICommand ToggleArchivedCommand { get; }
@@ -503,8 +499,7 @@ namespace Noteapp.Desktop.ViewModels
             else
             {
                 // note was never sent to the server, or changes made locally were not synchronized
-                // before the note was deleted on the server.
-                // send a request to create a new note with local note's text
+                // before the note was deleted on the server. send a request to create a new note
                 var newNote = await _apiService.CreateNote(localNote);
                 if (newNote != null)
                 {
@@ -515,16 +510,19 @@ namespace Noteapp.Desktop.ViewModels
 
         public void RefreshPage()
         {
-            SelectedNote = null;
-            List();
+            SelectedNote = ShownNotes.FirstOrDefault();
         }
 
         private void EnableAutoRelisting(int ms)
         {
-            _timer = new Timer(ms);
-            _timer.Elapsed += (s, e) => List();
-            _timer.AutoReset = true;
-            _timer.Enabled = true;
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(ms);
+                    await List();
+                }
+            });
         }
     }
 }

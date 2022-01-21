@@ -220,15 +220,11 @@ async function init() {
             _notesCurrentlyBeingSaved.add(note);
             updateSyncStatus();
 
-            await delay(Config.SAVE_DELAY_MS);
+            await Utils.delay(Config.SAVE_DELAY_MS);
             await saveNote(note);
 
             _notesCurrentlyBeingSaved.delete(note);
             updateSyncStatus();
-        }
-
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
         }
     }
 
@@ -375,10 +371,10 @@ async function init() {
     }
 
     function setSelectedNoteCheckboxes() {
-        document.getElementById("pin-button").checked = _selectedNote?.pinned ?? false;
-        document.getElementById("lock-button").checked = _selectedNote?.locked ?? false;
-        document.getElementById("archive-button").checked = _selectedNote?.archived ?? false;
-        document.getElementById("publish-button").checked = _selectedNote?.published ?? false;
+        pinButton.checked = _selectedNote?.pinned ?? false;
+        lockButton.checked = _selectedNote?.locked ?? false;
+        archiveButton.checked = _selectedNote?.archived ?? false;
+        publishButton.checked = _selectedNote?.published ?? false;
     }
 
     function createNoteHtml(note) {
@@ -536,10 +532,7 @@ async function init() {
 
             setNotes(_notes.concat(importedNotes));
             AppData.saveNotes(_notes);
-
-            if (await ApiService.bulkCreateNotes(importedNotes)) {
-                await listNotes();
-            }
+            await listNotes();
         }
     }
 
@@ -660,8 +653,7 @@ async function init() {
         else
         {
             // note was never sent to the server, or changes made locally were not synchronized
-            // before the note was deleted on the server.
-            // send a request to create a new note with local note's text
+            // before the note was deleted on the server. send a request to create a new note
             let newNote = await ApiService.createNote(localNote);
             if (newNote != null)
             {
@@ -697,9 +689,11 @@ async function init() {
             : _notes.some(note => !note.synchronized) ? SyncStatus.NotSynchronized : SyncStatus.Synchronized;
     }
 
-    function enableAutoRelisting(ms) {
-        clearInterval(window.autoRelistingInterval);
-        window.autoRelistingInterval = setInterval(listNotes, ms);
+    async function enableAutoRelisting(ms) {
+        while (true) {
+            await Utils.delay(ms);
+            await listNotes();
+        }
     }
 
     function Note(archived) {

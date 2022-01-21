@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Reflection;
 using System.Windows.Input;
 
 namespace Noteapp.Desktop.ViewModels
@@ -56,7 +57,7 @@ namespace Noteapp.Desktop.ViewModels
         private IConfiguration CreateConfiguration()
         {
             return new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
                 .AddJsonFile("appsettings.json", false)
                 .Build();
         }

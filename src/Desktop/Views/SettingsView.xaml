@@ -13,7 +13,7 @@
     <ContentControl>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical" >
 
-            <Grid HorizontalAlignment="Center" Width="400">
+            <Grid HorizontalAlignment="Center" Width="500">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>

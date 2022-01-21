@@ -34,22 +34,6 @@ namespace Noteapp.Desktop.Networking
             return await SendRequestAndReadNoteFromResponse(request, note);
         }
 
-        public async Task<bool> BulkCreateNotes(IEnumerable<Note> notes)
-        {
-            var noteRequests = new List<NoteRequest>();
-
-            foreach (var note in notes)
-            {
-                var noteRequest = new NoteRequest(note);
-                noteRequest.Text = await Protector.TryEncrypt(noteRequest.Text);
-                noteRequests.Add(noteRequest);
-            }
-
-            var request = new HttpRequestMessage(HttpMethod.Post, "notes/bulk");
-            request.Content = JsonContent.Create(noteRequests);
-            return (await SendRequest(request)).IsSuccess;
-        }
-
         public async Task<Note> UpdateNote(Note note)
         {
             var request = new HttpRequestMessage(HttpMethod.Put, $"notes/{note.Id}");
